@@ -1,11 +1,16 @@
 " Always show line numbers
 set number
 set updatetime=300
+set splitbelow
+set splitright
+let mapleader =" "
 " Setup Plugins through vim-plug
 call plug#begin('~/.vim/plugged')
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'christoomey/vim-tmux-navigator' 
+Plug 'benmills/vimux'
 Plug 'preservim/nerdtree'
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-surround'
@@ -17,6 +22,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 " End Plugin setup
 
+" ==One Half== "
 syntax on
 set t_Co=256
 set cursorline
@@ -65,7 +71,7 @@ inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 " Use `:Format` to format current buffer
 " command! -nargs=0 Format :call CocAction('format')
 " Use Ctrl-S-F to run linter
-nnoremap <C-S-F> :CocCommand eslint.executeAutofix<CR>
+nnoremap <leader><C-F> :CocCommand eslint.executeAutofix<CR>
 " Use `[g` and `]g` to navigate diagnostics
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
@@ -83,13 +89,38 @@ map <C-n> :NERDTreeToggle<CR>
 " fuzzy search
 nnoremap <C-p> :Files<CR>
 " Remap split navigation
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
 
 " Remap sizing
+nnoremap <silent> vv <C-w>v
 noremap <C-w>+ :resize +10<CR>
 noremap <C-w>- :resize -10<CR>
 noremap <C-w>> :vertical:resize -10<CR>
 noremap <C-w>< :vertical:resize +10<CR>
+
+" == Tmux == "
+map <Leader><S-T> :VimuxPromptCommand<CR>
+
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+  "tnoremap <M-[> <Esc>
+  " Terminal mode:
+  tnoremap <C-h> <c-\><c-n><c-w>h
+  tnoremap <C-j> <c-\><c-n><c-w>j
+  tnoremap <C-k> <c-\><c-n><c-w>k
+  tnoremap <C-l> <c-\><c-n><c-w>l
+  " Insert mode:
+  inoremap <C-h> <Esc><c-w>h
+  inoremap <C-j> <Esc><c-w>j
+  inoremap <C-k> <Esc><c-w>k
+  inoremap <C-l> <Esc><c-w>l
+  " Visual mode:
+  vnoremap <C-h> <Esc><c-w>h
+  vnoremap <C-j> <Esc><c-w>j
+  vnoremap <C-k> <Esc><c-w>k
+  vnoremap <C-l> <Esc><c-w>l
+  " Normal mode:
+  nnoremap <C-h> <c-w>h
+  nnoremap <C-j> <c-w>j
+  nnoremap <C-k> <c-w>k
+  nnoremap <C-l> <c-w>l
+endif
