@@ -6,7 +6,8 @@ set splitright
 let mapleader =" "
 " Setup Plugins through vim-plug
 call plug#begin('~/.vim/plugged')
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
+" Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'arcticicestudio/nord-vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'christoomey/vim-tmux-navigator' 
@@ -22,18 +23,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 " End Plugin setup
 
-" ==One Half== "
-syntax on
-set t_Co=256
-set cursorline
-colorscheme onehalfdark
-let g:airline_theme='onehalfdark'
-
-if exists('+termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
-endif
+" == Color Scheme Stuff =="
+colorscheme nord
 
 " === FZF Var === "
 let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow -g "!.git/*"'
