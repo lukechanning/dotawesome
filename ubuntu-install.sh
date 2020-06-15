@@ -40,8 +40,11 @@ git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 sudo apt install neovim
 ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
-## use :CocInstall coc-json coc-tsserver coc-rls
-## to complete Coc installation
+# add rigrep for fzf
+curl -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
+sudo dpkg -i ripgrep_11.0.2_amd64.deb
+# use :CocInstall coc-json coc-tsserver coc-rls
+# to complete Coc installation
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
