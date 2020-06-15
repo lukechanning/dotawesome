@@ -19,7 +19,7 @@ chsh -s $(which zsh)
 # copy .zshrc to home
 mv ~/.zshrc ~/.zshrc.oh-my-zsh
 cp .zshrc ~/.zshrc
-install zsh syntax highlighting
+# install zsh syntax highlighting
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # nvm and node
@@ -40,8 +40,8 @@ git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 sudo apt install neovim
 ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
-use :CocInstall coc-json coc-tsserver coc-rls
-to complete Coc installation
+## use :CocInstall coc-json coc-tsserver coc-rls
+## to complete Coc installation
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
