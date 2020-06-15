@@ -1,3 +1,6 @@
+export ZSH="/home/luke/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+
 # Pure prompt stuff
 fpath+=$HOME/.zsh/pure
 
@@ -10,6 +13,20 @@ git
 zsh-syntax-highlighting
 )
 source $ZSH/oh-my-zsh.sh
+
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=1000
+SAVEHIST=1000
+bindkey -e
+# End of lines configured by zsh-newuser-install
+# The following lines were added by compinstall
+zstyle :compinstall filename '/home/luke/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
+
 
 # FZF config
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
@@ -44,7 +61,3 @@ alias pull="git pull origin"
 alias push="git push origin"
 alias commit="git commit -m"
 alias status="git status"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
