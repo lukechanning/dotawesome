@@ -44,17 +44,11 @@ alias vi="nvim"
 # Docker stuff
 alias dokker="docker-compose"
 
+# Rust stuff
+alias cr="cargo run"
+
 # Code aliases
-alias @hooks="cd ~/Code/webhooks-server"
-alias @coda="cd ~/Code/elements"
-alias @web="cd ~/Code/elements/packages/ts-boilerplate"
-alias @templates="cd ~/Code/elements/packages/ts-templates"
-alias @demo="cd ~/Code/elements/packages/ts-demoday"
-alias @utils="cd ~/Code/elements/packages/ts-utils"
-alias @core="cd ~/Code/elements/packages/ts-elements-core"
-alias @style="cd ~/Code/elements/packages/ts-style"
-alias @contentful="cd ~/Code/elements/packages/ts-contentful"
-alias @client="cd ~/Code/elements/packages/ts-client"
+# insert local projects here
 
 # Git aliases
 alias pull="git pull origin"

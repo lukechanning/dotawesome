@@ -1,6 +1,12 @@
 {
-    "suggest.echodocSupport": true,
-      "suggest.maxCompleteItemCount": 10,
-        "coc.preferences.formatOnSaveFiletypes": ["json"],
-          "eslint.filetypes": ["javascript", "javascriptreact"]
+  "suggest.echodocSupport": true,
+  "suggest.maxCompleteItemCount": 10,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "json",
+    "rust"
+  ],
+  "eslint.filetypes": [
+    "javascript",
+    "javascriptreact"
+  ]
 }
