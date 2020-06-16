@@ -47,6 +47,9 @@ alias dokker="docker-compose"
 # Rust stuff
 alias cr="cargo run"
 
+# linux stuff
+alias rocket="sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade"
+
 # Code aliases
 # insert local projects here
 
