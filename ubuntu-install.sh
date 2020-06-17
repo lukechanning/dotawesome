@@ -2,13 +2,7 @@
 
 # basic setup stuff
 sudo apt update
-
-# get some basic packages
-sudo apt install git \
-    curl
-
-# generate an ssh key
-ssh-keygen
+sudo apt install git curl
 
 # install zsh
 sudo apt install zsh
@@ -32,12 +26,13 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt update && sudo apt install --no-install-recommends yarn
 
 # pure prompt stuff
-create directory for git clone
+# create directory for git clone
 mkdir -p "$HOME/.zsh"
 git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 
 # neovim and vim stuff
 sudo apt install neovim
+mkdir ~/.config/nvim
 ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
 # add rigrep for fzf
