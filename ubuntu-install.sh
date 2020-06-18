@@ -8,8 +8,10 @@ sudo apt install git curl
 sudo apt install zsh
 # setup oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-# set default shell to zsh
-chsh -s $(which zsh)
+
+# bump out here and  re-run as we swap
+# to zsh as default terminal from prompt
+
 # copy .zshrc to home
 mv ~/.zshrc ~/.zshrc.oh-my-zsh
 cp .zshrc ~/.zshrc
