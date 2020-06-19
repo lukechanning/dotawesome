@@ -1,0 +1,20 @@
+[Unit]
+Description=NZXT hardware startup script
+Requires=dev-kraken.device
+Requires=dev-nzxthub.device
+After=dev-kraken.device
+After=dev-nzxthub.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/liquidctl initialize all
+ExecStart=/usr/bin/liquidctl -d 0 set pump speed  20 60  35 65  45 70  65 75  75 80  85 90
+ExecStart=/usr/bin/liquidctl -d 0 set fan speed  20 20  35 35  55 55  
+ExecStart=/usr/bin/liquidctl -d 0 set ring color tai-chi aa00ff 0091ea
+ExecStart=/usr/bin/liquidctl -d 0 set logo color fixed ffffff 
+ExecStart=/usr/bin/liquidctl -d 1 set fan2 speed 40                                                      
+ExecStart=/usr/bin/liquidctl -d 1 set fan3 speed 45
+ExecStart=/usr/bin/liquidctl -d 1 set led1 color fixed aa00ff
+
+[Install]
+WantedBy=multi-user.target

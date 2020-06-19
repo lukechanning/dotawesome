@@ -1,0 +1,4 @@
+# /etc/udev/rules.d/99-liquidctl-custom.rules
+# add devices for kraken and NZXT components
+ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1e71", ATTRS{idProduct}=="170e", ATTRS{serial}=="6D90216A525", SYMLINK+="kraken", TAG+="systemd"
+ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1e71", ATTRS{idProduct}=="2006", ATTRS{serial}=="00000000001A", SYMLINK+="nzxthub", TAG+="systemd" 
