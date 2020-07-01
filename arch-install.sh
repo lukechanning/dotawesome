@@ -59,7 +59,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 
 # setup docker
-sudo pacman -S docker
+sudo pacman -S docker docker-compose
 sudo systemctl start docker.service
 sudo systemctl enable docker.service
 
