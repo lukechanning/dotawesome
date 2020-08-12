@@ -1,3 +1,0 @@
-!among-trees
-/home/awesome/.config/awesome/theme/wallpapers/among-trees.png
-among-trees

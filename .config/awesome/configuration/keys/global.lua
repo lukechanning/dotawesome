@@ -78,22 +78,22 @@ local globalKeys = awful.util.table.join(
 		end,
 		{description = 'decrease the number of columns', group = 'layout'}
 	),
-	awful.key(
-		{modkey},
-		'space',
-		function()
-			awful.layout.inc(1)
-		end,
-		{description = 'select next layout', group = 'layout'}
-	),
-	awful.key(
-		{modkey, 'Shift'},
-		'space',
-		function()
-			awful.layout.inc(-1)
-		end,
-		{description = 'select previous layout', group = 'layout'}
-	),
+	-- awful.key(
+	-- 	{modkey},
+	-- 	'space',
+	-- 	function()
+	-- 		awful.layout.inc(1)
+	-- 	end,
+	-- 	{description = 'select next layout', group = 'layout'}
+	-- ),
+	-- awful.key(
+	-- 	{modkey, 'Shift'},
+	-- 	'space',
+	-- 	function()
+	-- 		awful.layout.inc(-1)
+	-- 	end,
+	-- 	{description = 'select previous layout', group = 'layout'}
+	-- ),
 	awful.key(
 		{modkey}, 
 		'w', 
@@ -447,8 +447,8 @@ local globalKeys = awful.util.table.join(
 		{description = 'open sidebar', group = 'launcher'}
 	),
 	awful.key(
-		{modkey, 'Shift'},
-		'r',
+		{modkey},
+		'space',
 		function()
 			local focused = awful.screen.focused()
 

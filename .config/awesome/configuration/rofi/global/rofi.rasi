@@ -1,12 +1,13 @@
 configuration {
 	font:                       	"Inter Regular 10";
 	show-icons:                		true;
+	drun-display-format:            "{name}";
 	fullscreen:                     false;
 	sidebar-mode:               	true;
-    threads:                        0;
-    matching:                      "fuzzy";
-    scroll-method:                  0;
-    monitor:                        "primary";
+  threads:                        0;
+  matching:                      "fuzzy";
+  scroll-method:                  0;
+  monitor:                        "primary";
 }
 
 * {
