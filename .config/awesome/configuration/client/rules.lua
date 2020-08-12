@@ -323,7 +323,6 @@ ruled.client.connect_signal(
 	end
 )
 
-
 -- Normally we'd do this with a rule, but other apps like spotify and supertuxkart doesn't set its class or name
 -- until after it starts up, so we need to catch that signal.
 
@@ -358,48 +357,6 @@ client.connect_signal(
 				local t = awful.tag.find_by_name(awful.screen.focused(), '5')
 				c:move_to_tag(t)
 			end
-		elseif c.class == 'SuperTuxKart' then
-			local window_mode = false
-
-			-- Check if fullscreen or window mode
-			if c.fullscreen then
-				window_mode = false
-				c.fullscreen = false
-			else
-				window_mode = true
-			end
-
-			-- Check if SuperTuxKart is already open
-			local stk = function (c)
-				return ruled.client.match(c, { class = 'SuperTuxKart' })
-			end
-
-			local stk_count = 0
-			for c in awful.client.iterate(stk) do
-				stk_count = stk_count + 1
-			end
-
-			-- If SuperTuxKart is already open, don't open a new instance
-			if stk_count > 1 then
-				c:kill()
-				-- Switch to previous instance
-				for c in awful.client.iterate(stk) do
-					c:jump_to(false)
-				end
-			else
-				-- Move the instance to specified tag on this screen
-				local t = awful.tag.find_by_name(awful.screen.focused(), '6')
-				c:move_to_tag(t)
-				t:view_only()
-
-				-- Fullscreen mode if not window mode
-				if not window_mode then
-					c.fullscreen = true
-				else
-					c.floating = true
-				end
-			end
-		end
-
+    end
 	end
 )

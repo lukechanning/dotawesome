@@ -137,7 +137,7 @@ local awesome_overrides = function(theme)
 
 	-- Decorations
 	theme.client_radius = dpi(9)
-	theme.useless_gap = dpi(4)
+	theme.useless_gap = dpi(2)
 
 	-- Menu
 	theme.menu_font = 'Inter Regular 11'
@@ -154,7 +154,6 @@ local awesome_overrides = function(theme)
 	theme.menu_border_color = theme.background:sub(1,7) .. '5C'
 
 	-- Tooltips
-
 	theme.tooltip_bg = theme.background
 	theme.tooltip_border_color = theme.transparent
 	theme.tooltip_border_width = 0
