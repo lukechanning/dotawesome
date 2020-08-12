@@ -173,6 +173,7 @@ ruled.client.connect_signal(
 			id         = 'file_managers',
 			rule_any   = {  
 				class = {
+          'thunar',
 					'dolphin',
 					'ark',
 					'Nemo',

@@ -20,7 +20,7 @@ return {
 		screenshot 			= 'flameshot gui',
 
 		-- GUI File manager
-		file_manager 			= 'dolphin',
+		file_manager 			= 'thunar',
 
 		-- Network manager
 		network_manager 		= 'nm-connection-editor',

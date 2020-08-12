@@ -24,6 +24,7 @@ end
 -- This table will use the beautiful.background color
 local bg_beautiful_group = {
 	class = {
+    'thunar',
 		'dolphin',
 		'firefox',
 		'pavucontrol-qt',
