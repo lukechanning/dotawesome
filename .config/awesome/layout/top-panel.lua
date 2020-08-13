@@ -6,12 +6,13 @@ local icons = require('theme.icons')
 local dpi = beautiful.xresources.apply_dpi
 local clickable_container = require('widget.clickable-container')
 local task_list = require('widget.task-list')
+local tag_list = require('widget.tag-list')
 
 local top_panel = function(s, offset)
 
 	local offsetx = 0
 	if offset == true then
-		offsetx = dpi(45)
+		offsetx = 0 
 	end
 
 	local panel = wibox
@@ -51,9 +52,28 @@ local top_panel = function(s, offset)
 		widget = wibox.widget.systray
 	}
 
+  local build_widget = function(widget)
+		return wibox.widget {
+			{
+				widget,
+				border_width = dpi(1),
+        		border_color = beautiful.groups_title_bg,
+				bg = beautiful.transparent,
+				shape = function(cr, w, h)
+					gears.shape.rounded_rect(cr, w, h, dpi(12))
+				end,
+				widget = wibox.container.background
+			},
+			top = dpi(2),
+			bottom = dpi(2),
+			widget = wibox.container.margin
+		}
+	end
+
 	local clock 			= require('widget.clock')(s)
 	local layout_box 		= require('widget.layoutbox')(s)
 	local add_button 		= require('widget.open-default-app')(s)
+  s.dashboard_toggle    = require('widget.dashboard-toggle')()
 	s.tray_toggler  		= require('widget.tray-toggle')
 	s.updater 			= require('widget.package-updater')()
 	s.mpd       			= require('widget.mpd')()
@@ -67,6 +87,9 @@ local top_panel = function(s, offset)
 		expand = 'none',
 		{
 			layout = wibox.layout.fixed.horizontal,
+      spacing = dpi(5),
+      s.dashboard_toggle,
+      build_widget(tag_list(s)),
 			task_list(s),
 			add_button
 		}, 

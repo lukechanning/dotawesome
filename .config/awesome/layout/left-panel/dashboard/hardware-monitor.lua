@@ -22,6 +22,8 @@ return wibox.widget {
 			widget = wibox.container.margin
 		},
 		bg = beautiful.groups_title_bg,
+		border_width	= 	dpi(1),
+		border_color 	= 	beautiful.groups_title_bg,
 		shape = function(cr, width, height)
 			gears.shape.partially_rounded_rect(cr, width, height, true, true, false, false, beautiful.groups_radius) 
 		end,
@@ -38,6 +40,8 @@ return wibox.widget {
 			require('widget.harddrive-meter')
 		},
 		bg = beautiful.groups_bg,
+		border_width	= 	dpi(1),
+		border_color 	= 	beautiful.groups_title_bg,
 		shape = function(cr, width, height)
 			gears.shape.partially_rounded_rect(cr, width, height, false, false, true, true, beautiful.groups_radius) 
 		end,

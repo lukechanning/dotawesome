@@ -60,7 +60,7 @@ local function list_update(w, buttons, label, data, objects)
 			}
 			ibm = wibox.widget {
 				ib,
-				margins = dpi(10),
+				margins = dpi(3),
 				widget = wibox.container.margin
 			}
 			l = wibox.layout.fixed.horizontal()
@@ -166,7 +166,7 @@ local tag_list = function(s)
 		),
 		{},
 		list_update,
-		wibox.layout.fixed.vertical()
+		wibox.layout.fixed.horizontal()
 	)
 end
 return tag_list

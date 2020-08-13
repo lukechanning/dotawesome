@@ -42,6 +42,8 @@ return function(_, panel)
 			widget = clickable_container
 		},
 		bg = beautiful.groups_bg,
+		border_width	= 	dpi(1),
+		border_color 	= 	beautiful.groups_title_bg,
 		shape = function(cr, width, height)
 			gears.shape.rounded_rect(cr, width, height, beautiful.groups_radius) 
 		end,
@@ -62,6 +64,7 @@ return function(_, panel)
 
 	return wibox.widget {
 		{
+			layout = wibox.layout.align.vertical,
 			{
 				layout = wibox.layout.fixed.vertical,
 				spacing = dpi(7),
@@ -71,8 +74,7 @@ return function(_, panel)
 
 			},
 			nil,
-			require('widget.end-session')(),
-			layout = wibox.layout.align.vertical
+			nil
 		},
 		margins = dpi(16),
 		widget = wibox.container.margin

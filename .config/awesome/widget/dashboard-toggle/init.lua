@@ -1,19 +1,18 @@
 local awful = require('awful')
 local wibox = require('wibox')
 local gears = require('gears')
-local filesystem = gears.filesystem
-local config_dir = filesystem.get_configuration_dir()
 local dpi = require('beautiful').xresources.apply_dpi
 local clickable_container = require('widget.clickable-container')
-local widget_icon_dir = config_dir .. '/widget/search-apps/icons/'
 local apps = require('configuration.apps')
+local config_dir = gears.filesystem.get_configuration_dir()
+local widget_icon_dir = config_dir .. 'widget/dashboard-toggle/icons/'
 
 local return_button = function()
 
 	local widget = wibox.widget {
 		{
 			id = 'icon',
-			image = widget_icon_dir .. 'app-launcher.svg',
+			image = widget_icon_dir .. 'settings.svg',
 			widget = wibox.widget.imagebox,
 			resize = true
 		},
@@ -23,7 +22,7 @@ local return_button = function()
 	local widget_button = wibox.widget {
 		{
 			widget,
-			margins = dpi(7),
+			margins = dpi(5),
 			widget = wibox.container.margin
 		},
 		widget = clickable_container
@@ -36,7 +35,12 @@ local return_button = function()
 				1,
 				nil,
 				function()
-					awful.spawn(apps.default.rofi_appmenu, false)
+		            local focused = awful.screen.focused()
+
+		            if focused.right_panel and focused.right_panel.visible then
+		                focused.right_panel.visible = false
+		            end
+		            focused.left_panel:toggle()
 				end
 			)
 		)

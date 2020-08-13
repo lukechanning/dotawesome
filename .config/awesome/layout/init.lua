@@ -27,9 +27,6 @@ function update_bars_visibility()
 			local fullscreen = s.selected_tag.fullscreen_mode
 			-- Order matter here for shadow
 			s.top_panel.visible = not fullscreen
-			if s.left_panel then
-				s.left_panel.visible = not fullscreen
-			end
 			if s.right_panel then
 				if fullscreen and focused.right_panel.visible then
 					focused.right_panel:toggle()
@@ -40,6 +37,18 @@ function update_bars_visibility()
 					
 					focused.right_panel:toggle()
 					focused.right_panel_show_again = false
+				end
+			end
+			if s.left_panel then
+				if fullscreen and focused.left_panel.visible then
+					focused.left_panel:toggle()
+					focused.left_panel_show_again = true
+				elseif not fullscreen and
+					not focused.left_panel.visible and
+					focused.left_panel_show_again then
+					
+					focused.left_panel:toggle()
+					focused.left_panel_show_again = false
 				end
 			end
 		end
