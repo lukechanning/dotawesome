@@ -114,6 +114,8 @@ ruled.client.connect_signal(
 			rule_any   = { 
 				class = {
 					'firefox',
+          'brave-browser',
+          'Brave-browser',
 					'Tor Browser',
 					'discord',
 					'Chromium',
@@ -170,10 +172,8 @@ ruled.client.connect_signal(
 			rule_any   = {  
 				class = {
           'thunar',
+          'Thunar',
 					'dolphin',
-					'ark',
-					'Nemo',
-					'File-roller'
 				}
 			},
 			properties = { 

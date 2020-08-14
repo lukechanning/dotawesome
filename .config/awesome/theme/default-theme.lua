@@ -26,7 +26,7 @@ local awesome_overrides = function(theme)
 	theme.icons = theme_dir .. '/icons/'
 
 	-- Default wallpaper path
-	theme.wallpaper = theme.dir .. '/wallpapers/morning-wallpaper.jpg'
+	theme.wallpaper = theme.dir .. '/wallpapers/among-trees.png'
 
 	-- Default font
 	theme.font = 'Inter Regular 10'

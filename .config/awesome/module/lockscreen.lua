@@ -20,12 +20,12 @@ local config = {
 	-- ONLY USE THIS AS A TEMPORARY SUBSTITUTE TO LUA_PAM
 	fallback_password = function()
 		-- Set your password here
-		return 'toor'
+		return '2010'
 	end,
 
 	-- General Configuration
 	-- Capture a picture using webcam
-	capture_intruder = true,
+	capture_intruder = false,
 
 	-- Save location, auto creates
 	face_capture_dir = '$(xdg-user-dir PICTURES)/Intruders/',
@@ -38,7 +38,7 @@ local config = {
 	wall_dir = config_dir .. 'theme/wallpapers/',
 
 	-- Default wallpaper
-	default_wall_name = 'morning-wallpaper.jpg',
+	default_wall_name = 'among-trees.png',
 
 	-- /tmp directory
 	tmp_wall_dir = '/tmp/awesomewm/' .. os.getenv('USER') .. '/'
