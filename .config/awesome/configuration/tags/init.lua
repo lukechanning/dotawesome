@@ -4,56 +4,65 @@ local beautiful = require('beautiful')
 local icons = require('theme.icons')
 
 local tags = {
-	{
-		icon = icons.terminal,
-		type = 'terminal',
-		default_app = 'kitty',
-		screen = 1
-	},
+  -- one
 	{
 		icon = icons.web_browser,
 		type = 'chrome',
 		default_app = 'brave',
 		screen = 1
 	},
+  -- two
 	{
-		icon = icons.text_editor,
-		type = 'code',
-		default_app = 'subl3',
+		icon = icons.terminal,
+		type = 'terminal',
+		default_app = 'kitty',
 		screen = 1
 	},
+  -- three
+  {
+		icon = icons.multimedia,
+		type = 'music',
+		default_app = 'vlc',
+		screen = 1
+	},
+  -- four
 	{
 		icon = icons.file_manager,
 		type = 'files',
 		default_app = 'thunar',
 		screen = 1
 	},
-	{
-		icon = icons.multimedia,
-		type = 'music',
-		default_app = 'vlc',
+  -- five
+  {
+		icon = icons.text_editor,
+		type = 'code',
+		default_app = 'subl3',
 		screen = 1
 	},
+  -- six
 	{
 		icon = icons.games,
 		type = 'game',
 		default_app = 'parsec',
 		screen = 1
 	},
+  -- seven
 	{
 		icon = icons.graphics,
 		type = 'art',
 		default_app = 'gimp-2.10',
 		screen = 1
 	},
+  -- eight
 	{
 		icon = icons.sandbox,
 		type = 'virtualbox',
 		default_app = 'virtualbox',
 		screen = 1
 	},
+  -- nine
 	{
-		icon = icons.development,
+		icon = icons.sandbox,
 		type = 'any',
 		default_app = '',
 		screen = 1

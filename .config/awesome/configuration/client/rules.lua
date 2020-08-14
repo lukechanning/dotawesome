@@ -108,6 +108,23 @@ ruled.client.connect_signal(
 			}
 		}
 
+		-- Browsers and chats
+		ruled.client.append_rule {
+			id         = 'web_browsers',
+			rule_any   = { 
+				class = {
+					'firefox',
+					'Tor Browser',
+					'discord',
+					'Chromium',
+					'Google-chrome'
+				}
+			},
+			properties = { 
+				tag = '1'
+			}
+		}
+
 		-- terminal emulators
 		ruled.client.append_rule {
 			id         = 'terminals',
@@ -124,27 +141,44 @@ ruled.client.connect_signal(
 				instance = { 'QuakeTerminal' }
 			},
 			properties = {
-				tag = '1',
+				tag = '2',
 				switchtotag = true,
 				draw_backdrop = false,
 				size_hints_honor = false
 			}
 		}
 
-		-- Browsers and chats
+		-- Multimedia
 		ruled.client.append_rule {
-			id         = 'web_browsers',
-			rule_any   = { 
+			id         = 'multimedia',
+			rule_any   = {  
 				class = {
-					'firefox',
-					'Tor Browser',
-					'discord',
-					'Chromium',
-					'Google-chrome'
+					'vlc',
+					'Spotify'
 				}
 			},
 			properties = { 
-				tag = '2'
+				tag = '3',
+				switchtotag = true,
+				draw_backdrop = false
+			}
+		}
+
+    -- File managers
+		ruled.client.append_rule {
+			id         = 'file_managers',
+			rule_any   = {  
+				class = {
+          'thunar',
+					'dolphin',
+					'ark',
+					'Nemo',
+					'File-roller'
+				}
+			},
+			properties = { 
+				tag = '4',
+				switchtotag = true
 			}
 		}
 
@@ -164,41 +198,7 @@ ruled.client.connect_signal(
 				}
 			},
 			properties = { 
-				tag = '3'
-			}
-		}
-
-		-- File managers
-		ruled.client.append_rule {
-			id         = 'file_managers',
-			rule_any   = {  
-				class = {
-          'thunar',
-					'dolphin',
-					'ark',
-					'Nemo',
-					'File-roller'
-				}
-			},
-			properties = { 
-				tag = '4',
-				switchtotag = true
-			}
-		}
-
-		-- Multimedia
-		ruled.client.append_rule {
-			id         = 'multimedia',
-			rule_any   = {  
-				class = {
-					'vlc',
-					'Spotify'
-				}
-			},
-			properties = { 
-				tag = '5',
-				switchtotag = true,
-				draw_backdrop = false
+				tag = '5'
 			}
 		}
 
@@ -211,7 +211,6 @@ ruled.client.connect_signal(
 					'dolphin-emu',
 					'Steam',
 					'Citra',
-					'SuperTuxKart'
 				},
 				name = { 'Steam' }
 			},
@@ -355,7 +354,7 @@ client.connect_signal(
 				end
 			else
 				-- Move the Spotify instance to '5' tag on this screen
-				local t = awful.tag.find_by_name(awful.screen.focused(), '5')
+				local t = awful.tag.find_by_name(awful.screen.focused(), '3')
 				c:move_to_tag(t)
 			end
     end

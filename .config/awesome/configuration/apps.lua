@@ -1,6 +1,6 @@
 local filesystem = require('gears.filesystem')
 local config_dir = filesystem.get_configuration_dir()
-local bin_dir = config_dir .. 'binaries/'
+--local bin_dir = config_dir .. 'binaries/'
 
 return {
 
@@ -36,27 +36,11 @@ return {
 
 		-- Lockscreen
 		lock 					= 'awesome-client "awesome.emit_signal(\'module::lockscreen_show\')"',
-		
-		-- Quake-like Terminal
-		quake 					= 'kitty --name QuakeTerminal',
-
-		-- Rofi Web Search
-		-- rofi_global				= 'rofi -dpi ' .. screen.primary.dpi .. 
-		-- 							' -show "Global Search" -modi "Global Search":' .. config_dir .. 
-		-- 							'/configuration/rofi/global/rofi-spotlight.sh' .. 
-		-- 							' -theme ' .. config_dir ..
-		-- 							'/configuration/rofi/global/rofi.rasi',
     
+    -- Quick sidebar application launcher
     rofi_global				= 'rofi -dpi ' .. screen.primary.dpi .. 
                   ' -show drun -theme ' .. config_dir ..
-                  '/configuration/rofi/global/rofi.rasi',
-
-		-- Application Menu
-		rofi_appmenu 			= 'rofi -dpi ' .. screen.primary.dpi ..
-                  ' -show "Global Search" -modi "Global Search":' .. config_dir .. 
-									'/configuration/rofi/global/rofi-spotlight.sh' .. 
-									' -theme ' .. config_dir ..
-									'/configuration/rofi/appmenu/rofi.rasi'
+                  '/configuration/rofi/appmenu/rofi.rasi',
 
 		-- You can add more default applications here
 	},
@@ -72,9 +56,6 @@ return {
 
 		-- Bluetooth tray icon
 		'blueman-applet',
-
-		-- Music Server
-		'mpd',
 
 		-- Power manager
 		'xfce4-power-manager',
@@ -92,23 +73,14 @@ return {
 		-- Background image
 		'nitrogen --set-scaled $HOME/.config/awesome/theme/wallpapers/among-trees.png',
 
-		-- Audio Equalizer
-		'pulseeffects --gapplication-service',
-
-		-- Auto lock timer
-		[[
-		xidlehook --not-when-fullscreen --not-when-audio --timer 600 \
-		"awesome-client 'awesome.emit_signal(\"module::lockscreen_show\")'" ""
-		]]
+		-- -- Audio Equalizer
+		-- 'pulseeffects --gapplication-service',
 
 		-- You can add more start-up applications here
 	},
 
 	-- List of binaries/shell scripts that will execute a certain task
-
 	bins = {
-
-		-- Update profile picture
-		update_profile  = bin_dir .. 'profile-image'
+    -- add some binary scripts here
 	}
 }

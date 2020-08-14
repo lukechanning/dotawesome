@@ -223,7 +223,7 @@ local globalKeys = awful.util.table.join(
 		{},
 		'XF86AudioNext',
 		function()
-			awful.spawn('mpc next', false)
+			awful.spawn('playerctl next', false)
 		end,
 		{description = 'next music', group = 'hotkeys'}
 	),
@@ -231,7 +231,7 @@ local globalKeys = awful.util.table.join(
 		{},
 		'XF86AudioPrev',
 		function()
-			awful.spawn('mpc prev', false)
+			awful.spawn('playerctl prev', false)
 		end,
 		{description = 'previous music', group = 'hotkeys'}
 	),
@@ -239,7 +239,7 @@ local globalKeys = awful.util.table.join(
 		{},
 		'XF86AudioPlay',
 		function()
-			awful.spawn('mpc toggle', false)
+			awful.spawn('playerctl play-pause', false)
 		end,
 		{description = 'play/pause music', group = 'hotkeys'}
 
@@ -283,24 +283,6 @@ local globalKeys = awful.util.table.join(
 			awesome.emit_signal('module::exit_screen_show')
 		end,
 		{description = 'toggle exit screen', group = 'hotkeys'}
-	),
-	awful.key(
-		{modkey},
-		'`',
-		function()
-			_G.toggle_quake()
-		end,
-		{description = 'dropdown application', group = 'launcher'}
-	),
-	awful.key(
-		{modkey}, 
-		'm',
-		function()
-			if awful.screen.focused().musicpop then
-				awesome.emit_signal('widget::music', 'keyboard')
-			end
-		end,
-		{description = 'toggle music widget', group = 'launcher'}
 	),
 	awful.key(
 		{ }, 
@@ -366,7 +348,7 @@ local globalKeys = awful.util.table.join(
 		{description = 'open default terminal', group = 'launcher'}
 	),
 	awful.key(
-		{modkey, 'Shift'}, 
+		{modkey}, 
 		'e',
 		function()
 			awful.spawn(apps.default.file_manager)
@@ -374,8 +356,8 @@ local globalKeys = awful.util.table.join(
 		{description = 'open default file manager', group = 'launcher'}
 	),
 	awful.key(
-		{modkey, 'Shift'}, 
-		'f',
+		{modkey}, 
+		'b',
 		function()
 			awful.spawn(apps.default.web_browser)
 		end,
@@ -388,24 +370,6 @@ local globalKeys = awful.util.table.join(
 			awful.spawn(apps.default.terminal .. ' ' .. 'htop')
 		end,
 		{description = 'open system monitor', group = 'launcher'}
-	),
-	awful.key(
-		{modkey}, 
-		'e',
-		function()
-			local focused = awful.screen.focused()
-
-			if focused.left_panel then
-				focused.left_panel:hide_dashboard()
-				focused.left_panel.opened = false
-			end
-			if focused.right_panel then
-				focused.right_panel:hide_dashboard()
-				focused.right_panel.opened = false
-			end
-			awful.spawn(apps.default.rofi_appmenu, false)
-		end,
-		{description = 'open application drawer', group = 'launcher'}
 	),
 	awful.key(
 		{}, 
