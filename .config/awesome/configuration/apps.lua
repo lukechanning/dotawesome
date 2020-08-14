@@ -73,6 +73,9 @@ return {
 		-- Background image
 		'nitrogen --set-scaled $HOME/.config/awesome/theme/wallpapers/among-trees.png',
 
+    -- Night colors
+    'redshift -l 40.0149:-105.27055',
+
 		-- -- Audio Equalizer
 		-- 'pulseeffects --gapplication-service',
 

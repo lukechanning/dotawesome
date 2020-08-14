@@ -33,7 +33,6 @@ local widget_button = wibox.widget {
 	widget = clickable_container
 }
 
-
 local update_imagebox = function()
 	local button_icon = button_widget.icon
 	if blue_light_state then
