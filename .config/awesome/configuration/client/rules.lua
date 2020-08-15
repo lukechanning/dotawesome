@@ -155,6 +155,8 @@ ruled.client.connect_signal(
 			id         = 'multimedia',
 			rule_any   = {  
 				class = {
+          'audacity',
+          'Audacity',
 					'vlc',
 					'Spotify'
 				}
@@ -187,6 +189,7 @@ ruled.client.connect_signal(
 			id         = 'text_editors',
 			rule_any   = {  
 				class = {
+          'Mailspring',
 					'Geany',
 					'Atom',
 					'Subl3',
@@ -209,10 +212,10 @@ ruled.client.connect_signal(
 				class = {
 					'Wine',
 					'dolphin-emu',
-					'Steam',
+          'parsecd',
 					'Citra',
 				},
-				name = { 'Steam' }
+				name = { 'Steam', 'Parsec' }
 			},
 			properties = { 
 				tag = '6',

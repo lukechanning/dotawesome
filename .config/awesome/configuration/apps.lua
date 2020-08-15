@@ -14,13 +14,16 @@ return {
 		text_editor 			= 'subl3',
 
 		-- Web browser
-		web_browser 			= 'brave',
+		web_browser 			= 'brave --password-store=basic',
 
 		-- Screenshot
 		screenshot 			= 'flameshot gui',
 
 		-- GUI File manager
 		file_manager 			= 'thunar',
+
+    -- Email client
+    email             = 'mailspring',
 
 		-- Network manager
 		network_manager 		= 'nm-connection-editor',
@@ -70,7 +73,7 @@ return {
 		'nm-applet',
 
 		-- Background image
-		'nitrogen --set-scaled $HOME/.config/awesome/theme/wallpapers/among-trees.png',
+		'nitrogen --restore',
 
     -- Night colors
     'redshift -l 40.0149:-105.27055',

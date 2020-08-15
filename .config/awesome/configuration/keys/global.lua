@@ -357,6 +357,14 @@ local globalKeys = awful.util.table.join(
 	),
 	awful.key(
 		{modkey}, 
+		'm',
+		function()
+			awful.spawn(apps.default.email)
+		end,
+		{description = 'open default email client', group = 'launcher'}
+	),
+	awful.key(
+		{modkey}, 
 		'b',
 		function()
 			awful.spawn(apps.default.web_browser)
@@ -416,8 +424,8 @@ local globalKeys = awful.util.table.join(
 		{description = 'open sidebar and global search', group = 'launcher'}
 	),
 	awful.key(
-		{modkey}, 
-		'F2',
+		{modkey, 'Control'}, 
+		'e',
 		function()
 			local focused = awful.screen.focused()
 
@@ -439,8 +447,8 @@ local globalKeys = awful.util.table.join(
 		{description = 'open notification center', group = 'launcher'}
 	),
 	awful.key(
-		{modkey}, 
-		'F3',
+		{modkey, 'Shift'}, 
+		'e',
 		function()
 			local focused = awful.screen.focused()
 
