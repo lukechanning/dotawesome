@@ -79,6 +79,7 @@ local top_panel = function(s, offset)
 	s.bluetooth   			= require('widget.bluetooth')()
 	s.battery     			= require('widget.battery')()
 	s.network       		= require('widget.network')()
+  s.volume            = require('widget.volume-icon')()
 	s.info_center_toggle		= require('widget.info-center-toggle')()
 
 	panel : setup {
@@ -103,6 +104,7 @@ local top_panel = function(s, offset)
 			},
 			s.tray_toggler,
 			s.updater,
+      s.volume,
 			s.network,
 			s.bluetooth,
 			s.battery,
