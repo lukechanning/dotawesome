@@ -375,10 +375,18 @@ local globalKeys = awful.util.table.join(
 		{description = 'open default web browser', group = 'launcher'}
 	),
 	awful.key(
+		{modkey, 'Shift'}, 
+		'b',
+		function()
+			awful.spawn(apps.default.web_browser .. ' ' .. '--incognito')
+		end,
+		{description = 'open default web browser in incognito', group = 'launcher'}
+	),
+	awful.key(
 		{'Control', 'Shift'}, 
 		'Escape',
 		function()
-			awful.spawn(apps.default.terminal .. ' ' .. 'htop')
+			awful.spawn(apps.default.terminal .. ' ' .. 'bashtop')
 		end,
 		{description = 'open system monitor', group = 'launcher'}
 	),

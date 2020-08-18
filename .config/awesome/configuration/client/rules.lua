@@ -210,10 +210,7 @@ ruled.client.connect_signal(
 			id         = 'gaming',
 			rule_any   = {
 				class = {
-					'Wine',
-					'dolphin-emu',
           'parsecd',
-					'Citra',
 				},
 				name = { 'Steam', 'Parsec' }
 			},

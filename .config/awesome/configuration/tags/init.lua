@@ -36,14 +36,14 @@ local tags = {
   {
 		icon = icons.text_editor,
 		type = 'code',
-		default_app = 'subl3',
+		default_app = 'kate',
 		screen = 1
 	},
   -- six
 	{
 		icon = icons.games,
 		type = 'game',
-		default_app = 'parsec',
+		default_app = 'steam',
 		screen = 1
 	},
   -- seven
