@@ -47,11 +47,11 @@ local update_profile_pic = function()
 		apps.bins.update_profile,
 		function(stdout)
 			stdout = stdout:gsub('%\n','')
-			if not stdout:match('default') then
-				profile_imagebox:set_image(stdout)
-			else
-				profile_imagebox:set_image(widget_icon_dir .. 'default.svg')
-			end
+			-- if not stdout:match('default') then
+				-- profile_imagebox:set_image(stdout)
+			-- else
+      profile_imagebox:set_image(widget_icon_dir .. 'default.svg')
+			-- end
 		end
 	)
 end
