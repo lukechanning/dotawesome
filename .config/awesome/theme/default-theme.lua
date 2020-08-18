@@ -45,7 +45,7 @@ local awesome_overrides = function(theme)
 	theme.systray_icon_spacing = dpi(16)
 
 	-- Titlebar
-	theme.titlebar_size = dpi(34)
+	theme.titlebar_size = dpi(32)
 	theme.titlebar_bg_focus = gtk_variable().bg_color:sub(1,7) .. '66'
 	theme.titlebar_bg_normal = gtk_variable().base_color:sub(1,7) .. '66'
 	theme.titlebar_fg_focus = gtk_variable().fg_color .. '00'
