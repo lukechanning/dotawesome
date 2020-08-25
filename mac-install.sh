@@ -15,7 +15,12 @@ export NVM_DIR="$HOME/.nvm"
 nvm install node
 nvm use node
 # setup yarn
-# brew install yarn
+brew install yarn
+
+# git stuff here 
+brew install diff-so-fancy
+git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
+git config --global alias.co checkout
 
 # pure prompt stuff
 # create directory for git clone
@@ -43,3 +48,5 @@ ln -sf "${PWD}"/.tmux.conf ~/.tmux.conf
 # setup tpm
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
+# add meslo font to local fonts
+cp "${PWD}"/meslo.ttf ~/Library/Fonts/
