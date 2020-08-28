@@ -43,6 +43,10 @@ ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
 # use :CocInstall coc-json coc-tsserver coc-rls coc-eslint
 # to complete Coc installation
 
+# install powerline font
+mkdir -p "$HOME/.fonts"
+cp meslo.ttf ~/.fonts/meslo.ttf
+
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
