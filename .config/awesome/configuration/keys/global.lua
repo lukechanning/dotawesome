@@ -223,24 +223,27 @@ local globalKeys = awful.util.table.join(
 		{description = 'toggle mute', group = 'hotkeys'}
 	),
 	awful.key(
-		{},
-		'XF86AudioNext',
+		{'Shift'},
+		'XF86AudioRaiseVolume',
+		-- 'XF86AudioNext',
 		function()
 			awful.spawn('playerctl next', false)
 		end,
 		{description = 'next music', group = 'hotkeys'}
 	),
 	awful.key(
-		{},
-		'XF86AudioPrev',
+		{'Shift'},
+		'XF86AudioLowerVolume',
+		-- 'XF86AudioPrev',
 		function()
 			awful.spawn('playerctl prev', false)
 		end,
 		{description = 'previous music', group = 'hotkeys'}
 	),
 	awful.key(
-		{},
-		'XF86AudioPlay',
+		{'Shift'},
+		'XF86AudioMute',
+		-- 'XF86AudioPlay',
 		function()
 			awful.spawn('playerctl play-pause', false)
 		end,
