@@ -2,9 +2,11 @@
 
 # install package dependencies
 sudo pacman -S nitrogen redshift kitty \
-  yay rofi inter-font noto-fonts-emoji
+  yay rofi inter-font noto-fonts-emoji \
+  lxappearance-gtk3 flameshot playerctl
 # AUR packages
-yay -S awesome-git picom-tryone-git la-capitaine-icon-theme
+yay -S awesome-git picom-tryone-git \
+  la-capitaine-icon-theme light-git
 
 # move config files into place
 ln -sf "${PWD}"/.config/redshift ~/.config/redshift

@@ -14,7 +14,7 @@ return {
 		text_editor 			= 'subl3',
 
 		-- Web browser
-		web_browser 			= 'brave --password-store=basic',
+		web_browser 			= 'brave',
 
 		-- Screenshot
 		screenshot 			= 'flameshot gui',
