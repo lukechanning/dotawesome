@@ -59,12 +59,15 @@ return {
 
 		-- Bluetooth tray icon
 		'blueman-applet',
+		
+    -- Load xfsettings
+		-- 'xfsettingsd', 
 
 		-- Power manager
 		'xfce4-power-manager',
 
 		-- Credential manager
-		'/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)',
+		'/usr/lib/mate-polkit/polkit-mate-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)',
 		
 		-- Load X Colors
 		'xrdb $HOME/.Xresources',
@@ -74,9 +77,6 @@ return {
 
 		-- Background image
 		'nitrogen --restore',
-
-    -- Night colors
-    -- 'redshift -l 40.0149:-105.27055',
 
 		-- -- Audio Equalizer
 		-- 'pulseeffects --gapplication-service',
