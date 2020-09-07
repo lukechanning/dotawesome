@@ -14,7 +14,7 @@ return {
 		text_editor 			= 'subl3',
 
 		-- Web browser
-		web_browser 			= 'brave',
+		web_browser 			= 'chromium',
 
 		-- Screenshot
 		screenshot 			= 'flameshot gui',
