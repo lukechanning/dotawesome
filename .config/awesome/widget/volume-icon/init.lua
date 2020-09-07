@@ -10,6 +10,7 @@ local config_dir = gears.filesystem.get_configuration_dir()
 local widget_icon_dir = config_dir .. 'widget/volume-icon/icons/'
 
 local volume_icon_name="audio-volume-high"
+local last_active_state="audio-volume-high"
 
 local volume_imagebox = wibox.widget {
   nil,
@@ -29,8 +30,19 @@ local function set_icon(name)
   return
 end
 
+local function mute_icon()
+  if volume_icon_name == "audio-volume-muted" then
+   volume_icon_name = last_active_state 
+  else
+   last_active_state = volume_icon_name
+   volume_icon_name="audio-volume-muted"
+  end
+  return set_icon(volume_icon_name)
+end
+
 local function parse_volume(stdout)
   local level = string.match(stdout, "(%d?%d?%d)%%")
+  -- leave in place to handle init audio 
   if stdout:find("%[off%]") then
     volume_icon_name="audio-volume-muted"
     return set_icon(volume_icon_name)
@@ -50,7 +62,7 @@ end
 -- get current settings when we launch
 local function _init()
   awful.spawn.easy_async_with_shell(
-    [[bash -c "amixer sget Master"]],
+    [[bash -c "amixer -D pulse sget Master"]],
     function(stdout)
       parse_volume(stdout) 
     end
@@ -85,6 +97,10 @@ volume_icon:buttons(
   )
 )
 
+function volume_icon:send_mute()
+  mute_icon()
+end
+
 function volume_icon:update_icon(stdout)
   parse_volume(stdout)
 end
@@ -94,12 +110,20 @@ awesome.connect_signal(
 	'volume::icon',
 	function()
     awful.spawn.easy_async_with_shell(
-      [[bash -c "amixer sget Master"]],
+      [[bash -c "amixer -D pulse sget Master"]],
       function(stdout)
         volume_icon:update_icon(stdout) 
       end
     )
 	end
+)
+
+-- mute signal will come from global keys
+awesome.connect_signal(
+	'volume::mute',
+  function()
+    volume_icon:send_mute()
+  end
 )
 
 local return_button = function()
