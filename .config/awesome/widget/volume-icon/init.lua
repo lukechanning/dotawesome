@@ -50,11 +50,11 @@ local function parse_volume(stdout)
   level = tonumber(string.format("% 3d", level))
 
   if (level >= 0 and level < 50) then
-      volume_icon_name="audio-volume-low"
+    volume_icon_name="audio-volume-low"
   elseif (level < 75) then
-      volume_icon_name="audio-volume-medium"
+    volume_icon_name="audio-volume-medium"
   else
-      volume_icon_name="audio-volume-high"
+    volume_icon_name="audio-volume-high"
   end
   return set_icon(volume_icon_name)
 end
@@ -68,9 +68,10 @@ local function _init()
     end
   )
 end
+-- initial icon state
 _init()
 
-local video_widget = wibox.widget {
+local volume_icon_widget = wibox.widget {
   layout = wibox.layout.fixed.horizontal,
   spacing = dpi(0),
   volume_imagebox,
@@ -78,7 +79,7 @@ local video_widget = wibox.widget {
 
 local volume_icon = wibox.widget {
   {
-    video_widget,
+    volume_icon_widget,
     margins = dpi(7),
     widget = wibox.container.margin
   },
@@ -108,22 +109,18 @@ end
 -- signal will come from global keys
 awesome.connect_signal(
 	'volume::icon',
-	function()
-    awful.spawn.easy_async_with_shell(
-      [[bash -c "amixer -D pulse sget Master"]],
-      function(stdout)
-        volume_icon:update_icon(stdout) 
-      end
-    )
+	function(is_muted)
+    if is_muted then
+      volume_icon:send_mute()
+    else
+      awful.spawn.easy_async_with_shell(
+        [[bash -c "amixer -D pulse sget Master"]],
+        function(stdout)
+          volume_icon:update_icon(stdout) 
+        end
+      )
+    end
 	end
-)
-
--- mute signal will come from global keys
-awesome.connect_signal(
-	'volume::mute',
-  function()
-    volume_icon:send_mute()
-  end
 )
 
 local return_button = function()
