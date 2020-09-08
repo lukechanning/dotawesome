@@ -48,16 +48,16 @@ local tags = {
 	},
   -- seven
 	{
-		icon = icons.graphics,
-		type = 'art',
-		default_app = 'gimp-2.10',
+		icon = icons.sandbox,
+		type = 'any',
+		default_app = '',
 		screen = 1
 	},
   -- eight
 	{
 		icon = icons.sandbox,
-		type = 'virtualbox',
-		default_app = 'virtualbox',
+		type = 'any',
+		default_app = '',
 		screen = 1
 	},
   -- nine
