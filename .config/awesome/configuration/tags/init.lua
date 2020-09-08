@@ -8,7 +8,7 @@ local tags = {
 	{
 		icon = icons.web_browser,
 		type = 'chrome',
-		default_app = 'brave',
+		default_app = 'chromium',
 		screen = 1
 	},
   -- two
