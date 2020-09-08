@@ -1,0 +1,10 @@
+[Unit]
+Description=Bass Sound Fix For Lenovo X1 8th gen
+After=multi-user.target suspend.target hibernate.target hybrid-sleep.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hda-verb /dev/snd/hwC0D0 0x17 SET_CONNECT_SEL 1
+
+[Install]
+WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target
