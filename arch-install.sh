@@ -9,8 +9,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 # bump out here and  re-run as we swap
 # to ohmyzsh as default terminal from prompt
 
+# diff-so-fancy
+sudo pacman -Ss diff-so-fancy
 # git aliases
 git config --global alias.co checkout
+git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 
 # copy .zshrc to home
 mv ~/.zshrc ~/.zshrc.arch-backup
