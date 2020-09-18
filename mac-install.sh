@@ -6,6 +6,9 @@ cp .zshrc ~/.zshrc
 # install zsh syntax highlighting
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
+# git aliases
+git config --global alias.co checkout
+
 # nvm and node
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | zsh
 # load nvm so we can use it
