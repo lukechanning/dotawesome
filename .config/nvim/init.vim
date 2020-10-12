@@ -75,6 +75,8 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
+" use K to show type definitions
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 " ==NERDTree== "
 map <C-n> :NERDTreeToggle<CR>
