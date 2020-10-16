@@ -26,7 +26,7 @@ local awesome_overrides = function(theme)
 	theme.icons = theme_dir .. '/icons/'
 
 	-- Default wallpaper path
-	theme.wallpaper = theme.dir .. '/wallpapers/among-trees.png'
+	theme.wallpaper = theme.dir .. '/wallpapers/among-trees-2.png'
 
 	-- Default font
 	theme.font = 'Inter Regular 10'
@@ -116,7 +116,7 @@ local awesome_overrides = function(theme)
 	theme.titlebar_maximized_button_focus_active_hover  = tip .. 'maximized_focus_active_hover.svg'
 
 	-- UI Groups
-	theme.groups_title_bg = '#ffffff' .. '15'
+	theme.groups_title_bg = '#ffffff' .. '40'
 	theme.groups_bg = '#ffffff' .. '10'
 	theme.groups_radius = dpi(9)
 
