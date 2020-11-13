@@ -29,6 +29,7 @@ call plug#end()
 " == Color Scheme Stuff =="
 " colorscheme nord
 colorscheme dracula
+set termguicolors
 highlight Visual cterm=reverse ctermbg=NONE
 
 " === FZF Var === "
