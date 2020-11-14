@@ -7,7 +7,8 @@ let mapleader =" "
 " Setup Plugins through vim-plug
 call plug#begin('~/.config/nvim/plugged')
 " Plug 'sonph/onehalf', {'rtp': 'vim/'}
-Plug 'arcticicestudio/nord-vim'
+" Plug 'arcticicestudio/nord-vim'
+Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'christoomey/vim-tmux-navigator'
@@ -26,7 +27,9 @@ call plug#end()
 " End Plugin setup
 
 " == Color Scheme Stuff =="
-colorscheme nord
+" colorscheme nord
+colorscheme dracula
+set termguicolors
 highlight Visual cterm=reverse ctermbg=NONE
 
 " === FZF Var === "
