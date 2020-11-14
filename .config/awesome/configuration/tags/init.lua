@@ -22,7 +22,7 @@ local tags = {
   {
 		icon = icons.multimedia,
 		type = 'music',
-		default_app = 'vlc',
+		default_app = 'spotify',
 		screen = 1
 	},
   -- four

@@ -193,7 +193,9 @@ ruled.client.connect_signal(
 					'Geany',
 					'Atom',
 					'Subl3',
-					'code-oss'
+					'code-oss',
+          'Insomnia',
+          'insomnia'
 				},
 				name  = {
 					'LibreOffice',
