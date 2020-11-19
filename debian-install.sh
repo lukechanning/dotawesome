@@ -41,6 +41,8 @@ sudo apt install neovim
 mkdir ~/.config/nvim
 ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
+mkdir ~/.config/nvim/undodir
+
 # add rigrep for fzf
 curl -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
 sudo dpkg -i ripgrep_11.0.2_amd64.deb

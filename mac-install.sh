@@ -35,6 +35,8 @@ brew install neovim
 mkdir ~/.config/nvim
 cp -r "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
+mkdir ~/.config/nvim/undodir
+
 # add rigrep for fzf
 brew install ripgrep
 # use :CocInstall coc-json coc-tsserver coc-rls coc-eslint

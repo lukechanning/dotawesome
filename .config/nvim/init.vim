@@ -26,6 +26,10 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 " End Plugin setup
 
+" == Raw VIM config =="
+set undofile " Maintain undo history between sessions
+set undodir=~/.config/nvim/undodir
+
 " == Color Scheme Stuff =="
 " colorscheme nord
 colorscheme dracula
