@@ -8,6 +8,7 @@ local hotkeys_popup = require('awful.hotkeys_popup').widget
 local modkey = require('configuration.keys.mod').mod_key
 local altkey = require('configuration.keys.mod').alt_key
 local apps = require('configuration.apps')
+local cyclefocus = require('module.cyclefocus')
 
 -- Key bindings
 local globalKeys = awful.util.table.join(
@@ -30,7 +31,15 @@ local globalKeys = awful.util.table.join(
 		awesome.quit, 
 		{description = 'quit awesome', group = 'awesome'}
 	),
-	awful.key(
+  -- modkey+Tab: cycle through all clients.
+  awful.key({ modkey }, "Tab", function(c)
+    cyclefocus.cycle({modifier="Super_L"})
+  end),
+  -- modkey+Shift+Tab: backwards
+  awful.key({ modkey, "Shift" }, "Tab", function(c)
+    cyclefocus.cycle({modifier="Super_L"})
+  end),
+  awful.key(
 		{altkey, 'Shift'},
 		'l',
 		function()
