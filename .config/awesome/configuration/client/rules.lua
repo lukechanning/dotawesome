@@ -79,9 +79,9 @@ ruled.client.connect_signal(
 				type = { 'utility' }
 			},
 			properties = { 
-				titlebars_enabled = false,
+				titlebars_enabled = true,
 				floating = true,
-				hide_titlebars = true,
+				hide_titlebars = false,
 				draw_backdrop = false,
 				skip_decoration = true,
 				placement = awful.placement.centered
@@ -95,10 +95,10 @@ ruled.client.connect_signal(
 				type = { 'splash' }
 			},
 			properties = { 
-				titlebars_enabled = false,
+				titlebars_enabled = true,
 				floating = true,
 				above = true,
-				hide_titlebars = true,
+				hide_titlebars = false,
 				draw_backdrop = false,
 				skip_decoration = true,
 				shape = function(cr, width, height)
