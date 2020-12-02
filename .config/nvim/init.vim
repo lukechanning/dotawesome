@@ -83,6 +83,14 @@ nmap <silent> gr <Plug>(coc-references)
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
 " use K to show type definitions
+function! s:show_documentation()
+  if &filetype == 'vim'
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 " ==NERDTree== "
