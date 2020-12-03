@@ -11,6 +11,31 @@ local dpi = require('beautiful').xresources.apply_dpi
 local clientKeys =
 	awful.util.table.join(
 
+    -- By direction client focus
+  awful.key({ modkey }, "j",
+      function()
+          awful.client.focus.global_bydirection("down")
+          if client.focus then client.focus:raise() end
+      end,
+      {description = "focus down", group = "client"}),
+  awful.key({ modkey }, "k",
+      function()
+          awful.client.focus.global_bydirection("up")
+          if client.focus then client.focus:raise() end
+      end,
+      {description = "focus up", group = "client"}),
+  awful.key({ modkey }, "h",
+      function()
+          awful.client.focus.global_bydirection("left")
+          if client.focus then client.focus:raise() end
+      end,
+      {description = "focus left", group = "client"}),
+  awful.key({ modkey }, "l",
+      function()
+          awful.client.focus.global_bydirection("right")
+          if client.focus then client.focus:raise() end
+      end,
+      {description = "focus right", group = "client"}),
 	-- toggle fullscreen
 	awful.key(
 		{modkey},
@@ -71,17 +96,6 @@ local clientKeys =
 		'u', 
 		awful.client.urgent.jumpto, 
 		{description = 'jump to urgent client', group = 'client'}
-	),
-	awful.key(
-		{modkey},
-		'Tab',
-		function()
-			awful.client.focus.history.previous()
-			if client.focus then
-				client.focus:raise()
-			end
-		end,
-		{description = 'go back', group = 'client'}
 	),
     awful.key(
         {modkey},
