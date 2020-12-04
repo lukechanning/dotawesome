@@ -27,6 +27,7 @@ foreground-alt = #eceff4
 primary = #5E81AC
 secondary = #e60053
 alert = #bd2c40
+white = #FFFFFF
 
 [bar/example]
 ;monitor = ${env:MONITOR:HDMI-1}
@@ -55,9 +56,6 @@ module-margin-left = 1
 module-margin-right = 1
 
 font-0 = "Iosevka Nerd Font:pixelsize=13;3"
-font-1 = "Iosevka Nerd Font:pixelsize=13;3"
-font-2 = "Iosevka Nerd Font:pixelsize=13;3"
-font-3 = "Iosevka Nerd Font:pixelsize=13;3"
 ; font-0 = "JetBrainsMono Nerd Font:size=9;2"
 ; font-1 = "JetBrainsMono Nerd Font:size=11;3"
 ; font-2 = "JetBrainsMono Nerd Font:size=13;3"
@@ -89,7 +87,7 @@ cursor-scroll = ns-resize
 
 [module/launcher]
 type=custom/text
-content = 
+content = 
 content-font=2
 content-foreground=#1793d1
 ;content-foreground=${colors.foreground}
@@ -145,7 +143,7 @@ label-unmounted-foreground = ${colors.foreground-alt}
 
 [module/i3]
 type = internal/i3
-ws-icon-0 = 1;%{T4}%{T-}
+ws-icon-0 = 1;%{T4}%{T-}
 ws-icon-1 = 2;%{T2}%{T-}
 ws-icon-2 = 3;%{T1}%{T-}
 ws-icon-3 = 4;%{T2}%{T-}
@@ -216,12 +214,12 @@ label-song-ellipsis = true
 type = custom/text
 content = |
 
-; [module/update]
-; type = custom/script
-; exec = sudo ~/.config/polybar/scripts/update.sh
-; interval = 600
-; format = <label>
-; label = %{T3}%{T-} %output%
+[module/update]
+type = custom/script
+exec = sudo ~/.config/polybar/scripts/update.sh
+interval = 600
+format = <label>
+label = %{T3}%{T-} %output%
 
 [module/xbacklight]
 type = internal/light
@@ -442,7 +440,7 @@ ramp-foreground = ${colors.foreground-alt}
 type = custom/text
 format-spacing = 2
 content = %{T2}%{T-}
-content-foreground = ${colors.alert}
+content-foreground = ${colors.white}
 click-left = "bash .config/rofi/powermenu/powermenu.sh"
 
 [module/powermenu]
