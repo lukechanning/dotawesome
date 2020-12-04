@@ -41,11 +41,22 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
+# Use light to adjust brightness
+bindsym XF86MonBrightnessUp exec light -A 5 
+bindsym XF86MonBrightnessDown exec light -U 5 
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec kitty 
+
+# start a brave window
+bindsym $mod+b exec brave
+bindsym $mod+Shift+b exec brave --incognito
+
+# take a screenshot with flameshot
+bindsym Print exec flameshot gui
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -103,7 +114,8 @@ bindsym $mod+Shift+space floating toggle
 # bindsym $mod+space focus mode_toggle
 
 # focus the parent container
-bindsym $mod+a focus parent
+# disable so I stop driving myself nuts
+# bindsym $mod+a focus parent
 
 # focus the child container
 #bindsym $mod+d focus child
