@@ -16,7 +16,7 @@ ln -sf "${PWD}"/.config/i3 ~/.config/i3
 ln -sf "${PWD}"/.config/rofi ~/.config/rofi
 ln -sf "${PWD}"/.config/picom ~/.config/picom
 ln -sf "${PWD}"/.config/dunst ~/.config/dunst
-ln -sf "${PWD}"/.config/tint2 ~/.config/tint2
+ln -sf "${PWD}"/.config/polybar ~/.config/polybar
 # ln -sf "${PWD}"/.config/redshift ~/.config/redshift
 # ln -sf "${PWD}"/.config/kitty ~/.config/kitty
 # ln -sf "${PWD}"/.config/awesome ~/.config/awesome
@@ -24,4 +24,4 @@ ln -sf "${PWD}"/.config/tint2 ~/.config/tint2
 # ln -sf "${PWD}"/.config/chromium-flags.conf ~/.config/chromium-flags.conf
 
 # kick off redshift
-systemctl --user enable --now redshift.service
+# systemctl --user enable --now redshift.service
