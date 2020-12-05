@@ -204,8 +204,8 @@ bindsym $mod+r mode "resize"
 # NetworkManager
 exec --no-startup-id nm-applet
 
-# tint2
-# exec --no-startup-id tint2
+# blueman
+exec --no-startup-id blueman-applet
 
 # polybar
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
