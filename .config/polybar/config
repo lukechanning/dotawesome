@@ -19,7 +19,9 @@
 [colors]
 ;background = ${xrdb:color0:#222}
 ;background = #2e3440
-background = #852e3440
+;background = #852e3440
+
+background = #60000000
 background-alt = #00000000
 ;foreground = ${xrdb:color7:#222}
 foreground = #eceff4
@@ -52,14 +54,14 @@ border-color = #00000000
 padding-left = 2
 padding-right = 2
 
-module-margin-left = 1
-module-margin-right = 1
+module-margin-left = 2
+module-margin-right = 2
 
-font-0 = "Fantasque Sans Mono:pixelsize=13;2"
+font-0 = "Noto Sans:pixelsize=13;2"
 font-1 = "Iosevka Nerd Font:pixelsize=13;3"
 
-modules-left = launcher sep xwindow
-modules-center = i3
+modules-left = launcher i3 sep xwindow
+;modules-center = i3
 modules-right = backlight-acpi pulseaudio xkeyboard wlan eth battery date sep power
 
 tray-position = right
@@ -149,42 +151,38 @@ ws-icon-8 = 9;%{T3}%{T-}
 ws-icon-9 = 10;%{T3}%{T-}
 ws-icon-default = " "
 format = <label-state> 
-;<label-mode>
 index-sort = true
 wrapping-scroll = false
 
 ; Only show workspaces on the same output as the bar
 ;pin-workspaces = true
 
-label-mode-padding = 2
+label-mode-padding = 1
 label-mode-foreground = #000
 label-mode-background = ${colors.primary}
 
 ; focused = Active workspace on focused monitor
-;label-focused = %index%
 label-focused = %icon%
 label-focused-background = #0000
-;${colors.background-alt}
-;label-focused-underline= ${colors.primary}
+label-focused-underline= ${colors.primary}
 label-focused-foreground= #85a7e6
-;label-focused-foreground= ${colors.primary}
-label-focused-padding = 2
+label-focused-padding = 1
 
 ; unfocused = Inactive workspace on any monitor
 label-unfocused = %icon%
 label-unfocused-foreground = #ffffff
-label-unfocused-padding = 2
+label-unfocused-padding = 1
 
 ; visible = Active workspace on unfocused monitor
 label-visible = %icon%
 label-visible-background = ${self.label-focused-background}
-;label-visible-underline = ${self.label-focused-underline}
+label-visible-underline = ${self.label-focused-underline}
 label-visible-padding = ${self.label-focused-padding}
 
 ; urgent = Workspace with urgency hint set
 label-urgent = %icon%
 label-urgent-background = ${colors.alert}
-label-urgent-padding = 2
+label-urgent-padding = 1
 
 ; Separator in between workspaces
 ; label-separator = |
