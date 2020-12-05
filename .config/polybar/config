@@ -62,7 +62,7 @@ font-1 = "Iosevka Nerd Font:pixelsize=13;3"
 
 modules-left = launcher i3 sep xwindow
 ;modules-center = i3
-modules-right = backlight-acpi pulseaudio xkeyboard wlan eth battery date sep power
+modules-right = backlight-acpi pulseaudio xkeyboard wlan update battery date sep power
 
 tray-position = right
 tray-padding = 0
@@ -208,7 +208,7 @@ content = |
 
 [module/update]
 type = custom/script
-exec = sudo ~/.config/polybar/scripts/update.sh
+exec = ~/.config/polybar/scripts/update.sh
 interval = 600
 format = <label>
 label = %{T3}%{T-} %output%
