@@ -57,15 +57,15 @@ padding-right = 2
 module-margin-left = 2
 module-margin-right = 2
 
-font-0 = "Noto Sans:pixelsize=13;2"
+font-0 = "Noto Sans:pixelsize=13;3"
 font-1 = "Iosevka Nerd Font:pixelsize=13;3"
 
 modules-left = launcher i3 sep xwindow
 ;modules-center = i3
-modules-right = backlight-acpi pulseaudio xkeyboard wlan update battery date sep power
+modules-right = backlight-acpi pulseaudio xkeyboard wlan eth update battery date sep power
 
 tray-position = right
-tray-padding = 0
+tray-padding = 2
 tray-background = #2e3440
 
 wm-restack = i3
@@ -252,16 +252,9 @@ interface = wlp0s20f3
 interval = 3.0
 
 format-connected = <label-connected>
-;format-connected-underline = #9f78e1
-label-connected = %{T2} %{T-}
-;%{A1:nmtui:}%essid%%{A} 
-;%essid%
+label-connected = %{T2}%{T-}
 
-format-disconnected = %{T1} %{T-}
-;format-disconnected = <label-disconnected>
-;format-disconnected-underline = ${self.format-connected-underline}
-;label-disconnected = %ifname% disconnected
-;label-disconnected-foreground = ${colors.foreground-alt}
+format-disconnected = %{T1}%{T-}
 
 ramp-signal-0 = 
 ramp-signal-1 = 
