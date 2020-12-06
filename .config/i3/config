@@ -45,6 +45,9 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 bindsym XF86MonBrightnessUp exec light -A 5 
 bindsym XF86MonBrightnessDown exec light -U 5 
 
+# Alt tab like behavior
+bindsym $mod+Tab workspace back_and_forth
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
