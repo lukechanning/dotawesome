@@ -7,6 +7,8 @@ killall -q polybar
 
 # Launch bar1 and bar2
 echo "---" | tee -a /tmp/polybar1.log /tmp/polybar2.log
-polybar example -r >>/tmp/polybar1.log 2>&1 & disown
+for m in $(polybar --list-monitors | cut -d":" -f1); do
+    MONITOR=$m polybar -r example >>/tmp/polybar1.log 2>&1 & disown
+done
 
 echo "Bars launched..."
