@@ -244,14 +244,5 @@ naughty.connect_signal(
 				widget = wibox.container.background	
 			}
 		}
-	
-		-- Destroy popups if dont_disturb mode is on
-		-- Or if the right_panel is visible
-		local focused = awful.screen.focused()
-		if _G.dont_disturb or
-			(focused.right_panel and focused.right_panel.visible) then
-			naughty.destroy_all_notifications(nil, 1)
-		end
-
 	end
 )

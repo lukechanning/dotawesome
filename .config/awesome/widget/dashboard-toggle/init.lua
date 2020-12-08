@@ -35,12 +35,7 @@ local return_button = function()
 				1,
 				nil,
 				function()
-		            local focused = awful.screen.focused()
-
-		            if focused.right_panel and focused.right_panel.visible then
-		                focused.right_panel.visible = false
-		            end
-		            focused.left_panel:toggle()
+          awful.spawn('rofi -show drun -theme clean', false)
 				end
 			)
 		)

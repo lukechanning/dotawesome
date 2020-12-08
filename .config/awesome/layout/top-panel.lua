@@ -79,7 +79,6 @@ local top_panel = function(s, offset)
 	s.battery     			= require('widget.battery')()
 	s.network       		= require('widget.network')()
   s.volume            = require('widget.volume-icon')()
-	s.info_center_toggle		= require('widget.info-center-toggle')()
 
 	panel : setup {
 		layout = wibox.layout.align.horizontal,
@@ -108,7 +107,6 @@ local top_panel = function(s, offset)
 			s.battery,
 			layout_box,
       clock,
-			s.info_center_toggle
 		}
 	}
 
