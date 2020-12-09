@@ -70,17 +70,15 @@ local top_panel = function(s, offset)
 		}
 	end
 
-	local clock 			= require('widget.clock')(s)
+	local clock 			  = require('widget.clock')(s)
 	local layout_box 		= require('widget.layoutbox')(s)
 	local add_button 		= require('widget.open-default-app')(s)
-  s.dashboard_toggle    = require('widget.dashboard-toggle')()
+  s.dashboard_toggle  = require('widget.dashboard-toggle')()
 	s.tray_toggler  		= require('widget.tray-toggle')
-	s.updater 			= require('widget.package-updater')()
-	s.bluetooth   			= require('widget.bluetooth')()
+	s.updater 			    = require('widget.package-updater')()
 	s.battery     			= require('widget.battery')()
 	s.network       		= require('widget.network')()
   s.volume            = require('widget.volume-icon')()
-	s.info_center_toggle		= require('widget.info-center-toggle')()
 
 	panel : setup {
 		layout = wibox.layout.align.horizontal,
@@ -106,11 +104,9 @@ local top_panel = function(s, offset)
 			s.updater,
       s.volume,
 			s.network,
-			s.bluetooth,
 			s.battery,
 			layout_box,
       clock,
-			s.info_center_toggle
 		}
 	}
 

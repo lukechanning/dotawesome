@@ -403,94 +403,12 @@ local globalKeys = awful.util.table.join(
 		{description = 'open system monitor', group = 'launcher'}
 	),
 	awful.key(
-		{}, 
-		'XF86Launch1',
-		function()
-			local focused = awful.screen.focused()
-
-			if focused.left_panel then
-				focused.left_panel:hide_dashboard()
-				focused.left_panel.opened = false
-			end
-			if focused.right_panel then
-				focused.right_panel:hide_dashboard()
-				focused.right_panel.opened = false
-			end
-			awful.spawn(apps.default.rofi_appmenu, false)
-		end,
-		{description = 'open application drawer', group = 'launcher'}
-	),
-	awful.key(
-		{modkey},
-		'r',
-		function()
-			local focused = awful.screen.focused()
-
-			if focused.right_panel and focused.right_panel.visible then
-				focused.right_panel.visible = false
-			end
-			screen.primary.left_panel:toggle()
-		end,
-		{description = 'open sidebar', group = 'launcher'}
-	),
-	awful.key(
 		{modkey},
 		'space',
 		function()
-			local focused = awful.screen.focused()
-
-			if focused.right_panel and focused.right_panel.visible then
-				focused.right_panel.visible = false
-			end
-			screen.primary.left_panel:toggle(true)
+      awful.spawn('rofi -show drun -theme clean', false)
 		end,
 		{description = 'open sidebar and global search', group = 'launcher'}
-	),
-	awful.key(
-		{modkey, 'Control'}, 
-		'e',
-		function()
-			local focused = awful.screen.focused()
-
-			if focused.left_panel and focused.left_panel.opened then
-				focused.left_panel:toggle()
-			end
-
-			if focused.right_panel then
-				if _G.right_panel_mode == 'today_mode' or not focused.right_panel.visible then
-					focused.right_panel:toggle()
-					switch_rdb_pane('today_mode')
-				else
-					switch_rdb_pane('today_mode')
-				end
-
-				_G.right_panel_mode = 'today_mode'
-			end
-		end,
-		{description = 'open notification center', group = 'launcher'}
-	),
-	awful.key(
-		{modkey, 'Shift'}, 
-		'e',
-		function()
-			local focused = awful.screen.focused()
-
-			if focused.left_panel and focused.left_panel.opened then
-				focused.left_panel:toggle()
-			end
-
-			if focused.right_panel then
-				if _G.right_panel_mode == 'notif_mode' or not focused.right_panel.visible then
-					focused.right_panel:toggle()
-					switch_rdb_pane('notif_mode')
-				else
-					switch_rdb_pane('notif_mode')
-				end
-
-				_G.right_panel_mode = 'notif_mode'
-			end
-		end,
-		{description = 'open today pane', group = 'launcher'}
 	)
 )
 

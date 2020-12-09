@@ -41,3 +41,6 @@ require('module.titlebar')
 require('module.brightness-osd')
 require('module.volume-osd')
 require('module.lockscreen')
+
+require('widget.volume-slider')
+require('widget.brightness-slider')
