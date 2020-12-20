@@ -59,9 +59,9 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec kitty 
 
-# start a brave window
-bindsym $mod+b exec brave
-bindsym $mod+Shift+b exec brave --incognito
+# start a chromium window
+bindsym $mod+b exec chromium
+bindsym $mod+Shift+b exec chromium --incognito
 
 # open a thunar window
 bindsym $mod+m exec thunar
