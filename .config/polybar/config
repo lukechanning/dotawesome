@@ -35,12 +35,7 @@ white = #FFFFFF
 monitor = ${env:MONITOR}
 width = 100%:
 height = 30
-;offset-x = 2.5%
-;offset-x = 1%
-;offset-y = 1%
-;offset-y = 0.5%
 radius = 0
-;fixed-center = true
 
 background = ${colors.background}
 foreground = ${colors.foreground}
@@ -70,11 +65,6 @@ tray-background = #2e3440
 
 wm-restack = i3
 
-;override-redirect = true
-
-;scroll-up = bspwm-desknext
-;scroll-down = bspwm-deskprev
-
 scroll-up = i3wm-wsnext
 scroll-down = i3wm-wsprev
 
@@ -86,7 +76,6 @@ type=custom/text
 content = 
 content-font=2
 content-foreground=#1793d1
-;content-foreground=${colors.foreground}
 content-padding=0
 click-left= "bash ~/.config/polybar/scripts/launcher.sh"
 
@@ -100,28 +89,15 @@ blacklist-0 = num lock
 
 format = <label-indicator>
 format-spacing = 0
-;format-prefix = " "
 format-prefix-foreground = ${colors.foreground-alt}
-;format-prefix-underline = ${colors.secondary}
-
-;label-layout = %icon%
-;label-layout-underline = ${colors.secondary}
 
 label-indicator = %icon%
 label-indicator-padding = 0
 label-indicator-margin = 0
-;label-indicator-background = ${colors.secondary}
-;label-indicator-underline = ${colors.secondary}
-
-; layout-icon-[0-9]+ = layout;icon
-; Assign each layout an icon that will be available as %icon% token for the
-; <label-layout> tag. The part before ';' will try to match %layout% value.
 layout-icon-default = 
 layout-icon-0 = 
 layout-icon-1 = 
 
-; indicator-icon-[0-9]+ = indicator;off icon;on icon
-; Provides the content of the %icon% token in label-indicator-*
 indicator-icon-default = 
 indicator-icon-0 = caps lock;-CL;%{T4}%{T-}
 indicator-icon-1 = scroll lock;;+SL
@@ -139,17 +115,28 @@ label-unmounted-foreground = ${colors.foreground-alt}
 
 [module/i3]
 type = internal/i3
-ws-icon-0 = 1;%{T4}%{T-}
-ws-icon-1 = 2;%{T2}%{T-}
-ws-icon-2 = 3;%{T1}%{T-}
-ws-icon-3 = 4;%{T2}%{T-}
-ws-icon-4 = 5;%{T2}%{T-}
-ws-icon-5 = 6;%{T2}ﭮ%{T-}
-ws-icon-6 = 7;%{T3}%{T-}
-ws-icon-7 = 8;%{T3}%{T-}
-ws-icon-8 = 9;%{T3}%{T-}
-ws-icon-9 = 10;%{T3}%{T-}
-ws-icon-default = " "
+; ws-icon-0 = 1;%{T4}%{T-}
+; ws-icon-1 = 2;%{T2}%{T-}
+; ws-icon-2 = 3;%{T1}%{T-}
+; ws-icon-3 = 4;%{T2}%{T-}
+; ws-icon-4 = 5;%{T2}%{T-}
+; ws-icon-5 = 6;%{T2}ﭮ%{T-}
+; ws-icon-6 = 7;%{T3}%{T-}
+; ws-icon-7 = 8;%{T3}%{T-}
+; ws-icon-8 = 9;%{T3}%{T-}
+; ws-icon-9 = 10;%{T3}%{T-}
+ws-icon-0 = I;
+ws-icon-1 = II;
+ws-icon-2 = III;
+ws-icon-3 = IV;
+ws-icon-4 = V;
+ws-icon-5 = VI;
+ws-icon-6 = VII;
+ws-icon-7 = VIII;
+ws-icon-8 = IX;
+ws-icon-9 = X;
+
+ws-icon-default = ""
 format = <label-state> 
 index-sort = true
 wrapping-scroll = false
@@ -162,10 +149,11 @@ label-mode-foreground = #000
 label-mode-background = ${colors.primary}
 
 ; focused = Active workspace on focused monitor
-label-focused = %icon%
+;label-focused = %icon%
+label-focused = 
 label-focused-background = #0000
-label-focused-underline= ${colors.primary}
-label-focused-foreground= #85a7e6
+;label-focused-underline= ${colors.primary}
+;label-focused-foreground= #85a7e6
 label-focused-padding = 1
 
 ; unfocused = Inactive workspace on any monitor
@@ -176,17 +164,13 @@ label-unfocused-padding = 1
 ; visible = Active workspace on unfocused monitor
 label-visible = %icon%
 label-visible-background = ${self.label-focused-background}
-label-visible-underline = ${self.label-focused-underline}
+;label-visible-underline = ${self.label-focused-underline}
 label-visible-padding = ${self.label-focused-padding}
 
 ; urgent = Workspace with urgency hint set
 label-urgent = %icon%
 label-urgent-background = ${colors.alert}
 label-urgent-padding = 1
-
-; Separator in between workspaces
-; label-separator = |
-
 
 [module/mpd]
 type = internal/mpd
@@ -223,19 +207,17 @@ label =
 inherit = module/xbacklight
 type = internal/backlight
 card = intel_backlight
-;format-prefix = "%{T2}%{T-} "
 format = <ramp> <label>
 label = %percentage%
-ramp-0 = %{T2}%{T-}
-ramp-1 = %{T2}%{T-}
-ramp-2 = %{T2}%{T-}
+ramp-0 = %{T2}%{T-}
+ramp-1 = %{T2}%{T-}
+ramp-2 = %{T2}%{T-}
 
 [module/cpu]
 type = internal/cpu
 interval = 2
 format-prefix = " "
 format-prefix-foreground = ${colors.foreground-alt}
-;format-underline = #f90000
 label = %percentage:2%
 
 [module/memory]
@@ -283,15 +265,14 @@ format-disconnected =
 type = internal/date
 interval = 5
 
-date ="%{T2}%{T-} %a,%e "
-date-alt = "%{T2}%{T-} %e %b %Y "
+date =" %{T2}%{T-} %a, %e "
+date-alt = "%{T2}%{T-} %e %b %Y "
 
-time = "%{T2}%{T-} %I:%M %p"
-time-alt = "%{T2}%{T-} %I:%M:%S %p"
+time = " %{T2}%{T-} %I:%M %p"
+time-alt = "%{T2}%{T-} %I:%M:%S %p"
 
 format-prefix = 
 format-prefix-foreground = ${colors.foreground-alt}
-;format-underline = #0a6cf5
 
 label = %date% %time%
 
