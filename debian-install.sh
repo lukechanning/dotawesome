@@ -54,6 +54,10 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 vim +'PlugInstall --sync' +qa
 
+# install powerline font
+mkdir -p "$HOME/.fonts"
+cp meslo.ttf ~/.fonts/meslo.ttf
+
 # add tmux
 sudo apt install tmux
 ln -sf "${PWD}"/.tmux.conf ~/.tmux.conf
