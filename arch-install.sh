@@ -32,6 +32,9 @@ export NVM_DIR="$HOME/.nvm"
 nvm install node
 nvm use node
 
+# setup diff-so-fancy
+npm install -g diff-so-fancy
+
 # setup yarn
 sudo pacman -S yarn
 

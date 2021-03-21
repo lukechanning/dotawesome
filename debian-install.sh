@@ -36,6 +36,9 @@ sudo apt update && sudo apt install --no-install-recommends yarn
 mkdir -p "$HOME/.zsh"
 git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 
+# diff-so-fancy install
+npm install -g diff-so-fancy
+
 # neovim and vim stuff
 sudo apt install neovim
 mkdir ~/.config/nvim
