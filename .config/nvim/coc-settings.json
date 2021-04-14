@@ -5,7 +5,8 @@
     "json",
     "rust",
     "typescript",
-    "typescriptreact"
+    "typescriptreact",
+    "dart"
   ],
   "eslint.filetypes": [
     "javascript",
