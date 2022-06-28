@@ -38,6 +38,7 @@ git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 
 # diff-so-fancy install
 npm install -g diff-so-fancy
+git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 
 # neovim and vim stuff
 sudo apt install neovim
