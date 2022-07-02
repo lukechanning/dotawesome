@@ -55,7 +55,7 @@ mkdir ~/.config/nvim/undodir
 
 # install powerline font
 mkdir -p "$HOME/.fonts"
-cp meslo.ttf ~/.fonts/meslo.ttf
+cp "${PWD}"/fonts/meslo.ttf ~/.fonts/meslo.ttf
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
