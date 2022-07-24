@@ -1,7 +1,8 @@
 #!/bin/bash
 
 sudo apt install i3 nitrogen redshift kitty \
-  picom rofi flameshot playerctl dunst polybar 
+  picom rofi flameshot playerctl dunst polybar \
+  light
 
 ln -sf "${PWD}"/.config/i3 ~/.config/i3
 ln -sf "${PWD}"/.config/rofi ~/.config/rofi
