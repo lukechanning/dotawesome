@@ -39,7 +39,7 @@ mkdir ~/.config/nvim/undodir
 
 # add rigrep for fzf
 brew install ripgrep
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp
+# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin
 # to complete Coc installation
 
 # add Vim Plug

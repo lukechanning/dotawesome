@@ -50,7 +50,7 @@ ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
 mkdir ~/.config/nvim/undodir
 
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp
+# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin
 # to complete Coc installation
 
 # install powerline font

@@ -50,7 +50,7 @@ mkdir ~/.config/nvim/undodir
 # add rigrep for fzf
 curl -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
 sudo dpkg -i ripgrep_11.0.2_amd64.deb
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp
+# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin
 # to complete Coc installation
 
 # add Vim Plug
