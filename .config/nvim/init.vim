@@ -75,6 +75,8 @@ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 " command! -nargs=0 Format :call CocAction('format')
 " Use Ctrl-S-F to run linter
 nnoremap <leader><C-F> :CocCommand eslint.executeAutofix<CR>
+" Use `:Prettier` to format current buffer with Prettier
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " Use `[g` and `]g` to navigate diagnostics
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
