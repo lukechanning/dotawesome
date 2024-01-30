@@ -59,7 +59,7 @@ vim +'PlugInstall --sync' +qa
 
 # install powerline font
 mkdir -p "$HOME/.fonts"
-cp "${PWD}"/fonts/meslo.ttf ~/.fonts/meslo.ttf
+cp "${PWD}"/fonts/MesloNerdFont.ttf ~/.fonts/meslo.ttf
 
 # add tmux
 sudo apt install tmux

@@ -12,7 +12,7 @@
         "defaults":
         {
     	    "colorScheme": "Nord",
-	    "fontFace": "Meslo LG M for Powerline",
+	    "fontFace": "MesloLGL Nerd Font",
 	    "fontSize": 10,
 	    "cursorShape": "filledBox"
             // Put settings here that you want to apply to all profiles

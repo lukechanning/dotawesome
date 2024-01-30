@@ -53,4 +53,4 @@ ln -sf "${PWD}"/.tmux.conf ~/.tmux.conf
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # add meslo font to local fonts
-cp "${PWD}"/fonts/meslo.ttf ~/Library/Fonts/
+cp "${PWD}"/fonts/MesloNerdFont.ttf ~/Library/Fonts/
