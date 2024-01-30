@@ -1,4 +1,20 @@
--- Mason Setup
+-------------------
+-- NVIM Tree ------
+-------------------
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- enable 24-bit colour
+vim.opt.termguicolors = true
+
+-- empty setup using defaults
+require("nvim-tree").setup()
+
+-----------------
+-- LSP Setup ----
+-----------------
+-- mason config for lsp with deps
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {

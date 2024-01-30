@@ -10,7 +10,8 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'vim-airline/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'benmills/vimux'
-Plug 'preservim/nerdtree'
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'nvim-tree/nvim-tree.lua'
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
@@ -54,16 +55,6 @@ augroup FormatAutogroup
   autocmd BufWritePost * FormatWrite
 augroup END
 
-" === NERDTree === "
-" Show hidden files/directories
-let g:NERDTreeShowHidden = 1
-" Remove bookmarks and help text from NERDTree
-let g:NERDTreeMinimalUI = 1
-" Hide certain files and directories from NERDTree
-let g:NERDTreeIgnore = ['^\.DS_Store$', '^tags$', '\.git$[[dir]]', '\.idea$[[dir]]', '\.sass-cache$']
-" OPen NERDTree with Ctrl-n
-map <C-n> :NERDTreeToggle<CR>
-
 " ==Remapped Keys== "
 " fuzzy search
 nnoremap <C-p> :Files<CR>
@@ -74,6 +65,9 @@ noremap <C-w>+ :resize +10<CR>
 noremap <C-w>- :resize -10<CR>
 noremap <C-w>> :vertical:resize -10<CR>
 noremap <C-w>< :vertical:resize +10<CR>
+
+" Open NVIM Tree with Ctrl-n
+map <C-n> :NvimTreeToggle<CR>
 
 " == Tmux == "
 map <Leader><S-T> :VimuxPromptCommand<CR>
