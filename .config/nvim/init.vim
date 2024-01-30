@@ -15,8 +15,8 @@ Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
-Plug 'junegunn/fzf', { 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.5' }
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-commentary'
 Plug 'williamboman/mason.nvim'
@@ -44,11 +44,10 @@ colorscheme dracula
 set termguicolors
 highlight Visual cterm=reverse ctermbg=NONE
 
-" === FZF Var === "
-let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow -g "!.git/*"'
+" == Lua Config == "
+lua require("config")
 
 " === Mason, LSP, Linting & Formatting === "
-lua require("config")
 " Format on save
 augroup FormatAutogroup
   autocmd!
@@ -56,9 +55,6 @@ augroup FormatAutogroup
 augroup END
 
 " ==Remapped Keys== "
-" fuzzy search
-nnoremap <C-p> :Files<CR>
-
 " Remap sizing
 nnoremap <silent> vv <C-w>v
 noremap <C-w>+ :resize +10<CR>
@@ -68,6 +64,13 @@ noremap <C-w>< :vertical:resize +10<CR>
 
 " Open NVIM Tree with Ctrl-n
 map <C-n> :NvimTreeToggle<CR>
+
+" Telescope
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <C-p> <cmd>Telescope find_files<cr>
 
 " == Tmux == "
 map <Leader><S-T> :VimuxPromptCommand<CR>
