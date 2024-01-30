@@ -6,7 +6,6 @@ set splitright
 let mapleader =" "
 " Setup Plugins through vim-plug
 call plug#begin('~/.config/nvim/plugged')
-" Plug 'sonph/onehalf', {'rtp': 'vim/'}
 " Plug 'arcticicestudio/nord-vim'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'vim-airline/vim-airline'
