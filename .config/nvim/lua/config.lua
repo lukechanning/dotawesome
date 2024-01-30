@@ -1,4 +1,26 @@
 -------------------
+-- TreeSitter ----
+-------------------
+local configs = require("nvim-treesitter.configs")
+configs.setup {
+  ensure_installed = {
+    "jsonc",
+    "json",
+    "lua",
+    "javascript",
+    "typescript",
+    "yaml",
+    "html",
+    "css",
+    "bash",
+    "tsx",
+    "toml",
+    "graphql",
+    "rust"
+  },
+}
+
+-------------------
 -- NVIM Tree ------
 -------------------
 -- disable netrw at the very start of your init.lua
