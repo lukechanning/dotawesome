@@ -87,3 +87,8 @@ require('formatter').setup({
         },
     } 
 })
+
+-- Additional LSP keybindings
+local opts = { noremap = true, silent = true }
+vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+vim.api.nvim_set_keymap("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
