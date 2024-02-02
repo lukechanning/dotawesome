@@ -46,16 +46,14 @@ git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 # neovim and vim stuff
 sudo pacman -S neovim ripgrep
 mkdir ~/.config/nvim
-ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
+mkdir ~/.config/nvim/lua
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
+ln -sf "${PWD}"/.config/nvim/lua/config.lua ~/.config/nvim/lua/config.lua
 mkdir ~/.config/nvim/undodir
-
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin coc-prettier
-# to complete Coc installation
 
 # install powerline font
 mkdir -p "$HOME/.fonts"
-cp "${PWD}"/fonts/meslo.ttf ~/.fonts/meslo.ttf
+cp "${PWD}"/fonts/MesloNerdFont.ttf ~/.fonts/meslo.ttf
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \

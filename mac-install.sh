@@ -33,14 +33,13 @@ git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
 # neovim and vim stuff
 brew install neovim
 mkdir ~/.config/nvim
-cp -r "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
+mkdir ~/.config/nvim/lua
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
+ln -sf "${PWD}"/.config/nvim/lua/config.lua ~/.config/nvim/lua/config.lua
 mkdir ~/.config/nvim/undodir
 
 # add rigrep for fzf
 brew install ripgrep
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin coc-prettier
-# to complete Coc installation
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
@@ -54,4 +53,4 @@ ln -sf "${PWD}"/.tmux.conf ~/.tmux.conf
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # add meslo font to local fonts
-cp "${PWD}"/fonts/meslo.ttf ~/Library/Fonts/
+cp "${PWD}"/fonts/MesloNerdFont.ttf ~/Library/Fonts/

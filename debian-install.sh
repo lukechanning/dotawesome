@@ -43,15 +43,14 @@ git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 # neovim and vim stuff
 sudo apt install neovim
 mkdir ~/.config/nvim
-ln -sf "${PWD}"/.config/nvim/coc-settings.json ~/.config/nvim/coc-settings.json
+mkdir ~/.config/nvim/lua
 ln -sf "${PWD}"/.config/nvim/init.vim ~/.config/nvim/init.vim
+ln -sf "${PWD}"/.config/nvim/lua/config.lua ~/.config/nvim/lua/config.lua
 mkdir ~/.config/nvim/undodir
 
 # add rigrep for fzf
 curl -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
 sudo dpkg -i ripgrep_11.0.2_amd64.deb
-# use :CocInstall coc-json coc-tsserver coc-rls coc-eslint coc-omnisharp coc-kotlin coc-prettier
-# to complete Coc installation
 
 # add Vim Plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
@@ -60,7 +59,7 @@ vim +'PlugInstall --sync' +qa
 
 # install powerline font
 mkdir -p "$HOME/.fonts"
-cp "${PWD}"/fonts/meslo.ttf ~/.fonts/meslo.ttf
+cp "${PWD}"/fonts/MesloNerdFont.ttf ~/.fonts/meslo.ttf
 
 # add tmux
 sudo apt install tmux
