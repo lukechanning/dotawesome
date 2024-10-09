@@ -54,13 +54,13 @@ require("nvim-tree").setup()
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "tsserver",
+        "ts_ls",
         "jsonls"
     }
 })
 
 -- Configure Language Servers
-require("lspconfig").tsserver.setup {}
+require("lspconfig").ts_ls.setup {}
 require("lspconfig").jsonls.setup {}
 
 -- Configure Linting
