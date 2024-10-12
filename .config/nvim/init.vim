@@ -7,7 +7,7 @@ let mapleader =" "
 " Setup Plugins through vim-plug
 call plug#begin('~/.config/nvim/plugged')
 " Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'projekt0n/github-nvim-theme'
+Plug 'sainnhe/edge'
 Plug 'vim-airline/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'benmills/vimux'
@@ -41,9 +41,10 @@ set softtabstop=2
 set shiftwidth=2
 
 " == Color Scheme Stuff =="
-" colorscheme dracula
-colorscheme github_light 
 set termguicolors
+" colorscheme dracula
+let g:edge_better_performance = 1
+colorscheme edge
 highlight Visual cterm=reverse ctermbg=NONE
 
 " == Lua Config == "
