@@ -48,7 +48,8 @@ colorscheme edge
 highlight Visual cterm=reverse ctermbg=NONE
 
 " == Lua Config == "
-lua require("config")
+" Load lua config after plugins are initialized
+autocmd VimEnter * ++nested lua require("config")
 
 " === Mason, LSP, Linting & Formatting === "
 " Format on save
