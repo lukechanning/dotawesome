@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Repository-only checks; deployment/system/package operations are mocked."""
+import ast
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tomllib
+
+sys.dont_write_bytecode = True
+root = Path(__file__).resolve().parents[1]
+for directory in ('lib/dotawesome', 'tests', 'components/niri'):
+    for path in (root / directory).rglob('*.py'):
+        ast.parse(path.read_text(), filename=str(path))
+for path in (root / 'components/niri').rglob('*.toml'):
+    tomllib.loads(path.read_text())
+json.loads((root / 'components/niri/definition.json').read_text())
+for name in ('dotawesome', 'ci'):
+    ast.parse((root / 'bin' / name).read_text(), filename=name)
+print('Python syntax, TOML and component JSON: OK', flush=True)
+sys.exit(subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], cwd=root).returncode)

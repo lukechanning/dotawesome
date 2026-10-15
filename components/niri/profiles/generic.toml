@@ -1,0 +1,17 @@
+name = "generic"
+# Commands are argv arrays. Configure the optional browser command as needed.
+terminal = ["alacritty"]
+
+[[apps]]
+name = "Browser"
+command = []
+app_ids = ["vivaldi-stable", "vivaldi"]
+workspace = "Web"
+width = "100%"
+
+[[apps]]
+name = "Alacritty"
+command = ["alacritty"]
+app_ids = ["Alacritty", "alacritty"]
+workspace = "Code"
+width = "100%"

@@ -1,0 +1,16 @@
+[Unit]
+Description=Dotawesome Noctalia for Niri
+PartOf=niri.service
+After=niri.service
+Requisite=niri.service
+ConditionEnvironment=XDG_CURRENT_DESKTOP=niri
+
+[Service]
+Type=simple
+Environment="NOCTALIA_CONFIG_HOME=@CONFIG@/dotawesome/niri/noctalia"
+Environment="NOCTALIA_STATE_HOME=@STATE@/niri-shell"
+Environment="NOCTALIA_DATA_HOME=@STATE@/niri-shell-data"
+ExecStart=/usr/bin/noctalia
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10

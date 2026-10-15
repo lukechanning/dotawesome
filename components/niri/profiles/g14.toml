@@ -1,0 +1,35 @@
+name = "g14"
+terminal = ["alacritty"]
+# AMD integrated GPU for Niri desktop rendering; NVIDIA remains available.
+render_device = "/dev/dri/by-path/pci-0000:65:00.0-render"
+# Reuse KDE's encrypted wallet through the desktop Secret portal.
+secret_portal = "kwallet"
+# Pin the same encrypted browser store across KDE and Niri, for every launcher.
+vivaldi_password_store = "kwallet6"
+
+# Reuse existing KDE image files; keep image data and GUI overrides local.
+[wallpaper]
+default = "~/Pictures/Path.jpg"
+favorites = ["~/Pictures/Path.jpg", "~/Pictures/OneStandsOut.jpg"]
+
+[laptop]
+identity = "eDP-2"
+mode = "2880x1800@120"
+scale = 1.6
+
+# External deliberately absent until identity AND modes are captured in Niri.
+# See NIRI-PLAN.md for the explicit [external] opt-in and connection checks.
+
+[[apps]]
+name = "Vivaldi"
+command = ["vivaldi-stable", "--ozone-platform=wayland"]
+app_ids = ["vivaldi-stable", "vivaldi"]
+workspace = "Web"
+width = "100%"
+
+[[apps]]
+name = "Alacritty"
+command = ["alacritty"]
+app_ids = ["Alacritty", "alacritty"]
+workspace = "Code"
+width = "100%"

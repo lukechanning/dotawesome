@@ -1,0 +1,249 @@
+# Noctalia native v5; GUI overrides live in the isolated Niri state directory.
+[theme]
+mode = "dark"
+shell_mode = "dark"
+source = "builtin"
+builtin = "Noctalia"
+
+[theme.templates]
+enable_builtin_templates = false
+builtin_ids = []
+enable_community_templates = false
+community_ids = []
+
+[storage]
+key_source = "secret-service"
+
+[shell]
+corner_radius_scale = 0.5
+popup_shadows = false
+setup_wizard_enabled = false
+telemetry_enabled = false
+external_ip_enabled = false
+show_location = false
+niri_overview_type_to_launch_enabled = false
+polkit_agent = true
+screen_time_enabled = false
+clipboard_enabled = true
+clipboard_history_max_entries = 100
+clipboard_confirm_clear_history = true
+clipboard_auto_paste = "off"
+settings_window_translucent = false
+
+[shell.animation]
+enabled = true
+speed = 1.5
+
+[shell.launcher]
+fetch_exchange_rates = false
+
+[shell.shadow]
+alpha = 0.0
+
+[shell.panel]
+transparency_mode = "solid"
+shadow = false
+
+[shell.greeter_sync]
+auto_sync = false
+
+[bar.default]
+position = "top"
+thickness = 28
+margin_ends = 0
+margin_edge = 0
+radius = 0
+radius_top_left = 0
+radius_top_right = 0
+radius_bottom_left = 0
+radius_bottom_right = 0
+background_opacity = 1.0
+compositor_blur = false
+shadow = false
+reserve_space = true
+start = ["workspaces"]
+center = ["group:world-clocks"]
+end = ["media-prev", "media-play", "media-next", "media", "cpu", "ram", "network", "volume", "battery", "caffeine", "clipboard", "notifications", "tray"]
+
+# Native clocks: Amsterdam normally, the other zones revealed on hover.
+[[bar.default.capsule_group]]
+id = "world-clocks"
+members = ["clock", "clock-nyc", "clock-la", "clock-auckland"]
+accordion = true
+accordion_direction = "end"
+fill = "surface"
+opacity = 1.0
+padding = 4.0
+radius = 4.0
+widget_spacing = 10
+
+[widget.clock]
+timezone = "Europe/Amsterdam"
+format = "{:%H:%M}"
+tooltip_format = "Amsterdam — {:%A %d %B, %H:%M %Z}"
+
+[widget.clock.actions]
+left = "panel-open control-center"
+
+[widget.clock-nyc]
+type = "clock"
+timezone = "America/New_York"
+format = "NYC {:%H:%M}"
+tooltip_format = "New York — {:%a %d %b, %H:%M %Z}"
+
+[widget.clock-la]
+type = "clock"
+timezone = "America/Los_Angeles"
+format = "LA {:%H:%M}"
+tooltip_format = "Los Angeles — {:%a %d %b, %H:%M %Z}"
+
+[widget.clock-auckland]
+type = "clock"
+timezone = "Pacific/Auckland"
+format = "NZ {:%H:%M}"
+tooltip_format = "Auckland — {:%a %d %b, %H:%M %Z}"
+
+[widget.network]
+show_label = false
+
+[widget.network.actions]
+left = "panel-open control-center network"
+
+[widget.battery.actions]
+middle = "caffeine-toggle"
+
+# Native coffee glyph provides persistent inhibitor-state feedback.
+[widget.caffeine]
+type = "caffeine"
+
+[widget.clipboard.actions]
+left = "panel-toggle clipboard"
+
+[widget.notifications]
+hide_when_no_unread = true
+
+[widget.notifications.actions]
+left = "panel-open control-center notifications"
+
+# Visible transport buttons; no playerctl, polling script, or extra service.
+[widget.media-prev]
+type = "custom_button"
+glyph = "player-skip-back"
+tooltip = "Previous track"
+
+[widget.media-prev.actions]
+left = "media previous"
+
+[widget.media-play]
+type = "custom_button"
+glyph = "player-play"
+tooltip = "Play / pause"
+
+[widget.media-play.actions]
+left = "media toggle"
+
+[widget.media-next]
+type = "custom_button"
+glyph = "player-skip-forward"
+tooltip = "Next track"
+
+[widget.media-next.actions]
+left = "media next"
+
+[widget.workspaces]
+show_labels = true
+label_source = "name"
+max_label_chars = 8
+
+[widget.cpu]
+type = "sysmon"
+stat = "cpu_usage"
+visualization = "none"
+show_glyph = false
+custom_label = "CPU"
+show_value = true
+
+[widget.ram]
+type = "sysmon"
+stat = "ram_pct"
+visualization = "none"
+show_glyph = false
+custom_label = "RAM"
+show_value = true
+
+[widget.volume.actions]
+left = "panel-open control-center audio"
+
+[widget.media]
+hide_album_art = true
+hide_artist = true
+max_length = 160
+min_length = 40
+hide_when_no_media = true
+
+# Sample only the requested CPU/RAM numbers, at a restrained cadence.
+[system.monitor]
+enabled = true
+cpu_poll_seconds = 3.0
+memory_poll_seconds = 5.0
+gpu_poll_seconds = 0.0
+network_poll_seconds = 0.0
+disk_poll_seconds = 0.0
+
+[control_center]
+sidebar = "compact"
+hidden_tabs = ["weather", "calendar", "screen-time"]
+
+[notification]
+enable_daemon = true
+background_opacity = 1.0
+
+[lockscreen]
+enabled = true
+lock_before_suspend = true
+transition = []
+
+[idle]
+behavior_order = ["lock", "screen-off"]
+pre_action_fade_seconds = 0.0
+
+[idle.behavior.lock]
+enabled = true
+action = "lock"
+timeout = 600
+
+[idle.behavior.screen-off]
+enabled = true
+action = "screen_off"
+timeout = 900
+
+[dock]
+enabled = false
+
+[desktop_widgets]
+enabled = false
+
+[weather]
+enabled = false
+
+[location]
+auto_locate = false
+address = ""
+
+[calendar]
+enabled = false
+
+[wallpaper]
+transition = []
+enabled = true
+fill_color = "#161821"
+
+[wallpaper.automation]
+enabled = false
+
+[backdrop]
+enabled = false
+
+[plugins]
+enabled = []
+auto_update = "none"

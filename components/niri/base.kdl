@@ -1,0 +1,89 @@
+// Portable baseline. Machine outputs, workspaces and command bindings are appended.
+input {
+    keyboard {
+        xkb {}
+    }
+    touchpad { tap; natural-scroll; }
+}
+layout {
+    gaps 6
+    background-color "#161821"
+    default-column-width { proportion 0.5; }
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+    focus-ring {
+        width 2
+        active-color "#82aaff"
+        inactive-color "#454b68"
+    }
+    border { off; }
+}
+// Short transitions aid spatial navigation without blur, bounce or shaders.
+animations {
+    workspace-switch { duration-ms 150; curve "ease-out-cubic"; }
+    horizontal-view-movement { duration-ms 150; curve "ease-out-cubic"; }
+    window-movement { duration-ms 150; curve "ease-out-cubic"; }
+    window-resize { duration-ms 150; curve "ease-out-cubic"; }
+    window-open { duration-ms 120; curve "ease-out-cubic"; }
+    window-close { duration-ms 100; curve "ease-out-quad"; }
+    overview-open-close { duration-ms 150; curve "ease-out-cubic"; }
+    recent-windows-close { duration-ms 120; curve "ease-out-cubic"; }
+}
+// Niri owns switching; no second Noctalia window switcher.
+recent-windows {
+    open-delay-ms 150
+    highlight { corner-radius 6; }
+    binds {
+        Alt+Tab { next-window; }
+        Alt+Shift+Tab { previous-window; }
+        Mod+Tab { next-window; }
+        Mod+Shift+Tab { previous-window; }
+        Alt+grave { next-window filter="app-id"; }
+        Alt+Shift+grave { previous-window filter="app-id"; }
+    }
+}
+hotkey-overlay { skip-at-startup; }
+prefer-no-csd
+window-rule {
+    geometry-corner-radius 6
+    clip-to-geometry true
+}
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+}
+layer-rule {
+    match namespace="^noctalia-"
+    background-effect { blur false; }
+}
+binds {
+    Mod+H { focus-column-left; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+L { focus-column-right; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+L { move-column-right; }
+    Mod+1 { focus-workspace "Web"; }
+    Mod+2 { focus-workspace "Code"; }
+    Mod+3 { focus-workspace "Media"; }
+    Mod+Shift+1 { move-window-to-workspace "Web"; }
+    Mod+Shift+2 { move-window-to-workspace "Code"; }
+    Mod+Shift+3 { move-window-to-workspace "Media"; }
+    Mod+Shift+Q { close-window; }
+    Mod+F { fullscreen-window; }
+    Mod+Shift+Space { toggle-window-floating; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Comma { consume-or-expel-window-left; }
+    Mod+Period { consume-or-expel-window-right; }
+    Mod+W { toggle-column-tabbed-display; }
+// @DOTAWESOME_COMMAND_BINDS@
+    Mod+Shift+S { screenshot; }
+    Print { screenshot; }
+    Mod+Shift+E { quit; }
+}
