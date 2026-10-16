@@ -64,6 +64,19 @@ class NiriTests(unittest.TestCase):
 
     def test_external_requires_captured_identity_and_advertised_mode(self):
         p = niri.profile(ROOT, 'g14')
+    def test_signal_wallet_is_optional_and_independent_of_vivaldi(self):
+        flags = self.manager.config / 'signal-desktop-flags.conf'
+        p = niri.profile(ROOT, 'g14')
+        self.assertEqual(niri.render(self.manager, p)[flags][0], b'--password-store=kwallet6\n')
+        self.assertNotIn(flags, niri.render(self.manager, niri.profile(ROOT, 'generic')))
+        p.pop('vivaldi_password_store')
+        files = niri.render(self.manager, p)
+        self.assertIn(flags, files)
+        self.assertNotIn(self.manager.config / 'vivaldi-stable.conf', files)
+        p['signal_password_store'] = 'basic'
+        with self.assertRaisesRegex(Error, 'signal_password_store'):
+            niri.render(self.manager, p)
+
         p['external'] = {'identity': 'HDMI-A-1', 'mode': '1920x1080@144', 'scale': .85}
         with self.assertRaises(Error): niri.render(self.manager, p)
         p['external'] = {'identity': 'Acme Work ABC123', 'mode': '1920x1080@144', 'scale': .85,

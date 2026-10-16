@@ -34,8 +34,9 @@ def validate_profile(p):
     if p.get('render_device') is not None and (not isinstance(p['render_device'], str) or
             not re.fullmatch(r'/dev/dri/(?:renderD\d+|by-path/pci-[\w:.-]+-render)', p['render_device'])):
         raise Error('render_device must be a DRM render node path')
-    if p.get('vivaldi_password_store') not in (None, 'kwallet6'):
-        raise Error('vivaldi_password_store must be kwallet6')
+    for app in ('vivaldi', 'signal'):
+        if p.get(f'{app}_password_store') not in (None, 'kwallet6'):
+            raise Error(f'{app}_password_store must be kwallet6')
     if p.get('secret_portal') not in (None, 'kwallet', 'gnome-keyring'):
         raise Error('secret_portal must be kwallet or gnome-keyring')
     if not argv(p.get('terminal')):
@@ -149,10 +150,14 @@ def render(manager, p):
         manager.config / 'xdg-desktop-portal/niri-portals.conf': (portals.encode(), 0o644),
     }
     expected = {manager.config / d for d in definition(manager.repo)['destinations']}
-    if p.get('vivaldi_password_store'):
-        flags = manager.config / 'vivaldi-stable.conf'
-        files[flags] = (b'--password-store=kwallet6\n', 0o644)
-        expected.update(manager.config / d for d in definition(manager.repo)['optional_destinations'])
+    for app, destination in [('vivaldi', 'vivaldi-stable.conf'),
+                             ('signal', 'signal-desktop-flags.conf')]:
+        if p.get(f'{app}_password_store'):
+            if destination not in definition(manager.repo)['optional_destinations']:
+                raise Error('wallet flags destination missing from definition')
+            flags = manager.config / destination
+            files[flags] = (b'--password-store=kwallet6\n', 0o644)
+            expected.add(flags)
     if set(files) != expected:
         raise Error('component destinations do not match definition')
     return files

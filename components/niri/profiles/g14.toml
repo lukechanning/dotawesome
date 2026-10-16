@@ -6,6 +6,8 @@ render_device = "/dev/dri/by-path/pci-0000:65:00.0-render"
 secret_portal = "kwallet"
 # Pin the same encrypted browser store across KDE and Niri, for every launcher.
 vivaldi_password_store = "kwallet6"
+# Signal's existing database key is protected by this same backend.
+signal_password_store = "kwallet6"
 
 # Reuse existing KDE image files; keep image data and GUI overrides local.
 [wallpaper]

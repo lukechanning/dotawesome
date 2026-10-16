@@ -1,6 +1,6 @@
 {
   "name": "niri",
-  "optional_destinations": ["vivaldi-stable.conf"],
+  "optional_destinations": ["vivaldi-stable.conf", "signal-desktop-flags.conf"],
   "packages": ["niri", "noctalia", "alacritty", "xwayland-satellite", "xdg-desktop-portal", "xdg-desktop-portal-gnome", "xdg-desktop-portal-gtk", "upower"],
   "commands": ["niri", "niri-session", "noctalia", "alacritty", "xwayland-satellite", "systemctl"],
   "destinations": ["niri/config.kdl", "dotawesome/niri/work.py", "dotawesome/niri/profile.json", "dotawesome/niri/noctalia/noctalia/config.toml", "systemd/user/dotawesome-niri-noctalia.service", "systemd/user/niri.service.d/50-dotawesome.conf", "xdg-desktop-portal/niri-portals.conf"],
