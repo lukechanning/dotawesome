@@ -63,7 +63,7 @@ shadow = false
 reserve_space = true
 start = ["workspaces"]
 center = ["group:world-clocks"]
-end = ["media-prev", "media-play", "media-next", "media", "cpu", "ram", "network", "volume", "battery", "caffeine", "clipboard", "notifications", "tray"]
+end = ["cpu", "ram", "network", "bluetooth", "volume", "battery", "caffeine", "clipboard", "notifications", "tray"]
 
 # Native clocks: Amsterdam normally, the other zones revealed on hover.
 [[bar.default.capsule_group]]
@@ -109,6 +109,9 @@ show_label = false
 [widget.network.actions]
 left = "panel-open control-center network"
 
+[widget.bluetooth.actions]
+left = "panel-open control-center bluetooth"
+
 [widget.battery.actions]
 middle = "caffeine-toggle"
 
@@ -124,31 +127,6 @@ hide_when_no_unread = true
 
 [widget.notifications.actions]
 left = "panel-open control-center notifications"
-
-# Visible transport buttons; no playerctl, polling script, or extra service.
-[widget.media-prev]
-type = "custom_button"
-glyph = "player-skip-back"
-tooltip = "Previous track"
-
-[widget.media-prev.actions]
-left = "media previous"
-
-[widget.media-play]
-type = "custom_button"
-glyph = "player-play"
-tooltip = "Play / pause"
-
-[widget.media-play.actions]
-left = "media toggle"
-
-[widget.media-next]
-type = "custom_button"
-glyph = "player-skip-forward"
-tooltip = "Next track"
-
-[widget.media-next.actions]
-left = "media next"
 
 [widget.workspaces]
 show_labels = true

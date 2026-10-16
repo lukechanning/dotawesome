@@ -17,11 +17,11 @@ class LeanDesktopTests(unittest.TestCase):
         self.shell = tomllib.loads((ROOT / 'components/niri/noctalia.toml').read_text())
         self.base = (ROOT / 'components/niri/base.kdl').read_text()
 
-    def test_daily_controls_are_visible_and_bluetooth_is_in_control_center(self):
+    def test_daily_controls_are_visible_including_bluetooth(self):
         end = self.shell['bar']['default']['end']
-        for widget in ('network', 'battery', 'cpu', 'ram', 'notifications', 'clipboard', 'tray', 'volume', 'media'):
+        for widget in ('network', 'battery', 'cpu', 'ram', 'notifications', 'clipboard', 'tray', 'volume', 'bluetooth'):
             self.assertIn(widget, end)
-        self.assertNotIn('bluetooth', end)
+        self.assertEqual(self.shell['widget']['bluetooth']['actions']['left'], 'panel-open control-center bluetooth')
         self.assertNotIn('taskbar', end)
         self.assertEqual(self.shell['control_center']['hidden_tabs'], ['weather', 'calendar', 'screen-time'])
         self.assertEqual(self.shell['widget']['network']['actions']['left'], 'panel-open control-center network')
@@ -46,13 +46,11 @@ class LeanDesktopTests(unittest.TestCase):
         self.assertEqual(self.shell['plugins']['enabled'], [])
         self.assertEqual(self.shell['plugins']['auto_update'], 'none')
 
-    def test_media_buttons_are_clickable_and_remain_available_when_paused(self):
+    def test_media_is_available_in_control_center_without_bar_controls(self):
         end = self.shell['bar']['default']['end']
-        for widget, command in [('media-prev', 'media previous'), ('media-play', 'media toggle'), ('media-next', 'media next')]:
-            self.assertIn(widget, end)
-            self.assertEqual(self.shell['widget'][widget]['type'], 'custom_button')
-            self.assertEqual(self.shell['widget'][widget]['actions']['left'], command)
-        self.assertFalse(self.shell['widget']['media'].get('hide_when_idle', False))
+        for widget in ('media-prev', 'media-play', 'media-next', 'media'):
+            self.assertNotIn(widget, end)
+        self.assertNotIn('media', self.shell['control_center']['hidden_tabs'])
 
     def test_polish_is_subtle_and_statistics_avoid_extra_polling(self):
         self.assertGreater(self.shell['shell']['corner_radius_scale'], 0)
