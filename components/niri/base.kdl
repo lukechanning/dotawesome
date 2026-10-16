@@ -69,12 +69,10 @@ binds {
     Mod+Shift+J { move-window-down; }
     Mod+Shift+K { move-window-up; }
     Mod+Shift+L { move-column-right; }
-    Mod+1 { focus-workspace "Web"; }
-    Mod+2 { focus-workspace "Code"; }
-    Mod+3 { focus-workspace "Media"; }
-    Mod+Shift+1 { move-window-to-workspace "Web"; }
-    Mod+Shift+2 { move-window-to-workspace "Code"; }
-    Mod+Shift+3 { move-window-to-workspace "Media"; }
+    Mod+1 { focus-workspace "One"; }
+    Mod+2 { focus-workspace "Two"; }
+    Mod+Shift+1 { move-window-to-workspace "One"; }
+    Mod+Shift+2 { move-window-to-workspace "Two"; }
     Mod+Shift+Q { close-window; }
     Mod+F { fullscreen-window; }
     Mod+Shift+Space { toggle-window-floating; }

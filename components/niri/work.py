@@ -30,7 +30,7 @@ class IPC:
 def arrange(ipc, apps, timeout=12):
     workspaces = {w['name']: w['id'] for w in ipc.query('workspaces') if w.get('name')}
     failures = []
-    code_window = None
+    default_window = None
     for app in apps:
         if not app['command']:
             continue
@@ -58,13 +58,13 @@ def arrange(ipc, apps, timeout=12):
             if new:
                 ipc.action('focus-window', '--id', str(window['id']))
                 ipc.action('set-column-width', app['width'])
-            if app['workspace'] == 'Code' and code_window is None:
-                code_window = window['id']
+            if app['workspace'] == 'One' and default_window is None:
+                default_window = window['id']
         except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
             failures.append(f"{app['name']}: {exc}")
-    ipc.action('focus-workspace', 'Code')
-    if code_window is not None:
-        ipc.action('focus-window', '--id', str(code_window))
+    ipc.action('focus-workspace', 'One')
+    if default_window is not None:
+        ipc.action('focus-window', '--id', str(default_window))
     return failures
 
 

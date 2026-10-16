@@ -26,12 +26,12 @@ scale = 1.6
 name = "Vivaldi"
 command = ["vivaldi-stable", "--ozone-platform=wayland"]
 app_ids = ["vivaldi-stable", "vivaldi"]
-workspace = "Web"
+workspace = "One"
 width = "100%"
 
 [[apps]]
 name = "Alacritty"
 command = ["alacritty"]
 app_ids = ["Alacritty", "alacritty"]
-workspace = "Code"
+workspace = "One"
 width = "100%"

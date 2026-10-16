@@ -43,7 +43,7 @@ def validate_profile(p):
         raise Error('terminal command is required')
     for app in p.get('apps', []):
         argv(app.get('command'))
-        if app.get('workspace') not in ('Web', 'Code', 'Media') or app.get('width') not in ('33%', '50%', '67%', '100%'):
+        if app.get('workspace') not in ('One', 'Two') or app.get('width') not in ('33%', '50%', '67%', '100%'):
             raise Error('invalid work app workspace or width')
         if not app.get('app_ids') or not all(isinstance(s, str) and s for s in app['app_ids']):
             raise Error('each app needs exact app_ids')
@@ -102,7 +102,7 @@ def render(manager, p):
         x = round(1920 / external['scale']) if key == 'laptop' and external else 0
         focus = '    focus-at-startup\n' if key == 'external' or not external else ''
         config += f'\noutput {json.dumps(output["identity"])} {{\n{focus}    mode {json.dumps(output["mode"])}\n    scale {output["scale"]}\n    position x={x} y=0\n}}\n'
-    for workspace in ('Web', 'Code', 'Media'):
+    for workspace in ('One', 'Two'):
         prefer = external or p.get('laptop')
         rule = f' open-on-output {json.dumps(prefer["identity"])}; ' if prefer else ''
         config += f'workspace "{workspace}" {{{rule}}}\n'

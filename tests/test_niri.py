@@ -29,7 +29,7 @@ class NiriTests(unittest.TestCase):
             profile = niri.profile(ROOT, name)
             files = niri.render(self.manager, profile)
             config = files[self.manager.config / 'niri/config.kdl'][0].decode()
-            self.assertIn('workspace "Code"', config)
+            self.assertIn('workspace "One"', config)
             self.assertNotIn('1920x1080', config)
             self.assertNotIn('spawn-at-startup "noctalia"', config)
             self.assertIn('dotawesome-niri-noctalia.service', '\n'.join(map(str, files)))
@@ -39,14 +39,16 @@ class NiriTests(unittest.TestCase):
     def test_minimal_loadout_and_workspace_order(self):
         p = niri.profile(ROOT, 'g14')
         self.assertEqual([(a['name'], a['workspace'], a['width']) for a in p['apps']],
-                         [('Vivaldi', 'Web', '100%'), ('Alacritty', 'Code', '100%')])
+                         [('Vivaldi', 'One', '100%'), ('Alacritty', 'One', '100%')])
         files = niri.render(self.manager, p)
         config = files[self.manager.config / 'niri/config.kdl'][0].decode()
-        self.assertLess(config.index('workspace "Web" {'), config.index('workspace "Code" {'))
-        self.assertLess(config.index('workspace "Code" {'), config.index('workspace "Media" {'))
-        for key, name in [(1, 'Web'), (2, 'Code'), (3, 'Media')]:
+        import re
+        self.assertEqual(re.findall(r'^workspace "([^\"]+)"', config, re.M), ['One', 'Two'])
+        for key, name in [(1, 'One'), (2, 'Two')]:
             self.assertIn(f'Mod+{key} {{ focus-workspace "{name}";', config)
             self.assertIn(f'Mod+Shift+{key} {{ move-window-to-workspace "{name}";', config)
+        self.assertNotIn('Mod+3 {', config)
+        self.assertNotIn('Mod+Shift+3 {', config)
 
     def test_g14_pins_vivaldi_wallet_for_all_launch_paths_only_when_enabled(self):
         flags = self.manager.config / 'vivaldi-stable.conf'
@@ -62,8 +64,6 @@ class NiriTests(unittest.TestCase):
         generic = niri.render(self.manager, niri.profile(ROOT, 'generic'))
         self.assertNotIn('render-drm-device', generic[self.manager.config / 'niri/config.kdl'][0].decode())
 
-    def test_external_requires_captured_identity_and_advertised_mode(self):
-        p = niri.profile(ROOT, 'g14')
     def test_signal_wallet_is_optional_and_independent_of_vivaldi(self):
         flags = self.manager.config / 'signal-desktop-flags.conf'
         p = niri.profile(ROOT, 'g14')
@@ -77,6 +77,8 @@ class NiriTests(unittest.TestCase):
         with self.assertRaisesRegex(Error, 'signal_password_store'):
             niri.render(self.manager, p)
 
+    def test_external_requires_captured_identity_and_advertised_mode(self):
+        p = niri.profile(ROOT, 'g14')
         p['external'] = {'identity': 'HDMI-A-1', 'mode': '1920x1080@144', 'scale': .85}
         with self.assertRaises(Error): niri.render(self.manager, p)
         p['external'] = {'identity': 'Acme Work ABC123', 'mode': '1920x1080@144', 'scale': .85,

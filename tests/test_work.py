@@ -12,7 +12,7 @@ class FakeIPC:
         self.windows = list(windows); self.fail = fail; self.actions = []; self.launched = []
     def query(self, kind):
         if kind == 'windows': return list(self.windows)
-        return [{'id': 1, 'name': 'Code'}, {'id': 2, 'name': 'Web'}, {'id': 3, 'name': 'Music'}]
+        return [{'id': 1, 'name': 'One'}, {'id': 2, 'name': 'Two'}]
     def action(self, *args): self.actions.append(args)
     def launch(self, command):
         self.launched.append(command)
@@ -21,11 +21,14 @@ class FakeIPC:
 
 
 class WorkTests(unittest.TestCase):
-    apps = [{'name': 'Editor', 'command': ['editor'], 'app_ids': ['editor'], 'workspace': 'Code', 'width': '50%'},
-            {'name': 'Browser', 'command': ['browser'], 'app_ids': ['browser'], 'workspace': 'Web', 'width': '100%'}]
+    apps = [{'name': 'Editor', 'command': ['editor'], 'app_ids': ['editor'], 'workspace': 'One', 'width': '50%'},
+            {'name': 'Browser', 'command': ['browser'], 'app_ids': ['browser'], 'workspace': 'One', 'width': '100%'}]
     def test_empty_launches_and_sizes_new_windows(self):
         ipc = FakeIPC(); self.assertEqual(work.arrange(ipc, self.apps, timeout=0), [])
         self.assertEqual(len(ipc.launched), 2)
+        moves = [a[-1] for a in ipc.actions if a[0] == 'move-window-to-workspace']
+        self.assertEqual(moves, ['One', 'One'])
+        self.assertIn(('focus-workspace', 'One'), ipc.actions)
         self.assertEqual(sum(a[0] == 'set-column-width' for a in ipc.actions), 2)
         self.assertEqual(ipc.actions[-1], ('focus-window', '--id', '100'))
     def test_partial_reuses_and_preserves_size(self):
@@ -44,7 +47,7 @@ class WorkTests(unittest.TestCase):
         failures = work.arrange(ipc, self.apps, timeout=0)
         self.assertEqual(len(failures), 1); self.assertIn('Editor', failures[0])
         self.assertEqual(len(ipc.launched), 2)
-        self.assertEqual(ipc.actions[-1], ('focus-workspace', 'Code'))
+        self.assertIn(('focus-workspace', 'One'), ipc.actions)
     def test_launch_oserror_is_reported_and_continue(self):
         ipc = FakeIPC(); original = ipc.launch
         def launch(command):
