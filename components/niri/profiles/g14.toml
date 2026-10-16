@@ -16,7 +16,7 @@ favorites = ["~/Pictures/Path.jpg", "~/Pictures/OneStandsOut.jpg"]
 
 [laptop]
 identity = "eDP-2"
-mode = "2880x1800@120"
+mode = "2880x1800@60.001"
 scale = 1.6
 
 # External deliberately absent until identity AND modes are captured in Niri.
