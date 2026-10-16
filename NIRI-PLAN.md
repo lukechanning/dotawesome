@@ -51,13 +51,10 @@ or package requirements were added for this revision.
   clock widgets in an accordion group, not a separate tooltip window or World
   Clock plugin. Each clock's tooltip includes the date and timezone abbreviation
   so next-day differences are visible. The named IANA zones handle DST.
-- On the right: previous/play-pause/next buttons, a compact current-track label,
-  CPU/RAM text, network, volume, battery, caffeine state, clipboard, unread
-  notifications, and app tray icons. The playback buttons stay available when
-  paused or when no player is present; the track label hides without a player.
-  The play glyph is a static button labelled Play / pause, not a playback-state
-  indicator. Clicking the track label opens Noctalia's media panel for player
-  selection and fuller controls. Cider selection still needs live validation.
+- On the right: CPU/RAM text, network, Bluetooth, volume, battery, caffeine
+  state, clipboard, unread notifications, and app tray icons. Media controls
+  remain available in the control center opened from the clock. Cider selection
+  still needs live validation.
 - Middle-click battery to toggle caffeine. The coffee
   glyph provides state feedback. Caffeine pauses idle actions, including the
   10-minute automatic lock and 15-minute screen-off. Manual lock and native
@@ -66,8 +63,8 @@ or package requirements were added for this revision.
 - Network, clipboard and notification widgets open their native panels. Tray
   indicators depend on Slack/Signal/etc exposing them; notification counts are
   pending notifications, not guaranteed per-app unread-message counts.
-- Bluetooth remains available through the control center (Super+Shift+B) rather
-  than a dedicated bar icon. Weather/calendar/screen-time tabs are hidden. Dock,
+- The Bluetooth bar icon opens its control-center section, also available with
+  Super+Shift+B. Weather/calendar/screen-time tabs are hidden. Dock,
   taskbar, desktop widgets, wallpaper rotation, automatic application theming,
   WAN lookup, telemetry and launcher currency-rate fetching stay off.
 - CPU samples every 3 seconds and memory every 5 seconds. Extra system-monitor
@@ -254,8 +251,8 @@ images produce preflight warnings and retain the dark fallback. The generic
 profile keeps its plain dark background.
 
 Generic uses automatic outputs and Alacritty, with an optional browser command.
-G14 opens only Vivaldi and Alacritty, each in a full-width column on its own
-workspace. Media starts empty; editors and media apps are opened manually.
+G14 opens only Vivaldi and Alacritty, each in a full-width column on the default
+workspace One. Two starts empty; editors and media apps are opened manually.
 Exact app IDs are initial candidates; verify with `niri msg --json windows` and
 adjust the profile if the installed build differs. A missing app is reported by
 the work shortcut and never blocks login. Initial widths only apply to newly
@@ -265,7 +262,7 @@ lock suppresses overlapping invocations; each enabled app waits at most 12
 seconds for its window (each IPC call also has a 5-second timeout). Failures are
 printed and sent through Noctalia, while remaining apps continue.
 
-G14's laptop rule is 2880x1800 at 120 Hz and scale 1.6. The external rule is
+G14's laptop rule is 2880x1800 at 60.001 Hz and scale 1.6. The external rule is
 **absent** until capture. In Niri, record `niri msg --json outputs` through dock
 HDMI and direct HDMI and compare make/model/serial and advertised modes. Copy
 the G14 profile to a reviewed machine-specific TOML file and add:
@@ -291,10 +288,10 @@ scaling may reduce crispness; simultaneous app and shell validation is pending.
 
 | Shortcut | Action |
 | --- | --- |
-| Super+1 / 2 / 3 | Web / Code / Media |
-| Super+Shift+1 / 2 / 3 | Move window to workspace |
+| Super+1 / 2 | One / Two |
+| Super+Shift+1 / 2 | Move window to workspace |
 | Super+Enter | Terminal |
-| Super+Shift+Enter | Reuse/open work layout, finish on Code |
+| Super+Shift+Enter | Reuse/open work layout, finish on One |
 | Super+Space / V / S | Launcher / clipboard / control center |
 | Super+B / Super+Shift+B | Network / Bluetooth controls |
 | Super+N | Notification history |
@@ -318,7 +315,7 @@ with confirmation. Idle lock is explicitly enabled at 600 seconds, screen-off at
 owned by existing services. Confirm lock readiness before relying on idle or
 lid behavior. Caffeine temporarily inhibits both idle behaviors. Volume and
 network clicks open their control-center sections; Bluetooth is reached through
-Super+Shift+B or the control center.
+its bar button, Super+Shift+B or the control center.
 
 To remove the environment, first log out of Niri and log into Plasma:
 
@@ -449,9 +446,8 @@ Create permanent named workspaces:
 
 | Shortcut | Workspace | Apps and initial layout |
 | --- | --- | --- |
-| Super+1 | Web | Vivaldi in a full-width column |
-| Super+2 | Code | Alacritty in a full-width column |
-| Super+3 | Media | Empty |
+| Super+1 | One | Vivaldi and Alacritty in separate full-width columns |
+| Super+2 | Two | Empty |
 
 Use Super+Shift+Return to open the working environment. This is an on-demand action, not login autostart. Open no project by default.
 
@@ -459,7 +455,7 @@ The launcher must:
 
 - Identify windows through Niri IPC using verified app identifiers, including any Xwayland differences.
 - Launch missing apps and reuse existing matching windows.
-- Place selected windows on their intended workspaces, then focus Code and the editor.
+- Place selected windows on One, then focus One and the first selected window.
 - Preserve manually adjusted sizes of existing windows. Initial sizes apply to newly opened windows.
 - Serialize repeated invocations so rapid key presses do not launch duplicates.
 - Use bounded waits for app windows and report launch failures through notifications without preventing other apps from opening.
@@ -486,7 +482,7 @@ Use the chosen G14 wallpapers (plain dark fallback), small gaps, a clear focus r
 
 ## Minimal Noctalia shell
 
-- **Bar:** one compact top bar on each enabled display. Show workspace names, hover-expandable world clocks, battery/caffeine, CPU/RAM, network, volume, media transport controls, clipboard, pending notifications and a small tray. Access Bluetooth through the control center. Prefer text/readable status over decorative graphs.
+- **Bar:** one compact top bar on each enabled display. Show workspace names, hover-expandable world clocks, battery/caffeine, CPU/RAM, network, Bluetooth, volume, clipboard, pending notifications and a small tray. Access media controls through the control center. Prefer text/readable status over decorative graphs.
 - **Control center:** audio device/stream selection, Bluetooth pairing and reconnection, Wi-Fi/network status, power profiles, and notifications. Clicking volume or network opens the relevant section directly; Super+Shift+B opens Bluetooth.
 - **Launcher and clipboard:** use Noctalia's native panels. Enable text/image history with a 100-entry unpinned limit, clear/delete confirmation, and copy-only selection rather than automatic paste. Verify encrypted persistence with the existing Secret Service provider; session-only history while the wallet is unavailable must be clearly documented.
 - **Notifications and authentication:** explicitly enable Noctalia's notification daemon and native polkit agent for Niri. Ensure competing agents do not start there. Keep KDE's own agents in Plasma.
@@ -631,9 +627,10 @@ user confirmation. No credentials were read, reset, or deleted.
 
 ### Minimal loadout adjustment (2026-10-15)
 
-The current default is Web → Code → Media. Super+1/2/3 selects those workspaces;
-Super+Shift+1/2/3 moves the focused window to them. Super+Shift+Enter reuses or
-opens only Vivaldi on Web and Alacritty on Code, then focuses Code. Newly opened
+The named workspaces are One → Two. Super+1/2 selects those workspaces;
+Super+Shift+1/2 moves the focused window to them. Super+Shift+Enter reuses or
+opens Vivaldi and Alacritty together on the default workspace One, then focuses
+One and the first selected window. Two remains available as a spare workspace. Newly opened
 columns fill the available width. No editor or music app is launched. Existing
 windows are reused and unrelated applications are never closed automatically;
 this does not reset browser tabs or terminal sessions.
@@ -649,6 +646,16 @@ No apps were launched or closed. Native validation passed; repository CI passed
 observations in this document describe the original baseline.
 
 ### Confirmed Vivaldi desktop-switching fix (2026-10-15)
+
+Signal follow-up: G14 also opts into `signal_password_store = "kwallet6"`,
+rendering `~/.config/signal-desktop-flags.conf` for the installed Arch launcher.
+Signal's saved backend was already `kwallet6`. Session D-Bus inspection confirmed
+`ksecretd` owns `org.freedesktop.secrets` and `kwalletd6` owns the KDE wallet API;
+no extra Secret Service provider was needed. The flag was installed through a
+targeted rollback transaction, preserving existing manual Niri configuration
+edits and all other deployment entries. Native validation and 67 repository
+tests passed. Signal startup confirmation and login-time automatic wallet unlock
+remain pending; no credentials or Signal database were reset.
 
 The portal routing correction alone did not resolve Vivaldi's warning. Launching
 with `--password-store=kwallet6` opened normally; the user confirmed success.
