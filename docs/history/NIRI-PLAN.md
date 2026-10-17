@@ -1,3 +1,7 @@
+> Historical design and validation record. Commands and status below describe
+> earlier revisions; use the [current Niri guide](../niri.md) and [CLI guide](../usage.md).
+> Preview artifacts under `.build/` are local-only and absent from fresh clones.
+
 # Dotawesome: managed Niri + Noctalia alongside KDE
 
 Status: implemented and activated on G14; native validation passes on Niri 26.04 and Noctalia 5.2.1. Login, workspace navigation, screenshots, Vivaldi wallet access, and AMD rendering have been exercised. Remaining hardware/session acceptance checks are recorded below.
@@ -69,7 +73,7 @@ rewritten. The G14 build and live dry-run pass; appearance is not activated yet.
 ### Headless comparison
 
 Actual Niri/Noctalia captures at 2880×1800 and 160% scale are available in
-[the comparison report](.build/glass-preview/comparison.html), with the selected
+[the comparison report](../../.build/glass-preview/comparison.html), with the selected
 Option C reference, desktop, control center, audio panel, launcher and a sample
 notification. The disposable preview uses Xvfb, Niri's nested backend and
 software rendering, private D-Bus/config/state/runtime paths, and disposable app
@@ -123,7 +127,7 @@ bin/dotawesome activate niri --profile g14
 
 ## Shared G14 battery charging policy
 
-An optional system-level [80% charge-limit unit](laptops/G14/NOTES.md) is prepared
+An optional system-level [80% charge-limit unit](../../laptops/G14/NOTES.md) is prepared
 for manual installation. It applies once at boot for both KDE and Niri, without
 a background daemon. It is separate from Niri's deployment and is not installed
 or enabled by `dotawesome activate`. Use it as the sole boot-time charge-limit
