@@ -23,7 +23,8 @@ class LeanDesktopTests(unittest.TestCase):
             self.assertIn(widget, end)
         self.assertEqual(self.shell['widget']['bluetooth']['actions']['left'], 'panel-open control-center bluetooth')
         self.assertNotIn('taskbar', end)
-        self.assertEqual(self.shell['control_center']['hidden_tabs'], ['weather', 'calendar', 'screen-time'])
+        self.assertTrue(self.shell['calendar']['enabled'])
+        self.assertEqual(self.shell['control_center']['hidden_tabs'], ['weather', 'screen-time'])
         self.assertEqual(self.shell['widget']['network']['actions']['left'], 'panel-open control-center network')
         self.assertTrue(self.shell['widget']['notifications']['hide_when_no_unread'])
 

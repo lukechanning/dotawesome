@@ -178,7 +178,7 @@ disk_poll_seconds = 0.0
 
 [control_center]
 sidebar = "compact"
-hidden_tabs = ["weather", "calendar", "screen-time"]
+hidden_tabs = ["weather", "screen-time"]
 
 [notification]
 enable_daemon = true
@@ -217,7 +217,7 @@ auto_locate = false
 address = ""
 
 [calendar]
-enabled = false
+enabled = true
 
 [wallpaper]
 transition = []

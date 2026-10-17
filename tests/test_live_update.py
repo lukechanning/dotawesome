@@ -50,6 +50,8 @@ class LiveUpdateTests(unittest.TestCase):
             (self.config, 'scale 1.6', 'scale 1.5'),
             (self.config, 'Mod+H', 'Mod+Left'),
             (self.config, '"alacritty"', '"other-terminal"'),
+            (self.shell, '[calendar]\nenabled = true', '[calendar]\nenabled = false'),
+            (self.shell, 'hidden_tabs = ["weather", "screen-time"]', 'hidden_tabs = ["weather", "calendar", "screen-time"]'),
             (self.shell, 'polkit_agent = true', 'polkit_agent = false'),
             (self.shell, 'enable_builtin_templates = false', 'enable_builtin_templates = true'),
             (self.shell, 'timeout = 600', 'timeout = 30'),

@@ -34,6 +34,11 @@ interrupted transactions. No session restart is performed.
 To restore originals, leave Niri and run `bin/dotawesome remove niri`.
 See [ownership and package cleanup](usage.md).
 
+The control center opens on Home with Super+S; its Calendar tab provides month
+navigation without any configured accounts or synchronization. Enabling this tab
+is a behavior change: apply normally from Plasma with Niri stopped, using the
+commands above. It is deliberately excluded from appearance-only live updates.
+
 ## Profiles
 
 - `generic`: automatic outputs, Alacritty, optional browser command.
