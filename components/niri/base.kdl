@@ -6,7 +6,7 @@ input {
     touchpad { tap; natural-scroll; }
 }
 layout {
-    gaps 6
+    gaps 8
     background-color "#161821"
     default-column-width { proportion 0.5; }
     preset-column-widths {
@@ -17,8 +17,8 @@ layout {
     }
     focus-ring {
         width 2
-        active-color "#78b4fa"
-        inactive-color "#53677d"
+        active-color "#8fbdab"
+        inactive-color "#4b5b55"
     }
     border { off; }
     shadow {
@@ -56,7 +56,7 @@ recent-windows {
 hotkey-overlay { skip-at-startup; }
 prefer-no-csd
 window-rule {
-    geometry-corner-radius 8
+    geometry-corner-radius 6
     clip-to-geometry true
 }
 window-rule {

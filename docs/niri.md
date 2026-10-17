@@ -1,6 +1,7 @@
 # Niri + Noctalia
 
-Architectural glass shell, cool blue accents, compact framing. Existing wallpaper
+Architectural Jade, refined: graphite surfaces, muted jade accents, broad workspace
+tabs, and coordinated window framing. Existing wallpaper
 files and selections stay local. App themes and KDE preferences are independent.
 
 ## Apply
@@ -92,3 +93,28 @@ actual session after relevant changes. Config validation cannot establish these.
 
 Earlier acceptance notes and headless comparison details are in
 [the historical plan](history/NIRI-PLAN.md). Its `.build/` previews are local-only.
+
+## Selected design
+
+The managed design is Architectural Jade, refined: a transparent 42px bar with
+separate navigation, CPU/RAM, controls, and expanding world-clock groups; solid
+panels; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
+
+Workspace tabs have equal minimum widths and shallow corners. Empty inactive
+workspaces are hidden, including the trailing numbered workspace. Active empty
+and occupied workspaces remain visible. One/Two names and keyboard shortcuts
+are unchanged; hiding indicators does not change Niri's dynamic workspace model.
+
+The fresh [managed build sheet](../.build/refinements/Jade-managed/option-sheet.png)
+is captured directly from the repository renderer. The local [comparison](../.build/refinements/comparison.html) and approved
+[refined sheet](../.build/refinements/Jade-refined/option-sheet.png) contain actual
+2880×1800 captures at scale 1.6. Previews and the disposable harness remain ignored
+local artifacts, absent from fresh clones. Hardware readings may be placeholders
+or reflect software-rendering load; real tray clients need live verification.
+
+This selection and the independent calendar change require normal apply outside
+Niri. Workspace visibility and group changes remain excluded from appearance-only
+live updates. Preparing this configuration does not activate it. After activation,
+check real tray clients, Bluetooth/audio controls, lock/unlock, suspend/resume and
+wallet access. Existing application themes, accounts, synchronization and KDE
+settings are independent of this design.

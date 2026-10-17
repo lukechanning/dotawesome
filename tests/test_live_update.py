@@ -27,9 +27,9 @@ class LiveUpdateTests(unittest.TestCase):
         return self.files | {path: (data.replace(before.encode(), after.encode()), mode)}
 
     def test_live_appearance_and_palette_addition_are_allowed(self):
-        files = self.changed(self.shell, 'background_opacity = 0.9', 'background_opacity = 0.85')
+        files = self.changed(self.shell, 'background_opacity = 0.0', 'background_opacity = 0.1')
         data, mode = files[self.config]
-        files[self.config] = (data.replace(b'geometry-corner-radius 8', b'geometry-corner-radius 10'), mode)
+        files[self.config] = (data.replace(b'geometry-corner-radius 6', b'geometry-corner-radius 10'), mode)
         niri.validate_live_update(self.manager, files)
 
         palette = self.shell.parent / 'palettes/Architectural-Glass.json'
@@ -105,3 +105,13 @@ class LiveUpdateTests(unittest.TestCase):
         (self.manager.state / 'transaction.json').write_text('{}')
         with self.assertRaisesRegex(Error, 'interrupted'):
             niri.validate_live_update(self.manager, self.files)
+
+    def test_workspace_visibility_and_group_changes_require_logout(self):
+        for before, after in [
+            ('hide_when_empty = true', 'hide_when_empty = false'),
+            ('end = ["group:metrics", "group:status"]', 'end = ["group:status", "group:metrics"]'),
+        ]:
+            with self.subTest(change=before):
+                files = self.changed(self.shell, before, after)
+                with self.assertRaisesRegex(Error, 'live update'):
+                    niri.validate_live_update(self.manager, files)

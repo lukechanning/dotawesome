@@ -102,6 +102,7 @@ class NiriTests(unittest.TestCase):
         shell_dir = self.manager.config / 'dotawesome/niri/noctalia/noctalia'
         shell = tomllib.loads(files[shell_dir / 'config.toml'][0].decode())
         self.assertEqual(shell['theme']['source'], 'custom')
+        self.assertEqual(shell['theme']['custom_palette'], 'Graphite-Jade')
         palette = shell_dir / 'palettes' / (shell['theme']['custom_palette'] + '.json')
         self.assertIn(palette, files)
         dark = json.loads(files[palette][0])['dark']

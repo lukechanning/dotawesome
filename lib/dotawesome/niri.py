@@ -146,6 +146,8 @@ def render(manager, p):
         helper: ((source / 'work.py').read_bytes(), 0o644),
         helper.with_name('profile.json'): ((json.dumps(p, indent=2) + '\n').encode(), 0o644),
         manager.config / 'dotawesome/niri/noctalia/noctalia/config.toml': (shell, 0o644),
+        manager.config / 'dotawesome/niri/noctalia/noctalia/palettes/Graphite-Jade.json':
+            ((source / 'palettes/Graphite-Jade.json').read_bytes(), 0o644),
         manager.config / 'dotawesome/niri/noctalia/noctalia/palettes/Architectural-Glass.json':
             ((source / 'palettes/Architectural-Glass.json').read_bytes(), 0o644),
         manager.config / 'systemd/user/dotawesome-niri-noctalia.service': (unit.encode(), 0o644),

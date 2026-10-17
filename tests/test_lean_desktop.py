@@ -17,8 +17,15 @@ class LeanDesktopTests(unittest.TestCase):
         self.shell = tomllib.loads((ROOT / 'components/niri/noctalia.toml').read_text())
         self.base = (ROOT / 'components/niri/base.kdl').read_text()
 
+    def end_widgets(self):
+        bar = self.shell['bar']['default']
+        groups = {g['id']: g['members'] for g in bar['capsule_group']}
+        return [widget for item in bar['end']
+                for widget in (groups[item[6:]] if item.startswith('group:') else [item])]
+
     def test_daily_controls_are_visible_including_bluetooth(self):
-        end = self.shell['bar']['default']['end']
+        end = self.end_widgets()
+        self.assertEqual(end, ['cpu', 'ram', 'network', 'bluetooth', 'volume', 'battery', 'caffeine', 'clipboard', 'notifications', 'tray'])
         for widget in ('network', 'battery', 'cpu', 'ram', 'notifications', 'clipboard', 'tray', 'volume', 'bluetooth'):
             self.assertIn(widget, end)
         self.assertEqual(self.shell['widget']['bluetooth']['actions']['left'], 'panel-open control-center bluetooth')
@@ -30,7 +37,7 @@ class LeanDesktopTests(unittest.TestCase):
 
     def test_battery_toggles_caffeine_and_screenshot_has_keyboard_shortcut(self):
         self.assertEqual(self.shell['widget']['battery']['actions']['middle'], 'caffeine-toggle')
-        self.assertIn('caffeine', self.shell['bar']['default']['end'])
+        self.assertIn('caffeine', self.end_widgets())
         with tempfile.TemporaryDirectory() as tmp:
             m = Manager(ROOT, Path(tmp) / 'home')
             config = niri.render(m, niri.profile(ROOT, 'generic'))[m.config / 'niri/config.kdl'][0].decode()
@@ -48,17 +55,17 @@ class LeanDesktopTests(unittest.TestCase):
         self.assertEqual(self.shell['plugins']['auto_update'], 'none')
 
     def test_media_is_available_in_control_center_without_bar_controls(self):
-        end = self.shell['bar']['default']['end']
+        end = self.end_widgets()
         for widget in ('media-prev', 'media-play', 'media-next', 'media'):
             self.assertNotIn(widget, end)
         self.assertNotIn('media', self.shell['control_center']['hidden_tabs'])
 
-    def test_glass_is_shell_only_and_statistics_avoid_extra_polling(self):
+    def test_jade_surfaces_are_shell_only_and_statistics_avoid_extra_polling(self):
         self.assertGreater(self.shell['shell']['corner_radius_scale'], 0)
         self.assertTrue(self.shell['shell']['animation']['enabled'])
-        self.assertTrue(self.shell['bar']['default']['compositor_blur'])
+        self.assertFalse(self.shell['bar']['default']['compositor_blur'])
         self.assertLess(self.shell['bar']['default']['background_opacity'], 1.0)
-        self.assertEqual(self.shell['shell']['panel']['transparency_mode'], 'glass')
+        self.assertEqual(self.shell['shell']['panel']['transparency_mode'], 'solid')
         self.assertTrue(self.shell['shell']['panel']['shadow'])
         self.assertNotIn('opacity ', self.base)
         self.assertNotIn('blur false', self.base)
@@ -84,3 +91,14 @@ class LeanDesktopTests(unittest.TestCase):
         self.assertRegex(config, r'Mod\+Shift\+Return\s*\{[^}]*work.py')
         self.assertRegex(config, r'Mod\+N\s*\{[^}]*"notifications"')
         self.assertRegex(config, r'Mod\+B\s*\{[^}]*"network"')
+
+    def test_jade_tabs_and_framing_match_the_selected_design(self):
+        bar = self.shell['bar']['default']
+        self.assertEqual(bar['end'], ['group:metrics', 'group:status'])
+        self.assertEqual((bar['thickness'], bar['font_weight'], bar['margin_edge'], bar['margin_ends']), (42, 600, 6, 10))
+        workspaces = self.shell['widget']['workspaces']
+        self.assertTrue(workspaces['hide_when_empty'])
+        self.assertEqual((workspaces['pill_scale'], workspaces['active_pill_size'], workspaces['inactive_pill_size'], workspaces['capsule_radius']), (1.0, 3.0, 3.0, 4.0))
+        self.assertIn('gaps 8', self.base)
+        self.assertIn('geometry-corner-radius 6', self.base)
+        self.assertIn('active-color "#8fbdab"', self.base)

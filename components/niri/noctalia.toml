@@ -3,7 +3,7 @@
 mode = "dark"
 shell_mode = "dark"
 source = "custom"
-custom_palette = "Architectural-Glass"
+custom_palette = "Graphite-Jade"
 
 [theme.templates]
 enable_builtin_templates = false
@@ -15,7 +15,7 @@ community_ids = []
 key_source = "secret-service"
 
 [shell]
-corner_radius_scale = 0.65
+corner_radius_scale = 0.45
 font_family = "Noto Sans"
 popup_shadows = true
 setup_wizard_enabled = false
@@ -39,11 +39,11 @@ speed = 1.5
 fetch_exchange_rates = false
 
 [shell.shadow]
-alpha = 0.4
+alpha = 0.25
 direction = "down"
 
 [shell.panel]
-transparency_mode = "glass"
+transparency_mode = "solid"
 borders = true
 shadow = true
 control_center_placement = "floating"
@@ -55,23 +55,52 @@ auto_sync = false
 
 [bar.default]
 position = "top"
-thickness = 32
-margin_ends = 4
-margin_edge = 4
+thickness = 42
+font_weight = 600
+margin_ends = 10
+margin_edge = 6
 radius = 8
 radius_top_left = 8
 radius_top_right = 8
 radius_bottom_left = 8
 radius_bottom_right = 8
-background_opacity = 0.9
-compositor_blur = true
-border = "outline"
-border_width = 1.0
-shadow = true
+background_opacity = 0.0
+compositor_blur = false
+border = "#00000000"
+border_width = 0.5
+shadow = false
 reserve_space = true
-start = ["workspaces"]
+padding = 12
+widget_spacing = 10
+start = ["group:navigation"]
 center = ["group:world-clocks"]
-end = ["cpu", "ram", "network", "bluetooth", "volume", "battery", "caffeine", "clipboard", "notifications", "tray"]
+end = ["group:metrics", "group:status"]
+
+[[bar.default.capsule_group]]
+id = "navigation"
+members = ["workspaces"]
+fill = "surface"
+opacity = 0.96
+padding = 12.0
+radius = 6.0
+
+[[bar.default.capsule_group]]
+id = "status"
+fill = "surface"
+opacity = 0.96
+padding = 12.0
+radius = 6.0
+widget_spacing = 10
+members = ["network", "bluetooth", "volume", "battery", "caffeine", "clipboard", "notifications", "tray"]
+
+[[bar.default.capsule_group]]
+id = "metrics"
+members = ["cpu", "ram"]
+fill = "surface"
+opacity = 0.96
+padding = 12.0
+radius = 6.0
+widget_spacing = 10
 
 # Native clocks: Amsterdam normally, the other zones revealed on hover.
 [[bar.default.capsule_group]]
@@ -82,7 +111,7 @@ accordion_direction = "end"
 fill = "surface"
 opacity = 1.0
 padding = 4.0
-radius = 4.0
+radius = 6.0
 widget_spacing = 10
 
 [widget.clock]
@@ -137,6 +166,15 @@ hide_when_no_unread = true
 left = "panel-open control-center notifications"
 
 [widget.workspaces]
+style = "regular"
+pill_scale = 1.0
+active_pill_size = 3.0
+inactive_pill_size = 3.0
+capsule_radius = 4.0
+hide_when_empty = true
+focused_color = "primary"
+occupied_color = "surface_variant"
+empty_color = "surface_variant"
 show_labels = true
 label_source = "name"
 max_label_chars = 8
