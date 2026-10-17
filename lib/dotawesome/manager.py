@@ -122,16 +122,20 @@ class Manager:
         for p, change in reversed(list(tx['changes'].items())):
             self.write(Path(p), change['before'])
         self.save_json(self.state / 'installed.json', tx['records'])
-        self.runner(['systemctl', '--user', 'daemon-reload'])
+        self.reload_units(tx.get('reload_units', True))
         journal.unlink()
 
-    def transaction(self, records, updated, changes):
+    def reload_units(self, enabled):
+        if enabled:
+            self.runner(['systemctl', '--user', 'daemon-reload'])
+
+    def transaction(self, records, updated, changes, reload_units=True):
         journal = self.state / 'transaction.json'
-        self.save_json(journal, {'records': records, 'changes': changes})
+        self.save_json(journal, {'records': records, 'changes': changes, 'reload_units': reload_units})
         try:
             for p, change in changes.items():
                 self.write(Path(p), change['after'])
-            self.runner(['systemctl', '--user', 'daemon-reload'])
+            self.reload_units(reload_units)
             self.save_json(self.state / 'installed.json', updated)
         except BaseException:
             # Leave the journal if rollback itself fails: next mutation recovers it.
@@ -140,14 +144,14 @@ class Manager:
                     self.write(Path(p), change['before'])
             self.save_json(self.state / 'installed.json', records)
             try:
-                self.runner(['systemctl', '--user', 'daemon-reload'])
+                self.reload_units(reload_units)
             except Exception:
                 raise
             journal.unlink()
             raise
         journal.unlink()
 
-    def deploy(self, component, files, snapshot, profile_source=None, preflight=None):
+    def deploy(self, component, files, snapshot, profile_source=None, preflight=None, reload_units=True, validation='passed; session acceptance pending'):
         # Live admission is rechecked under the same lock as deployment. It must
         # reject an interrupted transaction rather than recover session files.
         with self.lock(recover=preflight is None):
@@ -166,8 +170,8 @@ class Manager:
             for p, entry in old.items():
                 if p not in installed:
                     changes[p] = {'before': entry['installed'], 'after': entry['original']}
-            updated = dict(records, **{component: {'snapshot': str(snapshot), 'profile_source': profile_source, 'files': installed, 'native_validation': 'passed; session acceptance pending'}})
-            self.transaction(records, updated, changes)
+            updated = dict(records, **{component: {'snapshot': str(snapshot), 'profile_source': profile_source, 'files': installed, 'native_validation': validation, 'reload_units': reload_units}})
+            self.transaction(records, updated, changes, reload_units)
 
     def deactivate(self, component):
         with self.lock():
@@ -177,7 +181,7 @@ class Manager:
             self.preview(component, {})
             changes = {p: {'before': e['installed'], 'after': e['original']} for p, e in records[component]['files'].items()}
             updated = dict(records); del updated[component]
-            self.transaction(records, updated, changes)
+            self.transaction(records, updated, changes, records[component].get('reload_units', True))
 
     def snapshot(self, component, files):
         manifest = {str(p): encode(data, mode) for p, (data, mode) in sorted(files.items())}

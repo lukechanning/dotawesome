@@ -110,7 +110,7 @@ class DeploymentTests(unittest.TestCase):
         with self.assertRaisesRegex(Error, 'snapshot'): self.manager.snapshot('niri', self.files)
 
     def test_cli_unknown_component_and_required_component(self):
-        for args in [('build', 'awesome'), ('activate',), ('deactivate', 'everything')]:
+        for args in [('plan', 'awesome'), ('apply',), ('remove', 'everything')]:
             r = subprocess.run([str(ROOT / 'bin/dotawesome'), *args], capture_output=True, text=True)
             self.assertNotEqual(r.returncode, 0)
 

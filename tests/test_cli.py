@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os
+import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -29,50 +30,50 @@ class CLITests(unittest.TestCase):
             code = cli.main(ROOT)
         return code, out.getvalue()
 
-    def test_check_dry_run_and_missing_dependency_activation_are_read_only(self):
+    def test_check_plan_and_missing_dependency_apply_are_read_only(self):
         with patch.object(niri, 'check', return_value={'errors': ['missing niri'], 'warnings': [], 'packages': ['niri']}):
             self.assertEqual(self.invoke('check', 'niri', '--profile', 'generic')[0], 1)
-            code, output = self.invoke('activate', 'niri', '--profile', 'generic', '--dry-run', '--install-packages')
-            self.assertEqual(code, 0); self.assertIn('sudo pacman -Syu --needed niri', output)
+            code, output = self.invoke('plan', 'niri', '--profile', 'generic')
+            self.assertEqual(code, 0); self.assertIn('niri', output)
             with patch.object(niri, 'outside_session'):
-                self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 1)
+                self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 1)
         self.assertEqual(list(self.home.rglob('*')), [])
         self.assertFalse(self.manager.build_root.exists()); self.assertEqual(self.calls, [])
 
-    def test_activation_validates_before_deploy_and_only_reloads_units(self):
+    def test_apply_validates_before_deploy_and_only_reloads_units(self):
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'outside_session'), patch.object(niri, 'validate', return_value=True) as validator:
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 0)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 0)
             validator.assert_called_once()
         self.assertEqual(self.calls, [['systemctl', '--user', 'daemon-reload']])
         self.assertIn('niri', self.manager.records())
         self.assertEqual(self.invoke('status', 'niri')[0], 0)
         with patch.object(niri, 'outside_session'):
-            self.assertEqual(self.invoke('deactivate', 'niri')[0], 0)
+            self.assertEqual(self.invoke('remove', 'niri')[0], 0)
         self.assertFalse((self.manager.config / 'niri/config.kdl').exists())
 
     def test_failed_native_validation_never_deploys(self):
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'outside_session'), patch.object(niri, 'validate', side_effect=Error('bad config')):
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 1)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 1)
         self.assertEqual(list(self.home.rglob('*')), []); self.assertEqual(self.calls, [])
 
     def test_package_install_uses_full_arch_upgrade_and_rechecks(self):
         result = type('Result', (), {'returncode': 0})()
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': ['niri', 'noctalia']}) as check, patch.object(niri, 'outside_session'), patch.object(niri, 'validate', return_value=True), patch.object(cli.subprocess, 'run', return_value=result) as run:
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic', '--install-packages')[0], 0)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic', '--install-packages')[0], 0)
             run.assert_called_once_with(['sudo', 'pacman', '-Syu', '--needed', 'niri', 'noctalia'])
             self.assertEqual(check.call_count, 2)
 
-    def test_deactivation_refuses_live_niri(self):
+    def test_remove_refuses_live_niri(self):
         with patch.dict(os.environ, {'NIRI_SOCKET': '/tmp/example'}):
-            self.assertEqual(self.invoke('deactivate', 'niri')[0], 1)
+            self.assertEqual(self.invoke('remove', 'niri')[0], 1)
         self.assertFalse(self.manager.state.exists())
 
-    def test_live_activation_keeps_session_running_and_validates_first(self):
+    def test_live_apply_keeps_session_running_and_validates_first(self):
         files = niri.render(self.manager, niri.profile(ROOT, 'generic'))
         self.manager.deploy('niri', files, 'initial')
         self.calls.clear()
         with patch.dict(os.environ, {'NIRI_SOCKET': '/tmp/example'}), patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'validate', return_value=True) as validator, patch.object(niri, 'outside_session') as logout, patch('dotawesome.cli.Packages.require') as requirements:
-            code, output = self.invoke('activate', 'niri', '--profile', 'generic', '--live')
+            code, output = self.invoke('apply', 'niri', '--profile', 'generic', '--live')
             self.assertEqual(code, 0, output)
             validator.assert_called_once()
             logout.assert_not_called()
@@ -80,9 +81,9 @@ class CLITests(unittest.TestCase):
         self.assertEqual(self.calls, [['systemctl', '--user', 'daemon-reload']])
         self.assertIn('live', output.lower())
 
-    def test_live_activation_refuses_packages_without_any_changes(self):
+    def test_live_apply_refuses_packages_without_any_changes(self):
         with patch('dotawesome.cli.Packages.install') as install:
-            code, output = self.invoke('activate', 'niri', '--profile', 'generic', '--live', '--install-packages')
+            code, output = self.invoke('apply', 'niri', '--profile', 'generic', '--live', '--install-packages')
         self.assertEqual(code, 1, output)
         install.assert_not_called()
         self.assertFalse(self.manager.state.exists())
@@ -106,31 +107,31 @@ class CLITests(unittest.TestCase):
 
     def test_status_reports_pending_checkout_changes(self):
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'outside_session'), patch.object(niri, 'validate', return_value=True):
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 0)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 0)
         original = niri.render
         def changed(manager, profile):
             files = original(manager, profile)
             p = manager.config / 'niri/config.kdl'; files[p] = (b'changed config', 0o644)
             return files
         with patch.object(niri, 'render', side_effect=changed):
-            self.assertIn('checkout differs', self.invoke('status', 'niri')[1])
+            self.assertIn('source-changed', self.invoke('status', 'niri')[1])
 
-    def test_activate_recovers_interrupted_update_before_edit_check(self):
+    def test_apply_recovers_interrupted_update_before_edit_check(self):
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'outside_session'), patch.object(niri, 'validate', return_value=True):
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 0)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 0)
             p = self.manager.config / 'niri/config.kdl'; before = self.manager.inspect(p); after = encode(b'interrupted update', 0o644)
             records = self.manager.records()
             self.manager.save_json(self.manager.state / 'transaction.json', {'records': records, 'changes': {str(p): {'before': before, 'after': after}}})
             self.manager.write(p, after)
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic')[0], 0)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic')[0], 0)
             self.assertEqual(self.manager.inspect(p), before)
 
-    def test_deactivation_package_dry_run_does_not_write_or_execute(self):
+    def test_removal_plan_does_not_write_or_execute(self):
         self.manager.deploy('niri', {self.home / 'config': (b'managed', 0o644)}, 'snapshot')
         before = {p: p.read_bytes() for p in self.home.rglob('*') if p.is_file()}
         self.calls.clear()
         with patch('dotawesome.cli.Packages.plan', return_value=['niri', 'noctalia']), patch.object(cli.subprocess, 'run') as execute:
-            code, output = self.invoke('deactivate', 'niri', '--remove-packages', '--dry-run')
+            code, output = self.invoke('plan', 'niri', '--remove')
         self.assertEqual(code, 0)
         self.assertIn('sudo pacman -Ru niri noctalia', output)
         self.assertEqual(before, {p: p.read_bytes() for p in self.home.rglob('*') if p.is_file()})
@@ -143,13 +144,81 @@ class CLITests(unittest.TestCase):
             self.assertFalse((self.home / 'config').exists())
             return ['niri']
         with patch('dotawesome.cli.Packages.plan', return_value=['niri']), patch('dotawesome.cli.Packages.remove', side_effect=remove) as cleanup, patch.object(niri, 'outside_session'):
-            self.assertEqual(self.invoke('deactivate', 'niri', '--remove-packages')[0], 0)
+            self.assertEqual(self.invoke('remove', 'niri', '--remove-packages')[0], 0)
             cleanup.assert_called_once_with('niri')
 
     def test_package_provenance_survives_config_validation_failure(self):
         with patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': ['niri']}), patch.object(niri, 'outside_session'), patch.object(niri, 'validate', side_effect=Error('bad config')), patch('dotawesome.cli.Packages.install') as install:
-            self.assertEqual(self.invoke('activate', 'niri', '--profile', 'generic', '--install-packages')[0], 1)
+            self.assertEqual(self.invoke('apply', 'niri', '--profile', 'generic', '--install-packages')[0], 1)
             install.assert_called_once_with('niri', ['niri'])
         with patch('dotawesome.cli.Packages.plan', return_value=['niri']), patch('dotawesome.cli.Packages.remove', return_value=['niri']) as remove, patch.object(niri, 'outside_session'):
-            self.assertEqual(self.invoke('deactivate', 'niri', '--remove-packages')[0], 0)
+            self.assertEqual(self.invoke('remove', 'niri', '--remove-packages')[0], 0)
             remove.assert_called_once()
+
+
+class ComponentCLITests(unittest.TestCase):
+    setUp = CLITests.setUp
+    invoke = CLITests.invoke
+    def test_application_plan_is_read_only_and_has_no_profile(self):
+        code, output = self.invoke('plan', 'tmux')
+        self.assertEqual(code, 0, output)
+        self.assertIn('.tmux.conf', output)
+        self.assertEqual(list(self.home.rglob('*')), [])
+        self.assertFalse(self.manager.build_root.exists())
+        self.assertEqual(self.calls, [])
+
+    def test_tmux_apply_and_remove_restore_original_without_systemd(self):
+        target = self.home / '.tmux.conf'; target.write_text('original')
+        with patch('dotawesome.applications.validate'):
+            code, output = self.invoke('apply', 'tmux')
+        self.assertEqual(code, 0, output)
+        self.assertNotEqual(target.read_text(), 'original')
+        code, output = self.invoke('remove', 'tmux')
+        self.assertEqual(code, 0, output)
+        self.assertEqual(target.read_text(), 'original')
+        self.assertFalse(any(c[0] == 'systemctl' for c in self.calls))
+
+    def test_status_lists_all_components_and_detects_local_edits(self):
+        output = self.invoke('status')[1]
+        for name in ('niri', 'nvim', 'tmux'):
+            self.assertIn(name + ': inactive', output)
+        with patch('dotawesome.applications.validate'):
+            self.assertEqual(self.invoke('apply', 'tmux')[0], 0)
+        (self.home / '.tmux.conf').write_text('local edit')
+        self.assertIn('locally-modified', self.invoke('status', 'tmux')[1])
+        self.assertEqual(self.invoke('remove', 'tmux')[0], 1)
+
+    def test_old_commands_and_inapplicable_options_are_rejected(self):
+        for args in [('build', 'niri'), ('activate', 'niri'), ('deactivate', 'niri')]:
+            with self.assertRaises(SystemExit) as exc:
+                self.invoke(*args)
+            self.assertEqual(exc.exception.code, 2)
+        for args in [('apply', 'nvim', '--profile', 'g14'), ('plan', 'tmux', '--live'),
+                     ('plan', 'niri'), ('plan', 'niri', '--remove', '--profile', 'g14')]:
+            self.assertEqual(self.invoke(*args)[0], 1, args)
+        self.assertEqual(list(self.home.rglob('*')), [])
+
+    def test_application_cannot_recover_interrupted_niri_inside_session(self):
+        self.manager.state.mkdir(parents=True)
+        journal = self.manager.state / 'transaction.json'
+        journal.write_text(json.dumps({'records': {}, 'changes': {}}))
+        with patch.dict(os.environ, {'NIRI_SOCKET': '/tmp/example'}):
+            self.assertEqual(self.invoke('apply', 'tmux')[0], 1)
+            self.assertEqual(self.invoke('remove', 'tmux')[0], 1)
+        self.assertTrue(journal.exists())
+
+    @unittest.skipUnless(all(shutil.which(c) for c in ('nvim', 'git', 'rg')), 'Neovim dependencies unavailable')
+    def test_neovim_repeat_apply_and_remove_preserve_original_and_unmanaged_files(self):
+        config = self.manager.config / 'nvim'
+        config.mkdir(parents=True)
+        original = config / 'init.lua'; original.write_text('-- original config\n')
+        extra = config / 'personal.lua'; extra.write_text('-- unmanaged\n')
+        for _ in range(2):
+            code, output = self.invoke('apply', 'nvim')
+            self.assertEqual(code, 0, output)
+        self.assertNotEqual(original.read_text(), '-- original config\n')
+        self.assertEqual(self.invoke('remove', 'nvim')[0], 0)
+        self.assertEqual(original.read_text(), '-- original config\n')
+        self.assertEqual(extra.read_text(), '-- unmanaged\n')
+        self.assertFalse((config / 'lua/dotawesome/plugins.lua').exists())
+        self.assertFalse(any(c[0] == 'systemctl' for c in self.calls))

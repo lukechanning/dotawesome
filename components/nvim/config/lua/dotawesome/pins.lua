@@ -1,0 +1,21 @@
+-- Tested plugin revisions. Update deliberately and smoke-test before applying.
+return {
+  ['folke/lazy.nvim'] = '306a05526ada86a7b30af95c5cc81ffba93fef97',
+  ['sainnhe/edge'] = '7ec78c21bd8f0b2b0b47043bb1e730c561647c72',
+  ['nvim-lua/plenary.nvim'] = '74b06c6c75e4eeb3108ec01852001636d85a932b',
+  ['nvim-telescope/telescope.nvim'] = '40aedd8a68c78a656a10a8d62d80c54af59420fb',
+  ['nvim-tree/nvim-tree.lua'] = '355bcc85a48f45b3e728219f10b880d569928965',
+  ['nvim-tree/nvim-web-devicons'] = 'ec309a0eaff6ea967e58c275996155ab5c16938d',
+  ['christoomey/vim-tmux-navigator'] = 'e41c431a0c7b7388ae7ba341f01a0d217eb3a432',
+  ['preservim/vimux'] = 'd6cb7f63a8bb428ffc27060b7f83c77fb115589c',
+  ['tpope/vim-surround'] = '3d188ed2113431cf8dac77be61b842acb64433d9',
+  ['tpope/vim-commentary'] = '64a654ef4a20db1727938338310209b6a63f60c9',
+  ['windwp/nvim-autopairs'] = '3172f40c16563db871a58f20d205c710ad782311',
+  ['lewis6991/gitsigns.nvim'] = 'fd780920613e541cbdfac41bf711583ed49f9249',
+  ['mason-org/mason.nvim'] = '2a6940af80375532e5e9e7c1f2fc6319a1b7a69d',
+  ['neovim/nvim-lspconfig'] = '45a3a444b710511c39abca3b60bb6e23a21e3de5',
+  ['mfussenegger/nvim-lint'] = 'f6230a5c06ba59e6059c14637f1dbe29a7978b9b',
+  ['stevearc/conform.nvim'] = '016802de402556da54c36bd7359b441266b01cdd',
+  ['nvim-treesitter/nvim-treesitter'] = 'ca581c3436fc2b236847f5b739ebc263739e5ca6',
+  ['github/copilot.vim'] = 'a12fd5672110c8aa7e3c8419e28c96943ca179be',
+}

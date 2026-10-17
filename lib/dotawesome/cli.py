@@ -1,4 +1,6 @@
+"""Small, explicit component workflows with read-only plans."""
 import argparse
+import base64
 import difflib
 import json
 import shutil
@@ -6,143 +8,212 @@ from pathlib import Path
 import subprocess
 import sys
 
-from .manager import Error, Manager, encode
 from . import niri
+from .components import COMPONENTS
+from .manager import Error, Manager, encode
 from .packages import Packages
 
 
+def parser():
+    result = argparse.ArgumentParser(description='Manage selected workstation configuration with backups and restoration.')
+    commands = result.add_subparsers(dest='command', required=True)
+    commands.add_parser('list', help='list supported components')
+    status = commands.add_parser('status', help='compare deployed files and source')
+    status.add_argument('component', nargs='?', choices=COMPONENTS)
+    for name, help_text in (('check', 'check dependencies and configuration'),
+                            ('plan', 'preview changes without writing files'),
+                            ('apply', 'validate, back up, and deploy configuration'),
+                            ('remove', 'restore original files')):
+        command = commands.add_parser(name, help=help_text)
+        command.add_argument('component', choices=COMPONENTS)
+        if name in ('check', 'plan', 'apply'):
+            command.add_argument('--profile', help='Niri only: generic, g14, or a TOML path')
+        if name in ('plan', 'apply'):
+            command.add_argument('--live', action='store_true', help='Niri only: appearance-only update inside the session')
+        if name == 'plan':
+            command.add_argument('--remove', action='store_true', help='preview restoration and eligible package cleanup')
+        if name == 'apply':
+            command.add_argument('--install-packages', action='store_true', help='opt in to Arch package installation and full upgrade')
+        if name == 'remove':
+            command.add_argument('--remove-packages', action='store_true', help='remove eligible recorded package additions')
+    return result
+
+
+def report_checks(report):
+    for level in ('errors', 'warnings'):
+        for message in report.get(level, []):
+            print(f'  {level[:-1]}: {message}')
+    if not report['errors']:
+        print('  dependencies: ready')
+
+
+def show_diff(manager, component, files):
+    record = manager.records().get(component, {})
+    targets = {p: encode(data, mode) for p, (data, mode) in files.items()}
+    for path, entry in record.get('files', {}).items():
+        if Path(path) not in targets:
+            targets[Path(path)] = entry['original']
+    changed = 0
+    for path, after in targets.items():
+        before = manager.inspect(path)
+        if before == after:
+            continue
+        changed += 1
+        action = 'remove' if after is None else 'create' if before is None else 'replace'
+        print(f'  {action}: {path}')
+        def content(value):
+            if value is None:
+                return ''
+            if 'link' in value:
+                return 'symlink -> ' + value['link'] + '\n'
+            return base64.b64decode(value['data']).decode(errors='replace')
+        diff = ''.join(difflib.unified_diff(content(before).splitlines(True), content(after).splitlines(True),
+                                           fromfile=str(path), tofile=f'{path} (planned)'))
+        print(diff, end='' if diff.endswith('\n') else '\n')
+    print(f'{changed} file(s) changed.')
+
+
+def status(manager, packages, selected):
+    records = manager.records()
+    if (manager.state / 'transaction.json').exists():
+        print('Interrupted deployment: recovery pending on next mutation.')
+    package_records = packages.records()
+    for name in ([selected] if selected else COMPONENTS):
+        record = records.get(name)
+        if not record:
+            print(f'{name}: inactive')
+        else:
+            states = []
+            modified = [p for p, entry in record['files'].items() if manager.inspect(Path(p)) != entry['installed']]
+            if modified:
+                states.append('locally-modified')
+            try:
+                component = COMPONENTS[name]
+                profile = component.profile(manager.repo, record.get('profile_source'))
+                files = component.render(manager, profile)
+                generated = {str(p): encode(data, mode) for p, (data, mode) in files.items()}
+                if generated != {p: e['installed'] for p, e in record['files'].items()}:
+                    states.append('source-changed')
+            except (Error, OSError, ValueError, KeyError, TypeError) as exc:
+                states.append(f'source unavailable ({exc})')
+            print(f'{name}: {", ".join(states) if states else "current"}')
+            for path in modified:
+                print(f'  modified: {path}')
+        owned = package_records.get(name, {})
+        if owned.get('roots') or owned.get('pending'):
+            print('  package additions: ' + (', '.join(owned.get('roots', [])) or 'installation interrupted'))
+        if name == 'niri':
+            overrides = manager.state / 'niri-shell/noctalia/settings.toml'
+            if overrides.exists():
+                print(f'  GUI overrides: {overrides}')
+
+
+def recover_before_mutation(manager, component):
+    journal = manager.state / 'transaction.json'
+    if journal.exists():
+        # Legacy journals always included a session-level systemd reload.
+        if json.loads(journal.read_text()).get('reload_units', True) and component != 'niri':
+            niri.outside_session(manager)
+        with manager.lock():
+            pass
+
+
+def removal(manager, packages, args):
+    component = args.component
+    preview = args.command == 'plan'
+    if not preview:
+        if component == 'niri':
+            niri.outside_session(manager)
+        recover_before_mutation(manager, component)
+    manager.preview(component, {})
+    if preview:
+        print(f'{component}: restoration plan')
+        show_diff(manager, component, {})
+    cleanup = preview or args.remove_packages
+    candidates = packages.plan(component) if cleanup else []
+    if cleanup:
+        print('Package cleanup: ' + ('sudo pacman -Ru ' + ' '.join(candidates) if candidates else 'none eligible'))
+    if preview:
+        return 0
+    manager.deactivate(component)
+    packages.release(component)
+    if args.remove_packages:
+        removed = packages.remove(component)
+        print('Removed packages: ' + (', '.join(removed) or 'none'))
+    print(f'{component}: removed; original files restored. Application data retained.')
+    return 0
+
+
 def main(repo):
-    parser = argparse.ArgumentParser(description='Manage explicitly selected dotawesome components (repository-only until activate).')
-    sub = parser.add_subparsers(dest='command', required=True)
-    sub.add_parser('list')
-    for name in ('check', 'build', 'activate'):
-        command = sub.add_parser(name)
-        command.add_argument('component', choices=['niri'])
-        command.add_argument('--profile', required=True, help='generic, g14, or a TOML profile path')
-        if name == 'activate':
-            command.add_argument('--dry-run', action='store_true')
-            command.add_argument('--install-packages', action='store_true')
-            command.add_argument('--live', action='store_true', help='apply validated appearance-only changes without logging out')
-    status = sub.add_parser('status'); status.add_argument('component', nargs='?', choices=['niri'])
-    deactivate = sub.add_parser('deactivate')
-    deactivate.add_argument('component', choices=['niri'])
-    deactivate.add_argument('--remove-packages', action='store_true', help='remove recorded additions that are no longer needed')
-    deactivate.add_argument('--dry-run', action='store_true', help='review restoration and optional package cleanup without changes')
-    args = parser.parse_args()
+    args = parser().parse_args()
     manager = Manager(repo)
     packages = Packages(manager)
     try:
-        if args.command == 'activate' and args.live and args.install_packages:
-            raise Error('live update cannot install packages; install outside Niri')
         if args.command == 'list':
-            print('niri  Niri + Noctalia (generic, g14)'); return 0
+            for name, component in COMPONENTS.items():
+                print(f'{name:6} {component.description}')
+            return 0
         if args.command == 'status':
-            records = manager.records()
-            package_record = packages.records().get('niri', {})
-            if package_record.get('roots') or package_record.get('pending'):
-                print('niri package provenance: ' + (', '.join(package_record.get('roots', [])) or 'installation interrupted'))
-            if (manager.state / 'transaction.json').exists():
-                print('Interrupted deployment: recovery pending on next mutation.')
-            for component in ([args.component] if args.component else ['niri']):
-                record = records.get(component)
-                if not record:
-                    print(f'{component}: inactive; native and session validation pending'); continue
-                print(f'{component}: {record["snapshot"]}\n  {record["native_validation"]}')
-                for path, entry in record['files'].items():
-                    if manager.inspect(Path(path)) != entry['installed']:
-                        print(f'  MODIFIED {path}')
-                if record.get('profile_source'):
-                    try:
-                        candidate = niri.render(manager, niri.profile(repo, record['profile_source']))
-                        generated = {str(p): encode(data, mode) for p, (data, mode) in candidate.items()}
-                        deployed = {p: e['installed'] for p, e in record['files'].items()}
-                        if generated != deployed:
-                            print('  checkout differs: build and activate to apply pending changes')
-                    except (Error, OSError, ValueError) as exc:
-                        print(f'  checkout comparison unavailable: {exc}')
-                overrides = manager.state / 'niri-shell/noctalia/settings.toml'
-                if overrides.exists(): print(f'  GUI overrides: {overrides}')
+            status(manager, packages, args.component)
             return 0
-        if args.command == 'deactivate':
-            if not args.dry_run:
+        live = getattr(args, 'live', False)
+        if live and args.component != 'niri':
+            raise Error('--live is only valid for niri; application configs can be applied normally')
+        if live and getattr(args, 'install_packages', False):
+            raise Error('live update cannot install packages; install outside Niri')
+        if args.command == 'plan' and args.remove and (args.profile or live):
+            raise Error('plan --remove does not accept --profile or --live')
+        if args.command == 'remove' or (args.command == 'plan' and args.remove):
+            return removal(manager, packages, args)
+        component = COMPONENTS[args.component]
+        profile = component.profile(manager.repo, args.profile)
+        if args.command == 'apply' and not live:
+            if component.name == 'niri':
                 niri.outside_session(manager)
-            # Dry runs inspect only; a real mutation recovers the journal first.
-            if args.dry_run:
-                manager.preview(args.component, {})
-                for path in manager.records().get(args.component, {}).get('files', {}):
-                    print(f'restore original / remove managed file: {path}')
-            removal = packages.plan(args.component) if args.remove_packages else []
-            if args.remove_packages:
-                print('Package operation: ' + ('sudo pacman -Ru ' + ' '.join(removal) if removal else 'none; no recorded additions currently eligible'))
-            if args.dry_run:
-                print('User unit operation: systemctl --user daemon-reload; no changes performed.')
-                return 0
-            manager.deactivate(args.component)
-            packages.release(args.component)
-            if args.remove_packages:
-                removed = packages.remove(args.component)
-                print('Removed packages: ' + (', '.join(removed) or 'none'))
-            print('niri deactivated; original files restored. Shell state retained.')
-            return 0
-        if args.command == 'activate' and not args.dry_run and (manager.state / 'transaction.json').exists():
-            if args.live:
-                raise Error('live update refused: interrupted deployment requires recovery outside Niri')
-            niri.outside_session(manager)
-            with manager.lock():
-                pass  # Recover before preview compares managed files against the old ledger.
-        p = niri.profile(repo, args.profile)
-        files = niri.render(manager, p)
-        if args.command == 'activate' and args.live:
+            recover_before_mutation(manager, component.name)
+        files = component.render(manager, profile)
+        if live:
             niri.validate_live_update(manager, files)
-            # Publish companion palettes before their config, and Niri last.
             palette_dir = manager.config / 'dotawesome/niri/noctalia/noctalia/palettes'
             files = dict(sorted(files.items(), key=lambda item: (
                 0 if item[0].parent == palette_dir else
                 2 if item[0] == manager.config / 'niri/config.kdl' else 1)))
-        changes = manager.preview(args.component, files)
-        if args.command == 'build':
-            snapshot = manager.snapshot(args.component, files)
-            print(f'Build: {snapshot}')
-            if all(shutil.which(c) for c in ('niri', 'noctalia', 'systemd-analyze')):
-                niri.validate(manager, files); print('Native validation passed; session acceptance pending.')
-            else:
-                print('Native validation PENDING: validators unavailable; activation will require them.')
+        manager.preview(component.name, files)
+        report = component.check(manager, profile)
+        print(f'{component.name}: {args.command}')
+        report_checks(report)
+        if args.command == 'plan':
+            show_diff(manager, component.name, files)
+            print('Packages required: ' + ', '.join(report['packages']))
+            print('No changes made. Native validation runs during check/apply.')
             return 0
-        report = niri.check(manager, p)
-        print(json.dumps(report, indent=2))
-        print('\n'.join(changes))
         if args.command == 'check':
-            print('Native config validation occurs during build/activation; session acceptance pending.')
-            return 1 if report['errors'] else 0
-        print('Package operation: ' + ('sudo pacman -Syu --needed ' + ' '.join(report['packages']) if args.install_packages else 'none (require installed dependencies)'))
-        for dest, (data, _) in files.items():
-            before = manager.inspect(dest)
-            if before and 'data' in before:
-                import base64
-                old = base64.b64decode(before['data']).decode(errors='replace')
-            else:
-                old = ''
-            print(''.join(difflib.unified_diff(old.splitlines(True), data.decode().splitlines(True), fromfile=str(dest), tofile=f'{dest} (generated)')), end='')
-        print('User unit operation: systemctl --user daemon-reload; no start/enable/session switch.')
-        if args.dry_run:
-            return 0
-        if not args.live:
-            niri.outside_session(manager)
+            if not report['errors']:
+                component.validate(manager, files)
+                print('  configuration: valid')
+            return int(bool(report['errors']))
         if args.install_packages:
-            packages.install(args.component, report['packages'])
-            report = niri.check(manager, p)
+            if component.name != 'niri':
+                if not shutil.which('pacman'):
+                    raise Error('--install-packages requires Arch/CachyOS with pacman')
+            packages.install(component.name, report['packages'])
+            report = component.check(manager, profile)
+            report_checks(report)
         if report['errors']:
             raise Error('preflight failed; no configuration deployed')
-        snapshot = manager.snapshot(args.component, files)
-        niri.validate(manager, files)
-        if not args.live:
-            packages.require(args.component, report['packages'])
-        preflight = (lambda: niri.validate_live_update(manager, files)) if args.live else None
-        manager.deploy(args.component, files, snapshot, args.profile if args.profile in ('generic', 'g14') else str(Path(args.profile).resolve()), preflight=preflight)
-        if args.live:
-            print('Deployed live appearance update. Niri and Noctalia reload config without restarting the session; visual acceptance remains pending.')
-        else:
-            print('Deployed. Log out of Plasma, select the packaged Niri session, and log in. Keep Plasma as default. Session acceptance remains pending.')
+        component.validate(manager, files)
+        snapshot = manager.snapshot(component.name, files)
+        if not live:
+            packages.require(component.name, report['packages'])
+        source = args.profile
+        if source and source not in ('generic', 'g14'):
+            source = str(Path(source).resolve())
+        preflight = (lambda: niri.validate_live_update(manager, files)) if live else None
+        manager.deploy(component.name, files, snapshot, source, preflight=preflight,
+                       reload_units=component.name == 'niri',
+                       validation='passed; session acceptance pending' if component.name == 'niri' else 'passed')
+        print(f'{component.name}: applied' + (' live appearance update.' if live else '.'))
+        print(component.guidance)
         return 0
     except (Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
         print(f'dotawesome: {exc}', file=sys.stderr)

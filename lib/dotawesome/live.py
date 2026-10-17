@@ -140,4 +140,4 @@ def validate_live_update(manager, files):
             elif path == manager.config / 'dotawesome/niri/profile.json':
                 safe = profile_behaviour(before) == profile_behaviour(after)
         if not safe:
-            raise Error(f'live update changes non-appearance configuration: {path}; activate outside Niri')
+            raise Error(f'live update changes non-appearance configuration: {path}; apply outside Niri')

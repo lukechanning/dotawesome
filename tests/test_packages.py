@@ -103,7 +103,7 @@ class PackageTests(unittest.TestCase):
         self.install()
         self.manager.deploy('niri', {self.manager.home / 'config': (b'x', 0o644)}, 'snapshot')
         with patch('dotawesome.packages.subprocess.run') as execute:
-            with self.assertRaisesRegex(Error, 'deactivate'):
+            with self.assertRaisesRegex(Error, 'remove the component'):
                 self.packages.remove('niri')
             execute.assert_not_called()
 

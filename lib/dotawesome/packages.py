@@ -87,7 +87,7 @@ class Packages:
     def remove(self, component):
         with self.manager.lock():
             if component in self.manager.records():
-                raise Error('deactivate the component before removing its packages')
+                raise Error('remove the component before removing its packages')
             candidates = self.plan(component)
             if not candidates:
                 return []
@@ -107,5 +107,5 @@ class Packages:
                 entry['removing'] = False
                 self.manager.save_json(self.path, records)
             if result.returncode:
-                raise Error('package removal failed or cancelled; configuration is deactivated; retry --remove-packages later')
+                raise Error('package removal failed or cancelled; configuration is removed; retry --remove-packages later')
             return sorted(removed)

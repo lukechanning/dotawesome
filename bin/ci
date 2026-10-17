@@ -9,12 +9,12 @@ import tomllib
 
 sys.dont_write_bytecode = True
 root = Path(__file__).resolve().parents[1]
-for directory in ('lib/dotawesome', 'tests', 'components/niri'):
+for directory in ('lib/dotawesome', 'tests', 'components'):
     for path in (root / directory).rglob('*.py'):
         ast.parse(path.read_text(), filename=str(path))
-for path in (root / 'components/niri').rglob('*.toml'):
+for path in (root / 'components').rglob('*.toml'):
     tomllib.loads(path.read_text())
-for path in (root / 'components/niri').rglob('*.json'):
+for path in (root / 'components').rglob('*.json'):
     json.loads(path.read_text())
 for name in ('dotawesome', 'ci'):
     ast.parse((root / 'bin' / name).read_text(), filename=name)
