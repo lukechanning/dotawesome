@@ -35,12 +35,33 @@ class DeploymentTests(unittest.TestCase):
         self.manager.deactivate('niri')
         self.assertEqual(p.read_text(), 'original')
 
+    def test_unchanged_managed_files_are_not_replaced(self):
+        self.manager.deploy('niri', self.files, 'first')
+        p = next(iter(self.files))
+        inode = p.stat().st_ino
+        self.manager.deploy('niri', self.files, 'second')
+        self.assertEqual(p.stat().st_ino, inode)
+
     def test_modified_file_refuses_update_and_deactivation(self):
         self.manager.deploy('niri', self.files, 'one')
         p = next(iter(self.files)); p.write_text('manual')
         for operation in [lambda: self.manager.deploy('niri', self.files, 'two'), lambda: self.manager.deactivate('niri')]:
             with self.assertRaisesRegex(Error, 'modified'): operation()
         self.assertEqual(p.read_text(), 'manual')
+
+    def test_live_preflight_refuses_before_recovery_or_writes(self):
+        self.manager.deploy('niri', self.files, 'one')
+        before = self.manager.records()
+        journal = self.manager.state / 'transaction.json'
+        journal.write_text('{}')
+        def preflight():
+            raise Error('live update refused')
+        with patch.object(self.manager, 'recover') as recovery:
+            with self.assertRaisesRegex(Error, 'live update refused'):
+                self.manager.deploy('niri', self.files, 'two', preflight=preflight)
+            recovery.assert_not_called()
+        self.assertEqual(self.manager.records(), before)
+        self.assertEqual(journal.read_text(), '{}')
 
     def test_component_ownership_isolation_and_overlap(self):
         self.manager.deploy('niri', self.files, 'one')

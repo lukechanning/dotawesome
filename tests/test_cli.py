@@ -67,6 +67,26 @@ class CLITests(unittest.TestCase):
             self.assertEqual(self.invoke('deactivate', 'niri')[0], 1)
         self.assertFalse(self.manager.state.exists())
 
+    def test_live_activation_keeps_session_running_and_validates_first(self):
+        files = niri.render(self.manager, niri.profile(ROOT, 'generic'))
+        self.manager.deploy('niri', files, 'initial')
+        self.calls.clear()
+        with patch.dict(os.environ, {'NIRI_SOCKET': '/tmp/example'}), patch.object(niri, 'check', return_value={'errors': [], 'warnings': [], 'packages': []}), patch.object(niri, 'validate', return_value=True) as validator, patch.object(niri, 'outside_session') as logout, patch('dotawesome.cli.Packages.require') as requirements:
+            code, output = self.invoke('activate', 'niri', '--profile', 'generic', '--live')
+            self.assertEqual(code, 0, output)
+            validator.assert_called_once()
+            logout.assert_not_called()
+            requirements.assert_not_called()
+        self.assertEqual(self.calls, [['systemctl', '--user', 'daemon-reload']])
+        self.assertIn('live', output.lower())
+
+    def test_live_activation_refuses_packages_without_any_changes(self):
+        with patch('dotawesome.cli.Packages.install') as install:
+            code, output = self.invoke('activate', 'niri', '--profile', 'generic', '--live', '--install-packages')
+        self.assertEqual(code, 1, output)
+        install.assert_not_called()
+        self.assertFalse(self.manager.state.exists())
+
     def test_interrupted_transaction_restores_original_before_next_mutation(self):
         p = self.home / 'original'; p.write_text('original')
         original = self.manager.inspect(p)

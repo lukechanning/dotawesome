@@ -8,6 +8,7 @@ import tempfile
 import tomllib
 
 from .manager import Error
+from .live import validate_live_update
 
 
 def definition(repo):

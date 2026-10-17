@@ -22,6 +22,7 @@ def main(repo):
         if name == 'activate':
             command.add_argument('--dry-run', action='store_true')
             command.add_argument('--install-packages', action='store_true')
+            command.add_argument('--live', action='store_true', help='apply validated appearance-only changes without logging out')
     status = sub.add_parser('status'); status.add_argument('component', nargs='?', choices=['niri'])
     deactivate = sub.add_parser('deactivate')
     deactivate.add_argument('component', choices=['niri'])
@@ -31,6 +32,8 @@ def main(repo):
     manager = Manager(repo)
     packages = Packages(manager)
     try:
+        if args.command == 'activate' and args.live and args.install_packages:
+            raise Error('live update cannot install packages; install outside Niri')
         if args.command == 'list':
             print('niri  Niri + Noctalia (generic, g14)'); return 0
         if args.command == 'status':
@@ -82,11 +85,20 @@ def main(repo):
             print('niri deactivated; original files restored. Shell state retained.')
             return 0
         if args.command == 'activate' and not args.dry_run and (manager.state / 'transaction.json').exists():
+            if args.live:
+                raise Error('live update refused: interrupted deployment requires recovery outside Niri')
             niri.outside_session(manager)
             with manager.lock():
                 pass  # Recover before preview compares managed files against the old ledger.
         p = niri.profile(repo, args.profile)
         files = niri.render(manager, p)
+        if args.command == 'activate' and args.live:
+            niri.validate_live_update(manager, files)
+            # Publish companion palettes before their config, and Niri last.
+            palette_dir = manager.config / 'dotawesome/niri/noctalia/noctalia/palettes'
+            files = dict(sorted(files.items(), key=lambda item: (
+                0 if item[0].parent == palette_dir else
+                2 if item[0] == manager.config / 'niri/config.kdl' else 1)))
         changes = manager.preview(args.component, files)
         if args.command == 'build':
             snapshot = manager.snapshot(args.component, files)
@@ -114,7 +126,8 @@ def main(repo):
         print('User unit operation: systemctl --user daemon-reload; no start/enable/session switch.')
         if args.dry_run:
             return 0
-        niri.outside_session(manager)
+        if not args.live:
+            niri.outside_session(manager)
         if args.install_packages:
             packages.install(args.component, report['packages'])
             report = niri.check(manager, p)
@@ -122,9 +135,14 @@ def main(repo):
             raise Error('preflight failed; no configuration deployed')
         snapshot = manager.snapshot(args.component, files)
         niri.validate(manager, files)
-        packages.require(args.component, report['packages'])
-        manager.deploy(args.component, files, snapshot, args.profile if args.profile in ('generic', 'g14') else str(Path(args.profile).resolve()))
-        print('Deployed. Log out of Plasma, select the packaged Niri session, and log in. Keep Plasma as default. Session acceptance remains pending.')
+        if not args.live:
+            packages.require(args.component, report['packages'])
+        preflight = (lambda: niri.validate_live_update(manager, files)) if args.live else None
+        manager.deploy(args.component, files, snapshot, args.profile if args.profile in ('generic', 'g14') else str(Path(args.profile).resolve()), preflight=preflight)
+        if args.live:
+            print('Deployed live appearance update. Niri and Noctalia reload config without restarting the session; visual acceptance remains pending.')
+        else:
+            print('Deployed. Log out of Plasma, select the packaged Niri session, and log in. Keep Plasma as default. Session acceptance remains pending.')
         return 0
     except (Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
         print(f'dotawesome: {exc}', file=sys.stderr)

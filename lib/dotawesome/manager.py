@@ -41,11 +41,12 @@ class Manager:
         return json.loads(path.read_text()) if path.exists() else {}
 
     @contextmanager
-    def lock(self):
+    def lock(self, recover=True):
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
         with (self.state / 'lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
-            self.recover()
+            if recover:
+                self.recover()
             yield
 
     def inspect(self, path):
@@ -146,8 +147,12 @@ class Manager:
             raise
         journal.unlink()
 
-    def deploy(self, component, files, snapshot, profile_source=None):
-        with self.lock():
+    def deploy(self, component, files, snapshot, profile_source=None, preflight=None):
+        # Live admission is rechecked under the same lock as deployment. It must
+        # reject an interrupted transaction rather than recover session files.
+        with self.lock(recover=preflight is None):
+            if preflight is not None:
+                preflight()
             self.preview(component, files)
             records = self.records()
             old = records.get(component, {}).get('files', {})
@@ -156,7 +161,8 @@ class Manager:
             for p, (data, mode) in files.items():
                 key = str(p); before = self.inspect(p); after = encode(data, mode)
                 installed[key] = {'original': old[key]['original'] if key in old else before, 'installed': after}
-                changes[key] = {'before': before, 'after': after}
+                if before != after:
+                    changes[key] = {'before': before, 'after': after}
             for p, entry in old.items():
                 if p not in installed:
                     changes[p] = {'before': entry['installed'], 'after': entry['original']}
