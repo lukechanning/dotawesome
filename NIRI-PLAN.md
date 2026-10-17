@@ -2,6 +2,98 @@
 
 Status: implemented and activated on G14; native validation passes on Niri 26.04 and Noctalia 5.2.1. Login, workspace navigation, screenshots, Vivaldi wallet access, and AMD rendering have been exercised. Remaining hardware/session acceptance checks are recorded below.
 
+## Architectural glass appearance (2026-10-16)
+
+The repository now targets **Option C from the forest-wallpaper comparison**:
+smoked blue-grey shell surfaces, cool blue controls, fine outlines and soft
+shadows. This appearance revision is prepared and natively validated but **not
+activated or visually accepted**. Earlier opaque/no-blur appearance requirements
+below describe the previous baseline and are superseded by this section.
+
+- A managed `Architectural-Glass` dark palette supplies fixed colours without
+  wallpaper extraction, network downloads or automatic application theming.
+  Its JSON file is included in snapshots, validation staging, deployment and
+  restoration alongside Noctalia's TOML. Terminal colour metadata is required
+  by Noctalia's runtime palette parser even when template application is off;
+  including it does not theme any application.
+- The top bar is 32 logical pixels high, with 4px outside margins, 8px corners,
+  90% opacity, a fine outline, blur and a soft shadow. Existing widgets,
+  world-clock hover expansion, actions and sampling intervals remain intact.
+- Native glass panels use their existing layouts; the control center floats
+  at the top right. Launcher, clipboard, menus and notifications share the
+  palette. Shell shadows have 40% alpha; notifications use 90% opacity.
+  Noctalia requests correctly shaped compositor blur using its native protocol.
+  No forced layer effect is applied: testing showed that forcing `xray` on the
+  full-screen panel input layer hides the underlying apps. Application opacity
+  is unchanged.
+- Niri retains 6px tiling gaps and short animations, with 8px window corners,
+  a coordinated focus ring and restrained window shadows. Shell typography
+  uses the existing Noto Sans font. App themes and KDE settings are untouched.
+- Both wallpaper images, default/favourite paths, GUI selections, rotation
+  settings and wallpaper effects are unchanged. The mockup is a style reference,
+  not a requirement to reproduce invented app chrome or quick-setting layouts.
+
+### Activation and remaining visual acceptance
+
+Appearance updates can now be applied inside Niri:
+
+```sh
+bin/dotawesome activate niri --profile g14 --live --dry-run
+bin/dotawesome activate niri --profile g14 --live
+```
+
+`--live` requires an existing deployment and permits only explicitly listed
+shell styling keys, palette files, Niri framing/gap/animation settings, and
+Noctalia's blur policy. Outputs, scaling, shortcuts, launch commands, services,
+portals, wallpaper selection, app theming and idle/lock policy are compared and
+refused if changed. Compiled profile metadata may be refreshed only while work
+apps and the actual generated behaviour remain unchanged. Palette companions
+are published first and Niri's config last; unchanged files are not replaced.
+Native validation remains mandatory, with admission checked again under the
+deployment lock. Live updates refuse interrupted transactions and package
+installation, and do not update package provenance or restart session services.
+Deactivation, initial installation and behaviour changes still require logout.
+
+The isolated GUI overrides were inspected: only lock-screen layout settings were
+present, with no conflicting appearance overrides to remove or reset.
+
+Preflight found one existing managed-file edit: the live output mode is
+`2880x1800@60.001`, whereas the deployment record contains `2880x1800@120`.
+The user explicitly confirmed 60Hz as correct. After verifying this was exactly
+the one-line difference, the old ledger and current config were backed up under
+`.build/glass-preview/before-live/`. A locked metadata transaction adopted the
+existing 60Hz bytes and recorded a corresponding baseline snapshot, preserving
+the original restoration backups. No live configuration or display setting was
+rewritten. The G14 build and live dry-run pass; appearance is not activated yet.
+
+### Headless comparison
+
+Actual Niri/Noctalia captures at 2880×1800 and 160% scale are available in
+[the comparison report](.build/glass-preview/comparison.html), with the selected
+Option C reference, desktop, control center, audio panel, launcher and a sample
+notification. The disposable preview uses Xvfb, Niri's nested backend and
+software rendering, private D-Bus/config/state/runtime paths, and disposable app
+profiles. Preview locking, idle actions, polkit and clipboard history are off;
+system-bus and audio services are isolated, so hardware placeholders and elevated
+CPU samples are expected. It does not exercise the live wallet or alter wallpaper
+selections. Xvfb was extracted locally into the ignored preview directory, not
+installed system-wide. Preview processes are cleaned up by their private home.
+
+The captures exposed and verified fixes for a missing runtime palette payload
+and forced-xray interference with underlying windows. The native control center
+is larger and more card-based, and workspace indicators are pills; those native
+layout differences from the generated concept are intentional. Glass surfaces
+pick up some green from the existing forest wallpaper. Pixel equality to the
+generated mockup is not claimed.
+
+After activation, capture actual screenshots at the existing 160% scale of the
+tiled desktop, control center, launcher, clipboard and notifications. Compare
+against Option C with both existing wallpapers. Check rounded blur edges,
+contrast over green foliage, blue active states, shadows, world-clock expansion
+and existing controls. Tune shell opacity/colour/spacing against those captures;
+visual acceptance remains pending until reviewed with the user. Check lock and
+unlock rendering too, because shell palette changes also affect native lock UI.
+
 
 ## Native validation after package installation (2026-10-15)
 
@@ -71,10 +163,10 @@ or package requirements were added for this revision.
   GPU/network-throughput/disk polling is disabled. This does not disable
   NetworkManager, Wi-Fi selection, or Bluetooth controls. No resource savings
   are claimed until measured against KDE with the same workload.
-- A fixed dark palette and opaque surfaces retain the wallpapers already chosen
-  for G14. Windows get 6px corners, shell corners are modest, and compositor
-  transitions last 100–150ms. Blur, shadows, shader effects, lock-screen and
-  wallpaper transitions stay off. Noctalia UI animations run at 1.5x speed.
+- Appearance now follows the architectural-glass revision above, retaining the
+  wallpapers already chosen for G14. Compositor transitions remain 100–150ms,
+  lock-screen and wallpaper transitions stay off, and Noctalia UI animations
+  run at 1.5x speed.
 - Native Niri Alt+Tab/Shift+Alt+Tab and Super+Tab/Shift+Super+Tab handle recent
   windows; Alt+grave switches within an app. Directional H/J/K/L navigation and
   movement, width presets and column tabs remain available. No duplicate shell
@@ -179,7 +271,8 @@ symlink is backed up; its symlink target is never written through.
 All mutations share a process lock. A private `transaction.json` records the
 before/after images before deployment starts. Deployment or reload failure
 restores completed file changes and the old ledger. An interrupted transaction
-is recovered before the next real mutation; read-only commands never recover it.
+is recovered before the next ordinary mutation; live updates refuse recovery,
+and read-only commands never recover it.
 Recovery refuses post-interruption edits, retaining the journal for inspection.
 If recovery is blocked, preserve the journal, ledger, and edited file before
 manually restoring either recorded before/after bytes, then retry. A reload
