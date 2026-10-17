@@ -145,6 +145,8 @@ def render(manager, p):
         helper: ((source / 'work.py').read_bytes(), 0o644),
         helper.with_name('profile.json'): ((json.dumps(p, indent=2) + '\n').encode(), 0o644),
         manager.config / 'dotawesome/niri/noctalia/noctalia/config.toml': (shell, 0o644),
+        manager.config / 'dotawesome/niri/noctalia/noctalia/palettes/Architectural-Glass.json':
+            ((source / 'palettes/Architectural-Glass.json').read_bytes(), 0o644),
         manager.config / 'systemd/user/dotawesome-niri-noctalia.service': (unit.encode(), 0o644),
         manager.config / 'systemd/user/niri.service.d/50-dotawesome.conf': (b'[Unit]\nWants=dotawesome-niri-noctalia.service\n', 0o644),
         manager.config / 'xdg-desktop-portal/niri-portals.conf': (portals.encode(), 0o644),
@@ -258,6 +260,12 @@ def validate(manager, files):
         work = Path(tmp)
         config = work / 'config.kdl'; config.write_bytes(files[manager.config / 'niri/config.kdl'][0])
         shell = work / 'config.toml'; shell.write_bytes(files[manager.config / 'dotawesome/niri/noctalia/noctalia/config.toml'][0])
+        shell_root = manager.config / 'dotawesome/niri/noctalia/noctalia'
+        for path, (data, _) in files.items():
+            if path.is_relative_to(shell_root / 'palettes'):
+                target = work / path.relative_to(shell_root)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
         unit = work / 'dotawesome-niri-noctalia.service'
         unit.write_bytes(files[manager.config / 'systemd/user/dotawesome-niri-noctalia.service'][0])
         for command in (['niri', 'validate', '--config', str(config)],

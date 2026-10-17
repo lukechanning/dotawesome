@@ -2,8 +2,8 @@
 [theme]
 mode = "dark"
 shell_mode = "dark"
-source = "builtin"
-builtin = "Noctalia"
+source = "custom"
+custom_palette = "Architectural-Glass"
 
 [theme.templates]
 enable_builtin_templates = false
@@ -15,8 +15,9 @@ community_ids = []
 key_source = "secret-service"
 
 [shell]
-corner_radius_scale = 0.5
-popup_shadows = false
+corner_radius_scale = 0.65
+font_family = "Noto Sans"
+popup_shadows = true
 setup_wizard_enabled = false
 telemetry_enabled = false
 external_ip_enabled = false
@@ -38,28 +39,35 @@ speed = 1.5
 fetch_exchange_rates = false
 
 [shell.shadow]
-alpha = 0.0
+alpha = 0.4
+direction = "down"
 
 [shell.panel]
-transparency_mode = "solid"
-shadow = false
+transparency_mode = "glass"
+borders = true
+shadow = true
+control_center_placement = "floating"
+control_center_position = "top_right"
+floating_offset = 8
 
 [shell.greeter_sync]
 auto_sync = false
 
 [bar.default]
 position = "top"
-thickness = 28
-margin_ends = 0
-margin_edge = 0
-radius = 0
-radius_top_left = 0
-radius_top_right = 0
-radius_bottom_left = 0
-radius_bottom_right = 0
-background_opacity = 1.0
-compositor_blur = false
-shadow = false
+thickness = 32
+margin_ends = 4
+margin_edge = 4
+radius = 8
+radius_top_left = 8
+radius_top_right = 8
+radius_bottom_left = 8
+radius_bottom_right = 8
+background_opacity = 0.9
+compositor_blur = true
+border = "outline"
+border_width = 1.0
+shadow = true
 reserve_space = true
 start = ["workspaces"]
 center = ["group:world-clocks"]
@@ -174,7 +182,7 @@ hidden_tabs = ["weather", "calendar", "screen-time"]
 
 [notification]
 enable_daemon = true
-background_opacity = 1.0
+background_opacity = 0.9
 
 [lockscreen]
 enabled = true

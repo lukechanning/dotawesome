@@ -17,12 +17,19 @@ layout {
     }
     focus-ring {
         width 2
-        active-color "#82aaff"
-        inactive-color "#454b68"
+        active-color "#78b4fa"
+        inactive-color "#53677d"
     }
     border { off; }
+    shadow {
+        on
+        softness 18
+        spread 0
+        offset x=0 y=3
+        color "#080e1659"
+    }
 }
-// Short transitions aid spatial navigation without blur, bounce or shaders.
+// Short transitions aid spatial navigation; glass effects are shell-only.
 animations {
     workspace-switch { duration-ms 150; curve "ease-out-cubic"; }
     horizontal-view-movement { duration-ms 150; curve "ease-out-cubic"; }
@@ -49,17 +56,15 @@ recent-windows {
 hotkey-overlay { skip-at-startup; }
 prefer-no-csd
 window-rule {
-    geometry-corner-radius 6
+    geometry-corner-radius 8
     clip-to-geometry true
 }
 window-rule {
     match app-id="dev.noctalia.Noctalia"
     open-floating true
 }
-layer-rule {
-    match namespace="^noctalia-"
-    background-effect { blur false; }
-}
+// Noctalia requests blur for its rounded regions via ext-background-effect.
+// Do not force effects on its full-screen panel input surfaces.
 binds {
     Mod+H { focus-column-left; }
     Mod+J { focus-window-down; }

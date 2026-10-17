@@ -52,11 +52,17 @@ class LeanDesktopTests(unittest.TestCase):
             self.assertNotIn(widget, end)
         self.assertNotIn('media', self.shell['control_center']['hidden_tabs'])
 
-    def test_polish_is_subtle_and_statistics_avoid_extra_polling(self):
+    def test_glass_is_shell_only_and_statistics_avoid_extra_polling(self):
         self.assertGreater(self.shell['shell']['corner_radius_scale'], 0)
         self.assertTrue(self.shell['shell']['animation']['enabled'])
-        self.assertFalse(self.shell['bar']['default']['compositor_blur'])
-        self.assertEqual(self.shell['bar']['default']['background_opacity'], 1.0)
+        self.assertTrue(self.shell['bar']['default']['compositor_blur'])
+        self.assertLess(self.shell['bar']['default']['background_opacity'], 1.0)
+        self.assertEqual(self.shell['shell']['panel']['transparency_mode'], 'glass')
+        self.assertTrue(self.shell['shell']['panel']['shadow'])
+        self.assertNotIn('opacity ', self.base)
+        self.assertNotIn('blur false', self.base)
+        # A forced xray effect on the full-screen panel input layer hides apps.
+        self.assertNotIn('background-effect { xray true;', self.base)
         self.assertNotIn('animations { off; }', self.base)
         for stat in ('cpu', 'ram'):
             self.assertEqual(self.shell['widget'][stat]['visualization'], 'none')

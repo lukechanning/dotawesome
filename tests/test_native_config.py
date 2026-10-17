@@ -26,8 +26,13 @@ class NativeConfigTests(unittest.TestCase):
                         path.write_bytes(files[manager.config / 'niri/config.kdl'][0])
                         command = ['niri', 'validate', '--config', str(path)]
                     else:
-                        path = work / f'{name}.toml'
-                        path.write_bytes(files[manager.config / 'dotawesome/niri/noctalia/noctalia/config.toml'][0])
+                        shell_root = manager.config / 'dotawesome/niri/noctalia/noctalia'
+                        for source, (data, _) in files.items():
+                            if source.is_relative_to(shell_root):
+                                target = work / name / source.relative_to(shell_root)
+                                target.parent.mkdir(parents=True, exist_ok=True)
+                                target.write_bytes(data)
+                        path = work / name / 'config.toml'
                         command = ['noctalia', 'config', 'validate', str(path)]
                     result = subprocess.run(command, capture_output=True, text=True, timeout=30)
                     diagnostics = result.stdout + result.stderr

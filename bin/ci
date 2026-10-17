@@ -14,7 +14,8 @@ for directory in ('lib/dotawesome', 'tests', 'components/niri'):
         ast.parse(path.read_text(), filename=str(path))
 for path in (root / 'components/niri').rglob('*.toml'):
     tomllib.loads(path.read_text())
-json.loads((root / 'components/niri/definition.json').read_text())
+for path in (root / 'components/niri').rglob('*.json'):
+    json.loads(path.read_text())
 for name in ('dotawesome', 'ci'):
     ast.parse((root / 'bin' / name).read_text(), filename=name)
 print('Python syntax, TOML and component JSON: OK', flush=True)

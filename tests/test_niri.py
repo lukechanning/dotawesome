@@ -96,6 +96,46 @@ class NiriTests(unittest.TestCase):
         with patch('shutil.which', return_value='/usr/bin/tool'), patch.object(self.manager, 'runner', return_value='WARN unknown setting'):
             with self.assertRaisesRegex(Error, 'warning'): niri.validate(self.manager, files)
 
+    def test_custom_palette_is_managed_and_original_restored(self):
+        import tomllib
+        files = niri.render(self.manager, niri.profile(ROOT, 'g14'))
+        shell_dir = self.manager.config / 'dotawesome/niri/noctalia/noctalia'
+        shell = tomllib.loads(files[shell_dir / 'config.toml'][0].decode())
+        self.assertEqual(shell['theme']['source'], 'custom')
+        palette = shell_dir / 'palettes' / (shell['theme']['custom_palette'] + '.json')
+        self.assertIn(palette, files)
+        dark = json.loads(files[palette][0])['dark']
+        # Native Noctalia's runtime parser requires this even with templates off.
+        self.assertIn('terminal', dark)
+        self.assertEqual(len(dark['terminal']['normal']), 8)
+        self.assertEqual(len(dark['terminal']['bright']), 8)
+        palette.parent.mkdir(parents=True)
+        palette.write_bytes(b'original palette')
+        with patch.object(self.manager, 'runner', return_value=''):
+            snapshot = self.manager.snapshot('niri', files)
+            self.manager.deploy('niri', files, snapshot)
+            self.assertEqual(palette.read_bytes(), files[palette][0])
+            self.manager.deactivate('niri')
+        self.assertEqual(palette.read_bytes(), b'original palette')
+
+    def test_native_validation_stages_custom_palette_beside_config(self):
+        import tomllib
+        files = niri.render(self.manager, niri.profile(ROOT, 'generic'))
+        validated = []
+        def runner(command):
+            if command[:3] == ['noctalia', 'config', 'validate']:
+                config = Path(command[3])
+                shell = tomllib.loads(config.read_text())
+                self.assertEqual(shell['theme']['source'], 'custom')
+                palette = config.parent / 'palettes' / (shell['theme']['custom_palette'] + '.json')
+                self.assertTrue(palette.is_file())
+                self.assertIn('dark', json.loads(palette.read_text()))
+                validated.append(config)
+            return ''
+        with patch('shutil.which', return_value='/usr/bin/tool'), patch.object(self.manager, 'runner', side_effect=runner):
+            niri.validate(self.manager, files)
+        self.assertEqual(len(validated), 1)
+
     def test_preflight_missing_deps_and_optional_apps(self):
         with patch('shutil.which', return_value=None):
             report = niri.check(self.manager, niri.profile(ROOT, 'g14'))
