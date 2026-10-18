@@ -2,6 +2,7 @@
 """Repository-only checks; deployment/system/package operations are mocked."""
 import ast
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -9,6 +10,10 @@ import tomllib
 
 sys.dont_write_bytecode = True
 root = Path(__file__).resolve().parents[1]
+for tool in ('chezmoi', 'age', 'age-keygen', 'fish', 'gitleaks'):
+    if not shutil.which(tool):
+        sys.exit(f'bin/ci: missing required tool: {tool}; see docs/bootstrap.md')
+subprocess.run([str(root / 'bin/check-secrets')], cwd=root, check=True)
 for directory in ('lib/dotawesome', 'tests', 'components'):
     for path in (root / directory).rglob('*.py'):
         ast.parse(path.read_text(), filename=str(path))
@@ -16,7 +21,7 @@ for path in (root / 'components').rglob('*.toml'):
     tomllib.loads(path.read_text())
 for path in (root / 'components').rglob('*.json'):
     json.loads(path.read_text())
-for name in ('dotawesome', 'ci'):
+for name in ('dotawesome', 'ci', 'init', 'enroll-age', 'check-secrets'):
     ast.parse((root / 'bin' / name).read_text(), filename=name)
 print('Python syntax, TOML and component JSON: OK', flush=True)
 sys.exit(subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], cwd=root).returncode)

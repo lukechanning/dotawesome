@@ -17,7 +17,7 @@ def definition(repo):
 
 def profile(repo, name):
     path = Path(name)
-    if name in ('generic', 'g14'):
+    if name in ('generic', 'g14', 'desktop'):
         path = repo / 'components/niri/profiles' / f'{name}.toml'
     try:
         return tomllib.loads(path.read_text())

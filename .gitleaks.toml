@@ -1,0 +1,13 @@
+title = "dotawesome: default rules plus plaintext age and AWS guards"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "age-private-identity"
+description = "Plaintext age private identity"
+regex = '''AGE-SECRET-KEY-[A-Z0-9]{59}'''
+
+[[rules]]
+id = "aws-plaintext-credentials"
+description = "AWS credentials must be encrypted regardless of value"
+regex = '''(?im)^\s*(?:aws_access_key_id|aws_secret_access_key|aws_session_token)\s*=\s*[^\s]+'''

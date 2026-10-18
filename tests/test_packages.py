@@ -115,3 +115,29 @@ class PackageTests(unittest.TestCase):
             return real(args)
         self.manager.runner = query
         self.assertEqual(self.packages.plan('niri'), [])
+
+    def test_setup_installs_multiple_groups_once_and_tracks_each_owner(self):
+        def execute(args):
+            self.calls.append(args)
+            self.installed.update({'niri', 'noctalia', 'tmux', 'new-dependency'})
+            return type('Result', (), {'returncode': 0})()
+        with patch('dotawesome.packages.subprocess.run', side_effect=execute):
+            self.packages.install_many({'niri': ['niri', 'noctalia', 'alacritty'], 'tmux': ['tmux', 'alacritty']})
+        mutations = [args for args in self.calls if args[0] == 'sudo']
+        self.assertEqual(mutations, [['sudo', 'pacman', '-Syu', '--needed', 'niri', 'noctalia', 'alacritty', 'tmux']])
+        records = self.packages.records()
+        self.assertEqual(records['niri']['roots'], ['niri', 'noctalia'])
+        self.assertEqual(records['tmux']['roots'], ['tmux'])
+        self.assertNotIn('alacritty', records['tmux']['added'])
+        self.assertFalse(records['niri']['pending'])
+        self.assertFalse(records['tmux']['pending'])
+
+    def test_failed_group_install_records_additions_for_all_owners(self):
+        def execute(args):
+            self.installed.update({'niri', 'tmux'})
+            return type('Result', (), {'returncode': 1})()
+        with patch('dotawesome.packages.subprocess.run', side_effect=execute):
+            with self.assertRaises(Error):
+                self.packages.install_many({'niri': ['niri'], 'tmux': ['tmux']})
+        self.assertEqual(self.packages.records()['niri']['roots'], ['niri'])
+        self.assertEqual(self.packages.records()['tmux']['roots'], ['tmux'])

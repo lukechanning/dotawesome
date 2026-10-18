@@ -1,0 +1,9 @@
+# Never deploy enrollment material, generated shell state or authentication caches.
+**/key.txt
+**/.identity-*
+**/fish_variables
+**/fish_history
+.aws/cli
+.aws/login
+.aws/sso
+.aws/cache

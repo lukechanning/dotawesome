@@ -13,7 +13,7 @@ class Component:
     def profile(self, repo, value):
         if self.name == 'niri':
             if not value:
-                raise Error('niri requires --profile generic, g14, or a TOML path')
+                raise Error('niri requires --profile generic, g14, desktop, or a TOML path')
             return niri.profile(repo, value)
         if value:
             raise Error(f'{self.name} does not use --profile')
@@ -38,7 +38,7 @@ class Component:
 
 
 COMPONENTS = {c.name: c for c in (
-    Component('niri', 'Niri + Noctalia; profiles: generic, g14'),
+    Component('niri', 'Niri + Noctalia; profiles: generic, g14, desktop'),
     Component('nvim', 'Neovim editor'),
     Component('tmux', 'tmux terminal multiplexer'),
 )}

@@ -1,19 +1,25 @@
 # Dotawesome
 
 My workstation configuration: **Niri + Noctalia, Neovim, and tmux**.
-Arch/CachyOS on an ASUS G14, with KDE available alongside Niri.
+Arch/CachyOS on an ASUS G14 and desktop, with KDE available alongside Niri.
+Chezmoi manages shared Git, Alacritty, AWS profiles and personal Fish additions.
 
 ```sh
-bin/dotawesome list
-bin/dotawesome status
-bin/dotawesome plan nvim
-bin/dotawesome apply nvim
-bin/dotawesome plan niri --profile g14 --live
+cd ~/Code/dotawesome
+bin/dotawesome
 ```
 
-`plan` previews. `apply` validates and backs up. `remove` restores originals.
-Python 3.11+, no pip dependencies. Packages are installed only when requested.
+The guided CLI inspects this machine, remembers your profile and selected
+components, offers missing packages, handles age enrollment or recovery, and
+previews configuration changes before applying them with backups. Run the same
+command for first setup, updates, inspecting differences or component restoration.
+Niri changes that need logout are deferred while other work can continue.
 
+Python 3.11+, no pip dependencies. Package installation and full system upgrades
+are explained and confirmed in the flow. Explicit `status`, `plan`, `check`,
+`apply` and `remove` commands remain available for scripts and targeted work.
+
+- [Bootstrap & architecture](docs/bootstrap.md) — ownership, age enrollment, new machines, updates and recovery
 - [CLI guide](docs/usage.md) — commands, packages, restoration
 - [Niri](docs/niri.md) — profiles, live updates, shortcuts
 - [Neovim & tmux](docs/applications.md) — setup and daily use

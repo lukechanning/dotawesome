@@ -6,3 +6,14 @@
 /.build/
 __pycache__/
 *.py[cod]
+
+# Private identities, credentials, caches and interrupted enrollment artifacts
+**/key.txt
+**/.identity-*
+**/.enroll-*
+**/credentials
+**/fish_variables
+**/fish_history
+/.aws/
+**/aws/cli/cache/
+**/aws/sso/cache/

@@ -1,10 +1,23 @@
 # CLI
 
 Run `bin/dotawesome` from the checkout, or use its absolute path elsewhere.
-Supported components: `niri`, `nvim`, `tmux`. One component per operation.
+Run it without arguments for guided setup, updates, inspection and restoration:
+
+```sh
+bin/dotawesome
+```
+
+The flow asks for intent, remembers the machine and selected components, offers
+missing packages, handles age enrollment/recovery and previews changes before
+applying them. Package installation needs no flags in the guided flow. See the
+[setup guide](bootstrap.md) for the G14 and desktop journey.
+
+Explicit commands below remain available for scripts and individual operations.
+Supported components: `niri`, `nvim`, `tmux`. One component per explicit operation.
 
 | Command | Effect |
 | --- | --- |
+| no arguments or `setup` | Open the interactive guided flow (terminal required) |
 | `list` | Show supported components |
 | `status [COMPONENT]` | Show inactive, current, source-changed, or locally-modified state |
 | `check COMPONENT` | Check dependencies and validate configuration |
@@ -13,7 +26,9 @@ Supported components: `niri`, `nvim`, `tmux`. One component per operation.
 | `apply COMPONENT` | Validate, snapshot, back up, and deploy |
 | `remove COMPONENT` | Restore originals; retain packages and application data |
 
-Niri check/plan/apply require `--profile generic`, `--profile g14`, or a TOML path.
+Explicit Niri check/plan/apply require `--profile generic`, `--profile g14`,
+`--profile desktop`, or a TOML path. Guided setup selects the machine profile
+and retains an existing custom Niri profile.
 Application components have no profiles. Old `build`, `activate`, and `deactivate`
 commands have been removed.
 
@@ -31,7 +46,11 @@ checks use temporary directories, without downloading plugins or tools.
 
 ## Packages
 
-Use `apply COMPONENT --install-packages` to opt into interactive
+Guided setup detects missing packages and offers a single upgrade/install
+transaction for all selected components. Current packages need no installation
+step. It explains the full system upgrade and records each component's additions.
+
+For explicit commands, use `apply COMPONENT --install-packages` to opt into interactive
 `sudo pacman -Syu --needed`. Otherwise install dependencies yourself.
 `remove COMPONENT --remove-packages` offers cleanup of eligible recorded additions,
 after restoring configuration. Pre-existing and other components' required

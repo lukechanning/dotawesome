@@ -1,0 +1,11 @@
+{{- $machine := promptChoiceOnce . "machine" "Machine" (list "g14" "desktop") -}}
+sourceDir = {{ .chezmoi.sourceDir | dir | quote }}
+encryption = "age"
+umask = 0o022
+[age]
+identity = {{ joinPath .chezmoi.homeDir ".config/chezmoi/key.txt" | quote }}
+{{ if stat (joinPath .chezmoi.sourceDir "../encryption/recipient.txt") -}}
+recipient = {{ include "../encryption/recipient.txt" | trim | quote }}
+{{ end -}}
+[data]
+machine = {{ $machine | quote }}

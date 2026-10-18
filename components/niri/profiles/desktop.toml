@@ -1,0 +1,17 @@
+name = "desktop"
+terminal = ["alacritty"]
+# GPU and outputs use automatic selection until monitor modes are captured.
+
+[[apps]]
+name = "Vivaldi"
+command = ["vivaldi-stable", "--ozone-platform=wayland"]
+app_ids = ["vivaldi-stable", "vivaldi"]
+workspace = "One"
+width = "100%"
+
+[[apps]]
+name = "Alacritty"
+command = ["alacritty"]
+app_ids = ["Alacritty", "alacritty"]
+workspace = "One"
+width = "100%"

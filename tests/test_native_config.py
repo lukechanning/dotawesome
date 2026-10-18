@@ -18,7 +18,7 @@ class NativeConfigTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             manager = Manager(ROOT, work / 'home')
-            for name in ('generic', 'g14'):
+            for name in ('generic', 'g14', 'desktop'):
                 with self.subTest(profile=name):
                     files = niri.render(manager, niri.profile(ROOT, name))
                     if tool == 'niri':

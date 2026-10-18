@@ -129,3 +129,10 @@ live updates. Preparing this configuration does not activate it. After activatio
 check real tray clients, Bluetooth/audio controls, lock/unlock, suspend/resume and
 wallet access. Existing application themes, accounts, synchronization and KDE
 settings are independent of this design.
+
+## Desktop
+
+Use `--profile desktop` for Alacritty and the shared browser/workspace setup.
+GPU and displays are automatic pending monitor identity/mode capture; no G14
+DRM path, laptop output, wallet override or local wallpaper is inherited.
+Apply from KDE or a TTY outside Niri. See [bootstrap](bootstrap.md).

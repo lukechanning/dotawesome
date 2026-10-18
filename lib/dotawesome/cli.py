@@ -16,7 +16,8 @@ from .packages import Packages
 
 def parser():
     result = argparse.ArgumentParser(description='Manage selected workstation configuration with backups and restoration.')
-    commands = result.add_subparsers(dest='command', required=True)
+    commands = result.add_subparsers(dest='command')
+    commands.add_parser('setup', help='guided machine setup and updates (also the default)')
     commands.add_parser('list', help='list supported components')
     status = commands.add_parser('status', help='compare deployed files and source')
     status.add_argument('component', nargs='?', choices=COMPONENTS)
@@ -27,7 +28,7 @@ def parser():
         command = commands.add_parser(name, help=help_text)
         command.add_argument('component', choices=COMPONENTS)
         if name in ('check', 'plan', 'apply'):
-            command.add_argument('--profile', help='Niri only: generic, g14, or a TOML path')
+            command.add_argument('--profile', help='Niri only: generic, g14, desktop, or a TOML path')
         if name in ('plan', 'apply'):
             command.add_argument('--live', action='store_true', help='Niri only: appearance-only update inside the session')
         if name == 'plan':
@@ -144,9 +145,12 @@ def removal(manager, packages, args):
     return 0
 
 
-def main(repo):
-    args = parser().parse_args()
-    manager = Manager(repo)
+def main(repo, argv=None, manager=None):
+    args = parser().parse_args(argv)
+    if args.command in (None, 'setup'):
+        from . import guided
+        return guided.main(repo, manager=manager)
+    manager = manager or Manager(repo)
     packages = Packages(manager)
     try:
         if args.command == 'list':
@@ -206,7 +210,7 @@ def main(repo):
         if not live:
             packages.require(component.name, report['packages'])
         source = args.profile
-        if source and source not in ('generic', 'g14'):
+        if source and source not in ('generic', 'g14', 'desktop'):
             source = str(Path(source).resolve())
         preflight = (lambda: niri.validate_live_update(manager, files)) if live else None
         manager.deploy(component.name, files, snapshot, source, preflight=preflight,

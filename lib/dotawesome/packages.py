@@ -43,22 +43,33 @@ class Packages:
             self.manager.save_json(self.path, records)
 
     def install(self, component, required):
+        self.install_many({component: required})
+
+    def install_many(self, requirements):
+        """One explicit upgrade; retain before/after provenance for each owner."""
+        if not requirements:
+            return
+        required = list(dict.fromkeys(p for names in requirements.values() for p in names))
         with self.manager.lock():
             records = self.records()
-            entry = records.setdefault(component, {'added': [], 'roots': []})
-            if entry.get('pending') or entry.get('removing'):
+            if any(entry.get('pending') or entry.get('removing') for entry in records.values()):
                 raise Error('interrupted package installation: inspect packages.json and pacman logs before retrying')
             before = self.installed()
-            entry.update(required=list(required), pending=True)
+            entries = {}
+            for component, names in requirements.items():
+                entry = records.setdefault(component, {'added': [], 'roots': []})
+                entry.update(required=list(names), pending=True)
+                entries[component] = entry
             self.manager.save_json(self.path, records)
             try:
                 result = subprocess.run(['sudo', 'pacman', '-Syu', '--needed', *required])
             finally:
-                # Also capture successful additions if pacman returns failure or Ctrl+C.
+                # Capture additions even when pacman fails or is interrupted.
                 after = self.installed()
-                entry['added'] = sorted(set(entry['added']) | (after - before))
-                entry['roots'] = sorted(set(entry['roots']) | (set(required) & (after - before)))
-                entry['pending'] = False
+                for component, entry in entries.items():
+                    entry['added'] = sorted(set(entry['added']) | (after - before))
+                    entry['roots'] = sorted(set(entry['roots']) | (set(requirements[component]) & (after - before)))
+                    entry['pending'] = False
                 self.manager.save_json(self.path, records)
             if result.returncode:
                 raise Error('package update failed; additions recorded for optional cleanup; no configuration deployed')

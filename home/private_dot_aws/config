@@ -1,0 +1,6 @@
+[profile cof-aws]
+login_session = arn:aws:sts::251213419702:assumed-role/AWSReservedSSO_AdministratorAccess_aa0cf1ffb89f1f11/Luke@bitfoot.com
+region = us-east-1
+[profile cof-tf]
+credential_process = aws configure export-credentials --profile cof-aws --format process
+region = us-east-1
