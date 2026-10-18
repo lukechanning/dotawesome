@@ -7,6 +7,11 @@ Run it without arguments for guided setup, updates, inspection and restoration:
 bin/dotawesome
 ```
 
+Use ↑/↓ to move through menus, Space to toggle components, Enter to accept, and
+Esc to cancel. Confirmations default to No. Text prompts remain available when
+terminal menus are unavailable. GitHub/AWS authentication checks run only when
+shared configuration is selected.
+
 The flow asks for intent, remembers the machine and selected components, offers
 missing packages, handles age enrollment/recovery and previews changes before
 applying them. Package installation needs no flags in the guided flow. See the

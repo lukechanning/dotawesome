@@ -8,7 +8,7 @@ import sys
 import tempfile
 import tomllib
 
-from . import bootstrap, cli, enrollment, niri
+from . import bootstrap, cli, enrollment, niri, prompts
 from .components import COMPONENTS
 from .manager import Error, Manager, encode
 from .packages import Packages
@@ -68,9 +68,20 @@ class Workflow:
         self.failed = False
 
     def confirm(self, prompt):
+        if self.ask is input and prompts.available():
+            return prompts.menu(prompt, ['No', 'Yes'], ['No'])[0] == 'Yes'
         return self.ask(prompt + ' [y/N]: ').strip().lower() in ('y', 'yes')
 
     def choose(self, prompt, options, default=None):
+        if self.ask is input and prompts.available():
+            labels = {'0': 'Exit', '1': 'Set up / update this machine',
+                      '2': 'Inspect status and differences', '3': 'Restore previous component configuration',
+                      'k': 'Keep local edits and skip', 'v': 'View differences',
+                      'r': 'Back up edits and restore deployed files'}
+            displayed = [labels.get(option, option) for option in options]
+            defaults = [labels.get(default, default)] if default else []
+            selected = prompts.menu(prompt.split('[')[0].strip(), displayed, defaults)[0]
+            return options[displayed.index(selected)]
         while True:
             value = self.ask(prompt).strip().lower() or default
             if value in options:
@@ -160,6 +171,8 @@ class Workflow:
         default = self.saved.get('components', list(CHOICES))
         if not isinstance(default, list) or not default or any(n not in CHOICES for n in default):
             default = list(CHOICES)
+        if self.ask is input and prompts.available():
+            return prompts.menu('Select components to set up/update', list(CHOICES), default, multiple=True)
         print('Select components to set up/update. Unselected components are left as they are.')
         while True:
             reply = self.ask(f'Components [{" ".join(default)}] (or all): ').strip().lower()
@@ -289,7 +302,9 @@ class Workflow:
             except (Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
                 self.failed = True
                 self.remaining.append(f'{name}: deferred; {exc}')
-        self.remaining.extend(authenticate(self.ask))
+        if 'shared' in names and 'shared' not in deferred:
+            ask = (lambda prompt: 'yes' if self.confirm(prompt.removesuffix(' [y/N]: ')) else 'no')
+            self.remaining.extend(authenticate(ask))
         self.summary()
         return int(self.failed)
 

@@ -54,6 +54,11 @@ class GuidedTests(unittest.TestCase):
         code, output = self.invoke('1', 'desktop', 'tmux', 'yes', 'yes')
         self.assertEqual(code, 0, output)
 
+    def test_component_only_setup_never_checks_accounts(self):
+        with patch.object(guided, 'authenticate', return_value=[]) as auth:
+            self.setup_tmux()
+        auth.assert_not_called()
+
     def test_no_arguments_open_guided_entrypoint(self):
         with patch.object(sys, 'argv', ['dotawesome']), patch.object(guided, 'main', return_value=0) as run:
             self.assertEqual(cli.main(ROOT), 0)
