@@ -102,7 +102,7 @@ panels; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
 
 Workspace tabs use Noctalia's native grouped taskbar with shallow corners. Each
 tab shows its workspace label first, followed by app icons at scale 1.35.
-Labels use bar font scale 1.2; the bar remains 42px tall. Workspace boxes sit
+Labels use the original bar font scale 1.0; the bar remains 42px tall. Workspace boxes sit
 directly in the bar, without an outer navigation capsule consuming space. Multiple
 windows of the same app share an icon; clicking cycles through those windows.
 The focused window has a jade dot. Empty inactive workspaces are hidden,
