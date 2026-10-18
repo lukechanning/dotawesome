@@ -100,13 +100,24 @@ The managed design is Architectural Jade, refined: a transparent 42px bar with
 separate navigation, CPU/RAM, controls, and expanding world-clock groups; solid
 panels; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
 
-Workspace tabs have equal minimum widths and shallow corners. Empty inactive
-workspaces are hidden, including the trailing numbered workspace. Active empty
-and occupied workspaces remain visible. One/Two names and keyboard shortcuts
-are unchanged; hiding indicators does not change Niri's dynamic workspace model.
+Workspace tabs use Noctalia's native grouped taskbar with shallow corners. Each
+tab shows its workspace label first, followed by compact app icons. Multiple
+windows of the same app share an icon; clicking cycles through those windows.
+The focused window has a jade dot. Empty inactive workspaces are hidden,
+including the trailing numbered workspace; active empty workspaces remain visible.
+Noctalia 5.2.1 displays numeric taskbar labels (`1`, `2`), while Niri's One/Two
+names and keyboard shortcuts remain unchanged. This is native taskbar behavior;
+the taskbar has no label-source setting in that release.
 
-The fresh [managed build sheet](../.build/refinements/Jade-managed/option-sheet.png)
-is captured directly from the repository renderer. The local [comparison](../.build/refinements/comparison.html) and approved
+The grouped taskbar was checked in a disposable desktop at 2880×1800, scale 1.6,
+including shared app icons, separate populated workspaces, and an active empty
+workspace. The local [preview](../.build/refinements/Jade-taskbar/split.png)
+shows the managed configuration. Activate from Plasma with Niri stopped using
+normal apply above; replacing the workspace widget changes behavior and is
+excluded from `--live` updates.
+
+The earlier [managed build sheet](../.build/refinements/Jade-managed/option-sheet.png)
+predates the grouped taskbar. The local [comparison](../.build/refinements/comparison.html) and approved
 [refined sheet](../.build/refinements/Jade-refined/option-sheet.png) contain actual
 2880×1800 captures at scale 1.6. Previews and the disposable harness remain ignored
 local artifacts, absent from fresh clones. Hardware readings may be placeholders

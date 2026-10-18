@@ -108,7 +108,7 @@ class LiveUpdateTests(unittest.TestCase):
 
     def test_workspace_visibility_and_group_changes_require_logout(self):
         for before, after in [
-            ('hide_when_empty = true', 'hide_when_empty = false'),
+            ('hide_empty_workspaces = true', 'hide_empty_workspaces = false'),
             ('end = ["group:metrics", "group:status"]', 'end = ["group:status", "group:metrics"]'),
         ]:
             with self.subTest(change=before):

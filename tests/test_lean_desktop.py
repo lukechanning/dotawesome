@@ -96,9 +96,15 @@ class LeanDesktopTests(unittest.TestCase):
         bar = self.shell['bar']['default']
         self.assertEqual(bar['end'], ['group:metrics', 'group:status'])
         self.assertEqual((bar['thickness'], bar['font_weight'], bar['margin_edge'], bar['margin_ends']), (42, 600, 6, 10))
-        workspaces = self.shell['widget']['workspaces']
-        self.assertTrue(workspaces['hide_when_empty'])
-        self.assertEqual((workspaces['pill_scale'], workspaces['active_pill_size'], workspaces['inactive_pill_size'], workspaces['capsule_radius']), (1.0, 3.0, 3.0, 4.0))
+        navigation = next(g for g in bar['capsule_group'] if g['id'] == 'navigation')
+        self.assertEqual(navigation['members'], ['taskbar'])
+        taskbar = self.shell['widget']['taskbar']
+        self.assertTrue(taskbar['hide_empty_workspaces'])
+        self.assertTrue(taskbar['group_by_workspace'])
+        self.assertTrue(taskbar['show_workspace_label'])
+        self.assertEqual(taskbar['workspace_label_placement'], 'inside')
+        self.assertEqual(taskbar['workspace_group_content'], 'icons')
+        self.assertEqual(taskbar['capsule_radius'], 4.0)
         self.assertIn('gaps 8', self.base)
         self.assertIn('geometry-corner-radius 6', self.base)
         self.assertIn('active-color "#8fbdab"', self.base)
