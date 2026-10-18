@@ -96,9 +96,11 @@ class LeanDesktopTests(unittest.TestCase):
         bar = self.shell['bar']['default']
         self.assertEqual(bar['end'], ['group:metrics', 'group:status'])
         self.assertEqual((bar['thickness'], bar['font_weight'], bar['margin_edge'], bar['margin_ends']), (42, 600, 6, 10))
-        navigation = next(g for g in bar['capsule_group'] if g['id'] == 'navigation')
-        self.assertEqual(navigation['members'], ['taskbar'])
+        self.assertEqual(bar['start'], ['taskbar'])
+        self.assertEqual(bar['font_scale'], 1.2)
+        self.assertFalse(any(g['id'] == 'navigation' for g in bar['capsule_group']))
         taskbar = self.shell['widget']['taskbar']
+        self.assertEqual(taskbar['icon_scale'], 1.35)
         self.assertTrue(taskbar['hide_empty_workspaces'])
         self.assertTrue(taskbar['group_by_workspace'])
         self.assertTrue(taskbar['show_workspace_label'])

@@ -57,6 +57,7 @@ auto_sync = false
 position = "top"
 thickness = 42
 font_weight = 600
+font_scale = 1.2
 margin_ends = 10
 margin_edge = 6
 radius = 8
@@ -72,17 +73,9 @@ shadow = false
 reserve_space = true
 padding = 12
 widget_spacing = 10
-start = ["group:navigation"]
+start = ["taskbar"]
 center = ["group:world-clocks"]
 end = ["group:metrics", "group:status"]
-
-[[bar.default.capsule_group]]
-id = "navigation"
-members = ["taskbar"]
-fill = "surface"
-opacity = 0.96
-padding = 12.0
-radius = 6.0
 
 [[bar.default.capsule_group]]
 id = "status"
@@ -176,7 +169,7 @@ group_single_icon_per_app = true
 hide_empty_workspaces = true
 only_active_workspace = false
 show_all_outputs = false
-icon_scale = 0.85
+icon_scale = 1.35
 show_active_indicator = true
 active_indicator_color = "primary"
 capsule_radius = 4.0

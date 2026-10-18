@@ -101,7 +101,9 @@ separate navigation, CPU/RAM, controls, and expanding world-clock groups; solid
 panels; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
 
 Workspace tabs use Noctalia's native grouped taskbar with shallow corners. Each
-tab shows its workspace label first, followed by compact app icons. Multiple
+tab shows its workspace label first, followed by app icons at scale 1.35.
+Labels use bar font scale 1.2; the bar remains 42px tall. Workspace boxes sit
+directly in the bar, without an outer navigation capsule consuming space. Multiple
 windows of the same app share an icon; clicking cycles through those windows.
 The focused window has a jade dot. Empty inactive workspaces are hidden,
 including the trailing numbered workspace; active empty workspaces remain visible.
@@ -111,7 +113,7 @@ the taskbar has no label-source setting in that release.
 
 The grouped taskbar was checked in a disposable desktop at 2880×1800, scale 1.6,
 including shared app icons, separate populated workspaces, and an active empty
-workspace. The local [preview](../.build/refinements/Jade-taskbar/split.png)
+workspace. The local [preview](../.build/refinements/Jade-sizing/split.png)
 shows the managed configuration. Activate from Plasma with Niri stopped using
 normal apply above; replacing the workspace widget changes behavior and is
 excluded from `--live` updates.
