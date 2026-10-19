@@ -27,7 +27,7 @@ BAR_STYLE = {
     'font_family', 'font_scale', 'font_weight', 'padding', 'widget_spacing',
 }
 COMPILED_PROFILE_FIELDS = {
-    'name', 'terminal', 'render_device', 'secret_portal', 'vivaldi_password_store',
+    'name', 'terminal', 'preferred_output', 'render_device', 'secret_portal', 'vivaldi_password_store',
     'signal_password_store', 'wallpaper', 'laptop', 'external',
 }
 

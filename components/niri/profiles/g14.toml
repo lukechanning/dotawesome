@@ -1,5 +1,6 @@
 name = "g14"
 terminal = ["alacritty"]
+preferred_output = "PNP(AOC) 27B36X XI7S4HA042988"
 # AMD integrated GPU for Niri desktop rendering; NVIDIA remains available.
 render_device = "/dev/dri/by-path/pci-0000:65:00.0-render"
 # Reuse KDE's encrypted wallet through the desktop Secret portal.
@@ -19,8 +20,8 @@ identity = "eDP-2"
 mode = "2880x1800@60.001"
 scale = 1.6
 
-# External deliberately absent until identity AND modes are captured in Niri.
-# See docs/niri.md for the explicit [external] opt-in and connection checks.
+# Shared AOC scale is in base.kdl; mode and placement remain automatic.
+# See docs/niri.md before opting into a pinned external mode/workspace layout.
 
 [[apps]]
 name = "Vivaldi"

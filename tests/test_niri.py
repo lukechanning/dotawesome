@@ -16,6 +16,39 @@ class NiriTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.manager = Manager(ROOT, Path(self.temp.name) / 'home', Path(self.temp.name) / 'build')
 
+    def test_shared_aoc_scale_in_g14_and_desktop_without_pinning_modes(self):
+        for name in ('g14', 'desktop'):
+            with self.subTest(profile=name):
+                files = niri.render(self.manager, niri.profile(ROOT, name))
+                config = files[self.manager.config / 'niri/config.kdl'][0].decode()
+                self.assertIn('output "PNP(AOC) 27B36X XI7S4HA042988" {\n    scale 0.85\n}', config)
+                for key, direction in [('H', 'left'), ('J', 'down'), ('K', 'up'), ('L', 'right')]:
+                    self.assertIn(f'Mod+Ctrl+{key} {{ focus-monitor-{direction}; }}', config)
+                    self.assertIn(f'Mod+Ctrl+Shift+{key} {{ move-window-to-monitor-{direction}; }}', config)
+
+    def test_shared_monitor_is_preferred_for_both_numbered_workspaces(self):
+        for name in ('g14', 'desktop'):
+            files = niri.render(self.manager, niri.profile(ROOT, name))
+            config = files[self.manager.config / 'niri/config.kdl'][0].decode()
+            for workspace in ('One', 'Two'):
+                self.assertIn(f'workspace "{workspace}" {{ open-on-output "PNP(AOC) 27B36X XI7S4HA042988"; }}', config)
+
+    def test_iso_key_matches_kde_shift_remap_in_every_profile(self):
+        for name in ('generic', 'g14', 'desktop'):
+            with self.subTest(profile=name):
+                files = niri.render(self.manager, niri.profile(ROOT, name))
+                config = files[self.manager.config / 'niri/config.kdl'][0].decode()
+                self.assertIn('options "lv2:lsgt_switch"', config)
+
+    def test_monitor_shortcuts_move_individual_windows_and_preserve_tiling_controls(self):
+        files = niri.render(self.manager, niri.profile(ROOT, 'g14'))
+        config = files[self.manager.config / 'niri/config.kdl'][0].decode()
+        for key, direction in [('H', 'left'), ('J', 'down'), ('K', 'up'), ('L', 'right')]:
+            self.assertIn(f'Mod+Ctrl+{key} {{ focus-monitor-{direction}; }}', config)
+            self.assertIn(f'Mod+Ctrl+Shift+{key} {{ move-window-to-monitor-{direction}; }}', config)
+        self.assertIn('Mod+Shift+H { move-column-left; }', config)
+        self.assertIn('Mod+Shift+L { move-column-right; }', config)
+
     def test_g14_routes_secret_portal_to_existing_kde_wallet(self):
         import configparser
         files = niri.render(self.manager, niri.profile(ROOT, 'g14'))

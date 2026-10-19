@@ -45,13 +45,25 @@ commands above. It is deliberately excluded from appearance-only live updates.
 - `generic`: automatic outputs, Alacritty, optional browser command.
 - `g14`: AMD rendering, KDE wallet integration, Vivaldi and Alacritty work layout;
   built-in display **2880×1800 at 60.001 Hz, scale 1.6**.
-- A future desktop gets its own profile once its outputs and hardware are known.
+- `desktop`: automatic GPU selection, Vivaldi and Alacritty work layout.
 
 G14 references `~/Pictures/Path.jpg` and `~/Pictures/OneStandsOut.jpg`; images are
 not managed or copied. Missing images produce warnings and a dark fallback.
 GUI overrides take precedence and are reported by `status`.
 
-External display settings remain absent until identity/modes are captured with
+All profiles share the ISO Shift remap, directional monitor shortcuts, and
+**85% scale** for the desk monitor `PNP(AOC) 27B36X XI7S4HA042988` in
+`components/niri/base.kdl`. Matching the monitor identity allows it to move between
+the G14 and desktop, or between ports. Resolution, refresh rate and placement
+remain automatic. Both `g14` and `desktop` prefer this monitor for named
+workspaces One and Two (Super+1/2); without it, Niri uses an available output.
+The scale was tested live on the G14 at 1920×1080, 60 Hz.
+
+To try a different scale temporarily, use `niri msg output DP-3 scale 0.85`
+with the connector reported by `niri msg outputs`. Update the shared base to
+persist an agreed scale on both machines.
+
+Pinning a mode and workspace/output placement still requires identity/modes captured with
 `niri msg --json outputs` through both dock HDMI and direct HDMI. Copy the G14
 profile to a custom TOML path and add verified values:
 
@@ -76,6 +88,8 @@ connector-only identities are refused.
 | Super+Shift+1 / 2 | Move window to workspace |
 | Super+H/J/K/L | Navigate columns/windows |
 | Super+Shift+H/J/K/L | Move columns/windows |
+| Super+Ctrl+H/J/K/L | Focus monitor left/down/up/right |
+| Super+Ctrl+Shift+H/J/K/L | Move focused window to monitor left/down/up/right |
 | Super+Space / V / S | Launcher / clipboard / control center |
 | Super+B / Super+Shift+B / Super+N | Network / Bluetooth / notifications |
 | Alt+Tab / Alt+Shift+Tab | Recent windows |
@@ -85,6 +99,22 @@ connector-only identities are refused.
 | Super+Shift+S / Print | Screenshot UI |
 | Super+Alt+L / Super+Shift+E | Lock / confirmed logout |
 | Super+Shift+Q | Close window |
+
+The ISO `< >` key immediately right of left Shift acts as an additional left
+Shift (`lv2:lsgt_switch`), matching the existing KDE keyboard option. This applies
+to keyboards with that physical key. Keyboard/remap and shortcut changes require
+normal apply outside Niri, not appearance-only `--live`.
+
+For a one-off move before these shortcuts are applied, run
+`sleep 3; niri msg action move-window-to-monitor DP-3` and focus the desired
+window within three seconds. `DP-3` is the current connector; find the actual
+connector on another connection using `niri msg outputs`.
+
+`niri msg outputs` reports the active scale, current mode and logical size. The
+laptop's 2880×1800 at scale 1.6 gives 1800×1125 logical pixels. A 1920×1080
+external output at scale 0.85 gives roughly 2258×1270 logical pixels. This scale
+is shared by the G14 and desktop configurations. Capture identity and modes on
+both connection paths before pinning a mode or workspace/output layout.
 
 Idle lock: 10 minutes; screen-off: 15 minutes. Caffeine inhibits both.
 Clipboard selection copies; deletion uses panel confirmation.

@@ -1,6 +1,8 @@
 name = "desktop"
 terminal = ["alacritty"]
-# GPU and outputs use automatic selection until monitor modes are captured.
+preferred_output = "PNP(AOC) 27B36X XI7S4HA042988"
+# GPU and output modes use automatic selection.
+# Shared AOC scale, keyboard remap and monitor shortcuts come from base.kdl.
 
 [[apps]]
 name = "Vivaldi"

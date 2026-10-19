@@ -35,6 +35,8 @@ def validate_profile(p):
     if p.get('render_device') is not None and (not isinstance(p['render_device'], str) or
             not re.fullmatch(r'/dev/dri/(?:renderD\d+|by-path/pci-[\w:.-]+-render)', p['render_device'])):
         raise Error('render_device must be a DRM render node path')
+    if 'preferred_output' in p and (not isinstance(p['preferred_output'], str) or not p['preferred_output'].strip()):
+        raise Error('preferred_output must be a nonempty output identity')
     for app in ('vivaldi', 'signal'):
         if p.get(f'{app}_password_store') not in (None, 'kwallet6'):
             raise Error(f'{app}_password_store must be kwallet6')
@@ -104,7 +106,7 @@ def render(manager, p):
         focus = '    focus-at-startup\n' if key == 'external' or not external else ''
         config += f'\noutput {json.dumps(output["identity"])} {{\n{focus}    mode {json.dumps(output["mode"])}\n    scale {output["scale"]}\n    position x={x} y=0\n}}\n'
     for workspace in ('One', 'Two'):
-        prefer = external or p.get('laptop')
+        prefer = external or ({'identity': p['preferred_output']} if p.get('preferred_output') else p.get('laptop'))
         rule = f' open-on-output {json.dumps(prefer["identity"])}; ' if prefer else ''
         config += f'workspace "{workspace}" {{{rule}}}\n'
     helper = manager.config / 'dotawesome/niri/work.py'

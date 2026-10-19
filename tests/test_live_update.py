@@ -49,6 +49,7 @@ class LiveUpdateTests(unittest.TestCase):
             (self.config, '2880x1800@60.001', '2880x1800@120'),
             (self.config, 'scale 1.6', 'scale 1.5'),
             (self.config, 'Mod+H', 'Mod+Left'),
+            (self.config, 'lv2:lsgt_switch', 'ctrl:nocaps'),
             (self.config, '"alacritty"', '"other-terminal"'),
             (self.shell, '[calendar]\nenabled = true', '[calendar]\nenabled = false'),
             (self.shell, 'hidden_tabs = ["weather", "screen-time"]', 'hidden_tabs = ["weather", "calendar", "screen-time"]'),

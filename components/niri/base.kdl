@@ -1,9 +1,17 @@
 // Portable baseline. Machine outputs, workspaces and command bindings are appended.
 input {
     keyboard {
-        xkb {}
+        xkb {
+            // Match KDE: the ISO < > key beside left Shift is another Shift.
+            options "lv2:lsgt_switch"
+        }
     }
     touchpad { tap; natural-scroll; }
+}
+// Shared desk monitor: match its identity across machines and connectors.
+// Leave mode and placement automatic; only persist the tested scale.
+output "PNP(AOC) 27B36X XI7S4HA042988" {
+    scale 0.85
 }
 layout {
     gaps 8
@@ -74,6 +82,15 @@ binds {
     Mod+Shift+J { move-window-down; }
     Mod+Shift+K { move-window-up; }
     Mod+Shift+L { move-column-right; }
+    // Monitor navigation is separate from movement within the tiled layout.
+    Mod+Ctrl+H { focus-monitor-left; }
+    Mod+Ctrl+J { focus-monitor-down; }
+    Mod+Ctrl+K { focus-monitor-up; }
+    Mod+Ctrl+L { focus-monitor-right; }
+    Mod+Ctrl+Shift+H { move-window-to-monitor-left; }
+    Mod+Ctrl+Shift+J { move-window-to-monitor-down; }
+    Mod+Ctrl+Shift+K { move-window-to-monitor-up; }
+    Mod+Ctrl+Shift+L { move-window-to-monitor-right; }
     Mod+1 { focus-workspace "One"; }
     Mod+2 { focus-workspace "Two"; }
     Mod+Shift+1 { move-window-to-workspace "One"; }
