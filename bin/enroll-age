@@ -1,8 +1,4 @@
-#!/usr/bin/env python3
-from pathlib import Path
-import sys
-sys.dont_write_bytecode = True
-root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(root / 'lib'))
-from dotawesome.enrollment import main
-sys.exit(main(root))
+#!/bin/sh
+set -eu
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec "$root/bin/dotawesome" enroll-age "$@"

@@ -2,10 +2,8 @@
 **/secrets.lua
 **/.DS_Store
 
-# Managed environment snapshots and Python caches
+# Local compiler cache, snapshots and previews
 /.build/
-__pycache__/
-*.py[cod]
 
 # Private identities, credentials, caches and interrupted enrollment artifacts
 **/key.txt

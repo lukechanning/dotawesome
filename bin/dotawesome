@@ -1,11 +1,24 @@
-#!/usr/bin/env python3
-"""Repository-wide entry point. Python 3.11+; no pip dependencies."""
-import sys
-from pathlib import Path
-
-sys.dont_write_bytecode = True
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'lib'))
-from dotawesome.cli import main
-
-sys.exit(main(ROOT))
+#!/usr/bin/env bash
+# Local compiler cache. A failed build always fails the invocation.
+set -euo pipefail
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export DOTAWESOME_ROOT="$root"
+command -v go >/dev/null 2>&1 || { echo 'dotawesome: Go >= 1.26 is required to build; install with sudo pacman -S go' >&2; exit 1; }
+mkdir -p "$root/.build/bin"
+(
+    flock 9
+    cd "$root"
+    digest=$({ go version; find cmd internal -type f -name '*.go' -print | LC_ALL=C sort | xargs -r sha256sum; sha256sum go.mod go.sum; } | sha256sum | cut -d ' ' -f 1)
+    previous=$(cat .build/bin/sources.sha256 2>/dev/null || true)
+    if [ "$digest" != "$previous" ] || [ ! -x .build/bin/dotawesome ] || [ ! -x .build/bin/dotawesome-work ]; then
+        stage=$(mktemp -d "$root/.build/bin/.build-XXXXXX")
+        trap 'rm -rf "$stage"' EXIT HUP INT TERM
+        go build -trimpath -o "$stage/dotawesome-work" ./cmd/dotawesome-work
+        go build -trimpath -o "$stage/dotawesome" ./cmd/dotawesome
+        printf '%s\n' "$digest" > "$stage/sources.sha256"
+        mv -f "$stage/dotawesome-work" .build/bin/dotawesome-work
+        mv -f "$stage/dotawesome" .build/bin/dotawesome
+        mv -f "$stage/sources.sha256" .build/bin/sources.sha256
+    fi
+) 9> "$root/.build/bin/build.lock"
+exec "$root/.build/bin/dotawesome" "$@"

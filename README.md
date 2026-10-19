@@ -9,22 +9,24 @@ cd ~/Code/dotawesome
 bin/dotawesome
 ```
 
-The guided CLI inspects this machine, remembers your profile and selected
-components, offers missing packages, handles age enrollment or recovery, and
-previews configuration changes before applying them with backups. Run the same
-command for first setup, updates, inspecting differences or component restoration.
-Niri changes that need logout are deferred while other work can continue.
+The guided home keeps the ASCII logo and offers three clear tasks: **Set up this
+machine**, **Configure an app**, and **Sync configuration**, plus More options.
+Setup checks readiness and guides prerequisites, age enrollment/recovery, shared
+chezmoi configuration and app setup in order. Sync pulls Git with `--ff-only`,
+rebuilds, then reviews managed configuration. Review changes and confirm before
+applying. Results stay visible; package upgrades, age and login use the terminal.
 
-Python 3.11+, no pip dependencies. Package installation and full system upgrades
-are explained and confirmed in the flow. Explicit `status`, `plan`, `check`,
-`apply` and `remove` commands remain available for scripts and targeted work.
+Go 1.26+ builds locally into an ignored `.build/` cache; normal runtime has no
+Python dependency. Failed compilation stops the invocation. There is no release
+service or hosted CI. Linux on Arch/CachyOS is the supported deployment target.
 
-- [Bootstrap & architecture](docs/bootstrap.md) — ownership, age enrollment, new machines, updates and recovery
-- [CLI guide](docs/usage.md) — commands, packages, restoration
+Existing JSON ledgers, backups, age identities and profiles remain usable.
+Deployment preserves original files and rejects local drift. Niri behavior
+changes require logout; appearance-only changes can use explicit `--live`.
+
+- [Bootstrap & architecture](docs/bootstrap.md) — ownership, enrollment, recovery
+- [CLI guide](docs/usage.md) — dashboard, commands, packages and restoration
 - [Niri](docs/niri.md) — profiles, live updates, shortcuts
 - [Neovim & tmux](docs/applications.md) — setup and daily use
-- [Development](docs/development.md) — layout and local checks
+- [Development](docs/development.md) — architecture, checks and migration evidence
 - [G14 hardware](laptops/G14/NOTES.md) — optional battery charge limit
-
-Retired setups live in [`deprecated/`](deprecated/README.md).
-Earlier Niri decisions live in [the historical plan](docs/history/NIRI-PLAN.md).

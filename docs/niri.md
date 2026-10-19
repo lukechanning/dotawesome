@@ -121,8 +121,7 @@ Clipboard selection copies; deletion uses panel confirmation.
 Verify lock/unlock, suspend/resume, external displays, and wallet access in the
 actual session after relevant changes. Config validation cannot establish these.
 
-Earlier acceptance notes and headless comparison details are in
-[the historical plan](history/NIRI-PLAN.md). Its `.build/` previews are local-only.
+Earlier design and acceptance history remains available in Git history.
 
 ## Selected design
 

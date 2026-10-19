@@ -3,92 +3,55 @@
 Keep one Git checkout at `~/Code/dotawesome`. Both machines work without an
 external SSD. Code remains Git-managed; bulk migration and Syncthing are separate.
 
-## One entry point for setup and updates
+## Setup and updates
 
-On the G14:
+Install Git and Go 1.26+, clone this checkout, then run `bin/dotawesome`.
+Choose **Set up this machine**. The guided flow checks the rig and explains the
+next missing step:
 
-```sh
-cd ~/Code/dotawesome
-bin/dotawesome
-```
+1. Confirm installation of missing shared prerequisites, if needed.
+2. Choose G14 or desktop; existing machine selections are reused.
+3. Enroll an age identity or recover the existing encrypted identity.
+4. Review and confirm shared chezmoi configuration and hook setup.
+5. Select app configurations, review their changes, and confirm deployment.
 
-Choose **Set up / update this machine**. The CLI inspects current configuration
-and tools, uses an existing machine selection when available, and otherwise asks
-for `g14` or `desktop`. Select the components to manage (default: shared configs,
-Neovim, tmux and Niri); subsequent runs remember your choices. Unselected
-components are left as they are.
+Ready steps are skipped. Existing identities and configuration are inspected
+before changes; incomplete or conflicting state gets an explanation. Optional
+GitHub and AWS login checks are offered at the end. **Configure an app** opens
+app setup independently; **More options → Shared configuration** runs shared-only
+setup. Standalone helpers remain available below.
 
-The flow offers these steps when needed:
+Keep the recovery passphrase separately in 1Password or an offline record.
+Existing/partial enrollment is preserved on failure. Review and commit only the
+public recipient and encrypted recovery copy under `encryption/` before setting
+up another machine. Never commit the plaintext identity.
 
-1. Install required packages in one confirmed `sudo pacman -Syu --needed`
-   transaction. This performs a full system upgrade; the command is shown first.
-   Installation provenance remains recorded for each selected component.
-2. Create the repository's first dedicated age identity, or recover the existing
-   identity on another machine. Passphrases are entered in the terminal. Save
-   the recovery passphrase separately in 1Password or an offline recovery record.
-   Existing or partial identities are preserved and must be inspected on failure.
-3. Install the repository's pre-commit hook, preserving existing custom hooks.
-   If a custom hook exists, the flow explains how to chain `hooks/pre-commit` and
-   asks before retaining that hook setup.
-4. Preview and confirm changed shared files and selected components. Already
-   current configuration is skipped. Shared differences can be declined, or
-   backed up and applied. Component local edits can be kept, viewed, or backed
-   up before restoring the last deployed version and continuing.
-5. Check GitHub and AWS authentication quietly, and offer local login when it
-   cannot be verified. An offline connection can also prevent verification;
-   login is optional and can be retried on a later run.
+The app configuration stage selects Niri, Neovim and tmux independently. Preflight checks
+ownership and dependencies; review shows file diffs. Press `p` on review for a
+confirmed package upgrade in the terminal, then inspect again. Niri changes
+requiring logout are deferred while other components can complete. Results stay
+open. Escape during execution requests a safe stop; rollback completes before
+returning. Only the explicit **Sync configuration** flow pulls Git; no flow commits, pushes or stashes.
 
-Native validation, component backups, package provenance and session safeguards
-remain in force. Changed Niri configuration is deferred while Niri is running;
-continue other setup, log out, and rerun from KDE or a TTY to finish it. A current
-Niri configuration needs no application. Failures and deliberate deferrals are
-listed at the end. Ctrl-C stops the flow; rerun the same command to inspect
-completed work and continue. It does not automatically commit, push or pull Git.
+Profile and component selections are remembered under
+`$XDG_STATE_HOME/dotawesome/preferences.json`. Existing chezmoi machine data and
+custom Niri profile paths are reused. Component local edits block replacement;
+preserve them and reconcile the recorded version before retrying. Existing
+`local-edits/*/files.json` backups from earlier versions remain ordinary private
+JSON file records and can be restored manually.
 
-Your selected profile and components are saved privately in
-`~/.local/state/dotawesome/preferences.json` (under `$XDG_STATE_HOME` when set).
-Chezmoi's local machine selection remains authoritative when present. Existing
-Niri profiles, including custom profile paths, are retained.
+On another machine, clone the same checkout and choose **Set up this machine**.
+Recovery uses the encrypted identity and its separate passphrase. For updates,
+choose **Sync configuration**: it requires a clean branch with an upstream,
+pulls with `--ff-only`, then rebuilds and resumes review using the updated code.
+Divergent history or local changes stop before configuration application. Shared
+configuration and managed apps are inspected again before confirmation.
+The home check remains read-only. Restore previews and restores original
+component files; application data is retained. Shared adoption backups are
+separate and restored manually.
 
-After first enrollment, review, commit and push the configuration implementation
-and **both** `encryption/recipient.txt` and `encryption/identity.age`. Only the
-public recipient and encrypted recovery copy belong in Git. The CLI reminds you
-to publish them before setting up another machine.
-
-On the desktop, install Git/Python if needed and clone into `~/Code/dotawesome`.
-For a private repository, authenticate GitHub first (for example with
-`gh auth login` and `gh repo clone lukechanning/dotawesome ~/Code/dotawesome`).
-Then run:
-
-```sh
-cd ~/Code/dotawesome
-bin/dotawesome
-```
-
-Select `desktop` and your components. The same flow recovers the existing age
-identity using your passphrase and guides package/configuration setup. It does
-not create another identity when the repository already contains enrollment.
-
-For future updates on either machine:
-
-```sh
-cd ~/Code/dotawesome
-git pull --ff-only
-bin/dotawesome
-```
-
-Choose **Inspect status and differences** to inspect without applying, or
-**Restore previous component configuration** to preview and restore a component's
-original files. Application data is retained. Eligible recorded package additions
-can be removed with a separate confirmation. Shared-file adoption backups remain
-available for manual restoration as described below. Component edit backups live
-in `$XDG_STATE_HOME/dotawesome/local-edits/*/files.json`, with original contents,
-modes and symlink targets in the deployment engine's private backup encoding.
-
-The guided command requires a terminal. For automation and focused maintenance,
-use the explicit commands in the [CLI guide](usage.md). The standalone `bin/init`
-(shared configuration only) and `bin/enroll-age` remain available as advanced
-helpers; neither is required separately in the normal guided flow.
+See [CLI usage](usage.md) for keyboard controls and explicit commands. `bin/init`,
+`bin/enroll-age` and `bin/check-secrets` are thin wrappers over the same Go services.
 
 ## Ownership and review boundaries
 
@@ -116,7 +79,7 @@ The source subdirectory follows [chezmoi's supported layout](https://www.chezmoi
 On each CachyOS machine:
 
 ```sh
-sudo pacman -S --needed git python chezmoi age fish alacritty github-cli aws-cli-v2 gitleaks
+sudo pacman -S --needed git go chezmoi age fish alacritty github-cli aws-cli-v2 gitleaks
 cd ~/Code/dotawesome
 ```
 
@@ -259,5 +222,5 @@ both dock HDMI and direct HDMI before choosing any pinned identity/mode; see
 These graphical/hardware checks require the actual machine.
 
 Run `bin/ci` before adoption. Integration tests use isolated HOME and XDG paths,
-disposable identities, terminal passphrase prompts and disposable encrypted AWS
-content; no real credential destination is created by tests.
+disposable identities and terminal passphrase prompts; no real credential
+destination is created by tests.

@@ -1,47 +1,67 @@
 # Development
 
-Python 3.11+, standard library only. No package build or hosted CI.
-`bin/ci` requires chezmoi, age, Fish and Gitleaks; see [bootstrap](bootstrap.md).
-Secret scans include tracked content and nonignored new files, with redacted output.
+Install Go 1.26+ and Gitleaks. Build from the checkout with `bin/dotawesome`.
+The launcher serializes builds, checks source/module fingerprints, builds both
+executables in a staging directory, and atomically replaces successful artifacts.
+A compilation failure never launches the previous binary. `.build/` is ignored.
 
-| Location | Purpose |
+| Location | Responsibility |
 | --- | --- |
-| `bin/dotawesome` | Guided entry point and explicit CLI commands |
-| `lib/dotawesome/guided.py` | Interactive orchestration; reuses existing deployment engines |
-| `lib/dotawesome/` | Commands, explicit component registry, deployment, packages |
-| `home/` | Chezmoi shared configuration, selected by `.chezmoiroot` |
-| `encryption/` | Public recipient and encrypted recovery copy after local enrollment |
-| `components/` | Maintained Niri, Neovim, and tmux sources |
-| `laptops/G14/` | Separate machine-level hardware policy |
-| `tests/` | Local deployment/behavior checks |
-| `deprecated/` | Retired configurations; excluded from checks |
-| `.build/` | Ignored snapshots and disposable previews |
-
-Run local checks with `bin/ci`. The name is historical; nothing runs remotely.
-Checks cover file ownership, backup/restoration, interrupted transactions, package
-provenance, CLI behavior, and available native validators. System/package changes
-use mocks and private temporary homes. Native checks skip unavailable tools;
-tmux needs permission to create a private Unix socket.
+| `cmd/dotawesome` | Process entry point |
+| `cmd/dotawesome-work` | Standalone installed Niri layout helper |
+| `internal/app` | Typed inspection, validation, packages, shared setup and age services |
+| `internal/deploy` | File ownership, atomic replacement, snapshots, locking and recovery |
+| `internal/components` | Explicit component registry, TOML profiles and rendering |
+| `internal/external` | Captured commands and terminal command boundaries |
+| `internal/cli` | Explicit commands and PTY scenarios |
+| `internal/tui` | Bubble Tea dashboard and workflow state machine |
+| `home/`, `components/` | Maintained workstation configuration and pinned dependencies |
+| `encryption/` | Public recipient and encrypted recovery copy only |
 
 ```sh
-bin/ci
-bin/dotawesome check nvim
-bin/dotawesome check tmux
-bin/dotawesome check niri --profile g14
+bin/ci                 # formatting, vet, race-enabled tests, redacted secret scan
+bin/ci --integration   # additionally require and run external/native checks
 ```
 
-Neovim validation loads core settings and parses all Lua files without plugins or
-network access. Plugin integration requires a separate disposable editor with
-private HOME and XDG config/data/state/cache directories. Smoke-test startup,
-file-tree opening, language buffers, and formatter availability before changing
-pins. Never use your live editor profile for experimental validation.
+Fast tests use temporary homes, fake system commands and real file transactions.
+They need no desktop tools. PTY tests build a disposable binary and cover startup,
+resize, persistent completion, external-command handoff, safe cancellation and
+terminal restoration. Package tests preserve attribution boundaries; recovery tests
+cover unexpected edits and failed rollback. No test deploys into the live home. Readiness and flow tests cover ordered setup,
+reused enrollment, declined steps, independent app setup and managed-only sync.
 
-Register new components explicitly; keep component-specific policies out of the
-shared file engine. Preserve existing ledger/backups and add focused checks when
-changing file writes, restoration, or recovery. Documentation history is reference,
-not the current operating guide.
+Integration requires chezmoi, age, age-keygen, Fish, Niri, Noctalia,
+systemd-analyze, Neovim and tmux. Missing prerequisites fail with a named tool.
+Native checks stage generated files under `/tmp`. Age tests generate disposable
+identities and verify passphrase enrollment, recovery and repeat shared setup in
+private homes. Sync tests use disposable local Git remotes to verify fast-forward
+updates and refusal of dirty or divergent checkouts, without network access. tmux and systemd validation need local Unix-socket permission.
+Neovim validation uses private XDG directories with no plugin downloads.
 
-Guided-flow tests use private homes and real deployment/backup logic. Package
-mutations and login checks are mocked; real chezmoi/age integration exercises
-first enrollment, desktop recovery, drift choices and repeat runs. Do not run
-interactive setup against the developer's real home as a test.
+The Go module pins Bubble Tea, Bubbles and Lip Gloss v2, go-toml/v2, and the
+creack/pty test helper. Standard library testing, flags, JSON, filesystem and
+subprocess APIs cover the rest. No assertion framework or extra task runner.
+
+Migration evidence (2026-10-19): the Python baseline ran 156 tests in 19.611 s
+with local external tools. Temporary parity checks compared all built-in Niri
+profiles plus Neovim/tmux against Python output, with only the intentional helper
+binding difference. A real Python-generated ledger/snapshot was updated and
+restored by Go, including original symlinks. The parity harness was then removed;
+focused Go tests retain these guarantees. Python runtime modules, prompt tests,
+retired configurations and historical planning documents were removed; Git
+history remains intact. The warm-cache normal Go check completed in 5.703 s, including formatting,
+vet, race tests, PTY binary builds and secret scanning. This is a local timing,
+not a cross-machine benchmark. A full integration run completed in 5.543 s
+with warm caches. At cutover, tests grouped behavior into 42 top-level cases
+with table/PTY subcases, rather than 156 Python cases. The test categories are
+transactions/ownership/recovery, component rendering, package attribution,
+secrets/bootstrap, CLI/terminal lifecycle, UI navigation, and work-layout IPC.
+Python used no third-party runtime packages; Go adds the three Charm libraries,
+go-toml and a PTY test helper, plus Charm's transitive dependencies. The terminal
+restoration assertions also use Charm's existing x/sys dependency.
+
+Manual acceptance on both G14 and desktop remains required: log into the packaged
+Niri session, verify display identities/scales and docking, wallet/portal behavior,
+Noctalia locking/media controls, work-layout launches, and return to KDE. Test a
+real terminal resize and sudo/login handoff on each machine. Automated checks do
+not substitute for hardware or graphical-session acceptance.

@@ -3,7 +3,7 @@
   "optional_destinations": ["vivaldi-stable.conf", "signal-desktop-flags.conf"],
   "packages": ["niri", "noctalia", "alacritty", "xwayland-satellite", "xdg-desktop-portal", "xdg-desktop-portal-gnome", "xdg-desktop-portal-gtk", "upower"],
   "commands": ["niri", "niri-session", "noctalia", "alacritty", "xwayland-satellite", "systemctl"],
-  "destinations": ["niri/config.kdl", "dotawesome/niri/work.py", "dotawesome/niri/profile.json", "dotawesome/niri/noctalia/noctalia/config.toml", "dotawesome/niri/noctalia/noctalia/palettes/Architectural-Glass.json", "dotawesome/niri/noctalia/noctalia/palettes/Graphite-Jade.json", "systemd/user/dotawesome-niri-noctalia.service", "systemd/user/niri.service.d/50-dotawesome.conf", "xdg-desktop-portal/niri-portals.conf"],
+  "destinations": ["niri/config.kdl", "dotawesome/niri/work", "dotawesome/niri/profile.json", "dotawesome/niri/noctalia/noctalia/config.toml", "dotawesome/niri/noctalia/noctalia/palettes/Architectural-Glass.json", "dotawesome/niri/noctalia/noctalia/palettes/Graphite-Jade.json", "systemd/user/dotawesome-niri-noctalia.service", "systemd/user/niri.service.d/50-dotawesome.conf", "xdg-desktop-portal/niri-portals.conf"],
   "validation": ["niri validate --config CONFIG", "noctalia config validate TOML (warnings are failures)", "systemd-analyze --user verify UNIT"],
   "minimum_versions": {"niri": "26.04", "noctalia": "5.2"}
 }
