@@ -71,6 +71,11 @@ func TestNavigationUsesSavedMachineAndComponents(t *testing.T) {
 	if m.profile != "g14" || !m.selected["tmux"] || m.selected["niri"] {
 		t.Fatal(m.profile, m.selected)
 	}
+	next, _ := m.Update(statusMsg{results: []app.Result{{Component: "tmux", State: "current"}}})
+	m = next.(Model)
+	if m.nav != 1 {
+		t.Fatal("managed machine did not recommend sync")
+	}
 }
 func TestComponentsEnterPreservesSelectedRow(t *testing.T) {
 	m := New(nil)
@@ -92,12 +97,12 @@ func TestGuidedHomeShowsPurposeAndOnlyMainChoices(t *testing.T) {
 	m.loading = false
 	m.status = []app.Result{{Component: "niri", State: "inactive", Detail: "/private/path"}}
 	text := m.View().Content
-	for _, want := range []string{"Keep your desktop, editor, and terminal configured.", "Set up this machine", "Configure an app", "Sync configuration", "More options", "review changes"} {
+	for _, want := range []string{"What would you like to do?", "Set up this machine", "Sync this machine", "Troubleshoot or restore", "review changes"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing %q:\n%s", want, text)
 		}
 	}
-	for _, hidden := range []string{"inactive", "/private/path", "enroll", "AWS", "[Overview]"} {
+	for _, hidden := range []string{"inactive", "/private/path", "enroll", "AWS", "[Overview]", "Configure an app", "More options"} {
 		if strings.Contains(text, hidden) {
 			t.Fatalf("home exposes %q:\n%s", hidden, text)
 		}
@@ -113,7 +118,7 @@ func TestHomeMaintenanceIsInsideMoreOptions(t *testing.T) {
 	if next.(Model).screen != "overview" {
 		t.Fatal("home launched advanced action")
 	}
-	m.nav = 3
+	m.nav = 2
 	next, _ = m.Update(key("enter"))
 	m = next.(Model)
 	if m.screen != "more" {
@@ -152,7 +157,7 @@ func TestRecoveryBecomesTheNextStep(t *testing.T) {
 	m := New(nil)
 	m.loading = false
 	m.status = []app.Result{{State: "recovery pending"}}
-	if !strings.Contains(m.View().Content, "Recover interrupted update") {
+	if !strings.Contains(m.View().Content, "An update was interrupted") {
 		t.Fatal(m.View().Content)
 	}
 	next, _ := m.Update(key("enter"))
@@ -237,6 +242,10 @@ func TestMaintenanceActionsStayReachable(t *testing.T) {
 		next, _ := m.Update(key("enter"))
 		got := next.(Model)
 		switch option.action {
+		case "components":
+			if got.screen != "components" {
+				t.Fatal(got.screen)
+			}
 		case "restore":
 			if got.screen != "select" || !got.restore {
 				t.Fatal(option, got.screen)

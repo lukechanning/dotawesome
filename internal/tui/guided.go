@@ -21,7 +21,8 @@ var moreOptions = []menuOption{
 	{"Recover interrupted update", "Roll back an unfinished file update using its saved originals. Later edits are protected.", "recover"},
 	{"Refresh configuration check", "Check the saved configuration again without applying changes.", "refresh"},
 	{"Help", "Learn how configuration review, backups and restoration work.", "help"},
-	{"Back", "Return to the guided home.", "back"},
+	{"Inspect app configuration", "Check individual apps, inspect local edits and review their files.", "components"},
+	{"Back", "Return home.", "back"},
 }
 
 func componentName(name string) string {
@@ -78,12 +79,6 @@ func (m Model) needsRecovery() bool {
 		}
 	}
 	return false
-}
-func (m Model) primaryAction() string {
-	if m.needsRecovery() {
-		return "Recover interrupted update"
-	}
-	return "Set up this machine"
 }
 func (m Model) homeSummary() string {
 	if m.err != nil {
@@ -149,8 +144,8 @@ func (m Model) menu(options []menuOption, index int) string {
 func (m Model) guidedBody() (string, bool) {
 	switch m.screen {
 	case "overview":
-		options := []menuOption{{m.primaryAction(), "Check what is ready, then complete shared and app setup in order.", ""}, {"Configure an app", "Work on Niri, Neovim or tmux without requiring shared setup first.", ""}, {"Sync configuration", "Pull the latest Git changes, then review and apply configuration.", ""}, {"More options", "Restoration, shared-only setup, encryption and maintenance.", ""}}
-		return "Keep your desktop, editor, and terminal configured.\nYou’ll review changes before anything is applied.\n\n" + m.homeSummary() + "\n\n" + m.menu(options, m.nav), true
+		options := []menuOption{{"Set up this machine", "First time here, or want to change which apps are configured? Start here. Completed steps are reused.", ""}, {"Sync this machine", "Get the latest repository updates, review changes and apply them to this machine.", ""}, {"Troubleshoot or restore", "Inspect local edits, check individual apps or restore previous configuration.", ""}}
+		return "What would you like to do?\nYou’ll review changes before anything is applied.\n\n" + m.homeSummary() + "\n\n" + m.menu(options, m.nav), true
 	case "components":
 		options := []menuOption{}
 		for _, name := range components.Names {
@@ -167,7 +162,7 @@ func (m Model) guidedBody() (string, bool) {
 		options := m.componentActions()
 		return componentName(m.component) + " — " + label + "\n" + componentPurpose(m.component) + "\n\n" + explanation + "\n\n" + m.menu(options, m.cursor), true
 	case "more":
-		return "More options\nMaintenance and machine-specific setup.\n\n" + m.menu(moreOptions, m.cursor), true
+		return "Troubleshoot or restore\nCheck a problem or restore previous configuration.\n\n" + m.menu(moreOptions, m.cursor), true
 	case "checks":
 		return "Prerequisite checks\nResolve the errors before applying configuration. p opens package setup.\n\n" + m.view.View() + "\n", true
 	case "files":
@@ -183,7 +178,7 @@ func (m Model) guidedBody() (string, bool) {
 		label, description := m.externalDescription()
 		return label + "\n\n" + description + "\n\nThe command will use this terminal, then return here.\nEnter to continue, or Escape to go back.\n", true
 	case "help":
-		return "How Dotawesome works\n\nChoose what to configure, check prerequisites, then review the changes.\nNothing is deployed until you confirm. Originals are saved for restoration.\nLocal edits block updates so your work is protected.\n\nComponent details explain configuration status and let you inspect files.\nMore options contains restoration, shared setup, encryption and login.\n\nEscape returns home. Explicit commands are documented in docs/usage.md.\n", true
+		return "How Dotawesome works\n\nChoose what to configure, check prerequisites, then review the changes.\nNothing is deployed until you confirm. Originals are saved for restoration.\nLocal edits block updates so your work is protected.\n\nComponent details explain configuration status and let you inspect files.\nTroubleshoot or restore contains app checks, restoration and advanced setup.\n\nEscape returns home. Explicit commands are documented in docs/usage.md.\n", true
 	}
 	return "", false
 }
@@ -258,7 +253,7 @@ func (m Model) footer() string {
 }
 func (m Model) contextHelp() string {
 	if strings.HasPrefix(m.screen, "setup") {
-		return "Setup checks the machine before offering the next incomplete step.\nExisting configuration and identities are reused. Terminal actions require confirmation.\nConfigure an app works independently. Sync pulls with --ff-only, then reopens updated code."
+		return "Setup checks the machine before offering the next incomplete step.\nExisting configuration and identities are reused. Terminal actions require confirmation.\nSet up this machine lets you change your app selections. Sync gets repository updates before reviewing this machine’s configuration."
 	}
 	switch m.screen {
 	case "overview", "components", "component", "more":
@@ -328,7 +323,7 @@ func (m *Model) back() {
 		m.screen = "overview"
 		m.nav = 0
 		m.loading = false
-	case "setup-machine", "setup-step", "setup-hooks", "setup-paused", "setup-issues":
+	case "setup-machine", "setup-hooks", "setup-paused", "setup-issues":
 		m.screen = "setup"
 		m.cursor = 0
 		m.loading = false

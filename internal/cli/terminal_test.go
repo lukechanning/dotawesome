@@ -115,8 +115,8 @@ func TestTerminalLifecycle(t *testing.T) {
 				wait("Arrows navigate")
 				send("q")
 			case "external-handoff":
-				send("\t\t\t\r")
-				wait("More options")
+				send("\t\t\r")
+				wait("Troubleshoot or restore")
 				send("\t\t\r")
 				wait("Enter to continue, or Escape to go back.")
 				send("\r")
@@ -137,7 +137,7 @@ func TestTerminalLifecycle(t *testing.T) {
 				time.Sleep(100 * time.Millisecond)
 				send("q")
 			case "dirty-sync":
-				send("\t\t\r")
+				send("\t\r")
 				wait("Inspect setup issues")
 				send("\r")
 				wait("local changes")
@@ -147,7 +147,9 @@ func TestTerminalLifecycle(t *testing.T) {
 				time.Sleep(100 * time.Millisecond)
 				send("q")
 			default:
-				send("\t\r")
+				send("\t\t\r")
+				wait("Troubleshoot or restore")
+				send("\t\t\t\t\t\t\t\r")
 				wait("Component configuration")
 				send("\x1b[B\x1b[B\r")
 				wait("tmux —")

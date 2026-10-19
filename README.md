@@ -10,7 +10,7 @@ bin/dotawesome
 ```
 
 The guided home keeps the ASCII logo and offers three clear tasks: **Set up this
-machine**, **Configure an app**, and **Sync configuration**, plus More options.
+machine**, **Sync this machine**, and **Troubleshoot or restore**.
 Setup checks readiness and guides prerequisites, age enrollment/recovery, shared
 chezmoi configuration and app setup in order. Sync pulls Git with `--ff-only`,
 rebuilds, then reviews managed configuration. Review changes and confirm before

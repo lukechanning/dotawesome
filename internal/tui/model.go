@@ -330,6 +330,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case statusMsg:
 		m.loading = false
 		m.status = v.results
+		if m.screen == "overview" && m.nav == 0 {
+			for _, r := range m.status {
+				if r.State == "current" || r.State == "source-changed" || r.State == "locally-modified" {
+					m.nav = 1
+				}
+			}
+			if m.needsRecovery() {
+				m.nav = 2
+			}
+		}
 		if v.err != nil {
 			m.err = v.err
 		}
@@ -444,22 +454,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "overview":
 			switch k {
 			case "up", "shift+tab", "left":
-				m.nav = (m.nav + 3) % 4
+				m.nav = (m.nav + 2) % 3
 			case "down", "tab", "right":
-				m.nav = (m.nav + 1) % 4
+				m.nav = (m.nav + 1) % 3
 			case "enter":
 				switch m.nav {
 				case 0:
 					cmd := m.beginSetup("setup", false)
 					return m, cmd
 				case 1:
-					m.setup = nil
-					m.screen = "components"
-					m.cursor = 0
-				case 2:
 					cmd := m.beginSetup("sync", false)
 					return m, cmd
-				case 3:
+				case 2:
 					m.setup = nil
 					m.screen = "more"
 					m.cursor = 0
@@ -515,6 +521,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				action := moreOptions[m.cursor].action
 				switch action {
+				case "components":
+					m.setup = nil
+					m.screen = "components"
+					m.cursor = 0
 				case "restore":
 					m.restore = true
 					m.selectionOrigin = "more"
@@ -716,7 +726,7 @@ func (m Model) View() tea.View {
 
 	case "preflight":
 		if m.err != nil {
-			b.WriteString("Preflight blocked. Preserve local edits; recovery is available under More options.\nEnter: inspect again   Escape: back\n")
+			b.WriteString("Preflight blocked. Preserve local edits; recovery is available under Troubleshoot or restore.\nEnter: inspect again   Escape: back\n")
 			break
 		}
 		b.WriteString(m.spin.View() + " Preflight: inspecting dependencies and ownership…\nEnter retries a fresh inspection.\n")

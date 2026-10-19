@@ -35,7 +35,8 @@ func TestMachineSetupStartsWithReadOnlyCheck(t *testing.T) {
 }
 func TestAppConfigurationDoesNotRequireMachineSetup(t *testing.T) {
 	m := New(nil)
-	m.nav = 1
+	m.screen = "more"
+	m.cursor = len(moreOptions) - 2
 	next, _ := m.Update(key("enter"))
 	m = next.(Model)
 	if m.screen != "components" || m.setup != nil {
@@ -50,8 +51,8 @@ func TestAppConfigurationDoesNotRequireMachineSetup(t *testing.T) {
 	}
 }
 func TestSyncPullsBeforeConfigurationInspection(t *testing.T) {
-	m := New(nil)
-	m.nav = 2
+	m := New(&app.Service{Manager: deploy.New(t.TempDir(), t.TempDir())})
+	m.nav = 1
 	next, cmd := m.Update(key("enter"))
 	m = next.(Model)
 	if m.setup == nil || m.setup.Intent != "sync" || cmd == nil {
@@ -62,9 +63,9 @@ func TestSyncPullsBeforeConfigurationInspection(t *testing.T) {
 	if !strings.Contains(m.View().Content, "Pull latest configuration") {
 		t.Fatal(m.View().Content)
 	}
-	next, _ = m.Update(key("enter"))
+	next, cmd = m.Update(key("enter"))
 	m = next.(Model)
-	if m.screen != "setup-step" || m.setup.Action != "pull" {
+	if m.screen != "setup-handoff" || cmd == nil || m.setup.Action != "pull" {
 		t.Fatal(m.screen)
 	}
 }
@@ -94,7 +95,7 @@ func TestDirtySyncCannotContinueToPull(t *testing.T) {
 	m.screen = "setup"
 	next, _ := m.Update(key("enter"))
 	m = next.(Model)
-	if m.screen == "setup-step" {
+	if m.screen != "setup-issues" {
 		t.Fatal("dirty checkout reached pull")
 	}
 }

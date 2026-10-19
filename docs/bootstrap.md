@@ -17,8 +17,8 @@ next missing step:
 
 Ready steps are skipped. Existing identities and configuration are inspected
 before changes; incomplete or conflicting state gets an explanation. Optional
-GitHub and AWS login checks are offered at the end. **Configure an app** opens
-app setup independently; **More options → Shared configuration** runs shared-only
+GitHub and AWS login checks are offered at the end. **Troubleshoot or restore → Inspect app configuration** opens
+app setup independently; **Troubleshoot or restore → Shared configuration** runs shared-only
 setup. Standalone helpers remain available below.
 
 Keep the recovery passphrase separately in 1Password or an offline record.
@@ -31,7 +31,7 @@ ownership and dependencies; review shows file diffs. Press `p` on review for a
 confirmed package upgrade in the terminal, then inspect again. Niri changes
 requiring logout are deferred while other components can complete. Results stay
 open. Escape during execution requests a safe stop; rollback completes before
-returning. Only the explicit **Sync configuration** flow pulls Git; no flow commits, pushes or stashes.
+returning. Only the explicit **Sync this machine** flow pulls Git; no flow commits, pushes or stashes.
 
 Profile and component selections are remembered under
 `$XDG_STATE_HOME/dotawesome/preferences.json`. Existing chezmoi machine data and
@@ -42,7 +42,7 @@ JSON file records and can be restored manually.
 
 On another machine, clone the same checkout and choose **Set up this machine**.
 Recovery uses the encrypted identity and its separate passphrase. For updates,
-choose **Sync configuration**: it requires a clean branch with an upstream,
+choose **Sync this machine**: it requires a clean branch with an upstream,
 pulls with `--ff-only`, then rebuilds and resumes review using the updated code.
 Divergent history or local changes stop before configuration application. Shared
 configuration and managed apps are inspected again before confirmation.

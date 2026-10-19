@@ -123,17 +123,17 @@ func (m Model) setupExplanation(step string) string {
 	case "machine":
 		return "Select G14 or desktop so shared templates use the right machine settings."
 	case "enroll":
-		return "This repository has no enrollment yet. Create a dedicated age identity and verify an encrypted recovery copy. Keep its recovery passphrase separately."
+		return "Create a key to protect private configuration and a recovery copy for your other machines. Choose a recovery passphrase and save it separately."
 	case "recover-age":
-		return "The repository is enrolled, but this machine has no local key. Enter the existing recovery passphrase in age; no new identity will be generated."
+		return "Unlock your existing encryption key on this machine using your recovery passphrase."
 	case "shared":
-		return "Prepare chezmoi and the secret-scanning hook, preview shared Git, Fish, Alacritty and AWS files, then confirm whether to back up and apply them."
+		return "Review shared Git, shell, terminal and AWS settings. Confirm in the terminal to save backups and apply changes."
 	case "hooks":
 		return m.setup.Report.HookDetail + "\nNothing will replace your existing hooks."
 	case "recover-files":
 		return "An unfinished file deployment must be recovered before setup continues. Edits made after interruption are protected."
 	case "pull":
-		return "Pull the current branch with git pull --ff-only. Local edits, detached branches and missing upstreams stop this step. After pulling, the updated app will rebuild and reopen before reviewing files."
+		return "Get the latest configuration from Git, then reopen Dotawesome to review changes. Local repository edits must be committed or resolved first."
 	case "components":
 		if m.setup.Intent == "sync" {
 			return "Review the apps already managed on this machine. Shared files are included only when chezmoi is configured here."
@@ -170,7 +170,7 @@ func (m *Model) continueSetup() tea.Cmd {
 		m.cursor = 0
 	case "components":
 		if m.setup.Intent == "sync" && len(m.setup.Report.Managed) == 0 {
-			m.finishSetup([]app.Result{{Component: "apps", State: "skipped", Detail: "No apps are managed here. Use Configure an app to set one up."}})
+			m.finishSetup([]app.Result{{Component: "apps", State: "skipped", Detail: "No apps are managed here. Choose Set up this machine to add apps."}})
 			return nil
 		}
 		if m.setup.Intent == "shared" {
@@ -185,8 +185,9 @@ func (m *Model) continueSetup() tea.Cmd {
 		return m.restartSync()
 	default:
 		m.setup.Action = next
-		m.screen = "setup-step"
+		m.screen = "setup-handoff"
 		m.cursor = 0
+		return m.stepCommand()
 	}
 	return nil
 }
@@ -254,7 +255,7 @@ func (m Model) setupBody() (string, bool) {
 		var b strings.Builder
 		title := "Set up this machine"
 		if f.Intent == "sync" {
-			title = "Sync configuration"
+			title = "Sync this machine"
 		}
 		if f.Intent == "shared" {
 			title = "Set up shared configuration"
@@ -301,8 +302,6 @@ func (m Model) setupBody() (string, bool) {
 		return b.String(), true
 	case "setup-machine":
 		return "Which machine are you setting up?\nExisting valid selections are reused automatically.\n\n" + m.menu([]menuOption{{"G14 laptop", "Use the laptop's shared machine settings.", ""}, {"Desktop", "Use the desktop's shared machine settings.", ""}}, m.cursor), true
-	case "setup-step":
-		return setupStepName(f.Action) + "\n\n" + m.setupExplanation(f.Action) + "\n\n" + m.menu([]menuOption{{label: "Continue in terminal"}, {label: "Back"}}, m.cursor), true
 	case "setup-hooks":
 		return "Existing hooks need your decision\n\n" + m.setupExplanation("hooks") + "\n\n" + m.menu([]menuOption{{"I have chained hooks/pre-commit; keep existing hooks", "This preserves your current setup and skips installing Dotawesome's hook.", ""}, {label: "Back"}}, m.cursor), true
 	case "setup-issues":
@@ -426,7 +425,7 @@ func (m Model) updateSetup(msg tea.Msg) (Model, tea.Cmd, bool) {
 	}
 	count := 3
 	switch m.screen {
-	case "setup-machine", "setup-step", "setup-hooks", "setup-finish":
+	case "setup-machine", "setup-hooks", "setup-finish":
 		count = 2
 	case "setup-paused":
 		if m.setup.Action == "pull" || m.setup.RestartRequired {
@@ -476,13 +475,6 @@ func (m Model) updateSetup(msg tea.Msg) (Model, tea.Cmd, bool) {
 		}
 		cmd := m.checkSetup()
 		return m, cmd, true
-	case "setup-step":
-		if m.cursor == 0 {
-			m.screen = "setup-handoff"
-			return m, m.stepCommand(), true
-		}
-		m.screen = "setup"
-		m.cursor = 0
 	case "setup-hooks":
 		if m.cursor == 0 {
 			m.setup.SkipHooks = true

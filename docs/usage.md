@@ -2,17 +2,16 @@
 
 Run `bin/dotawesome` from the checkout, or use its absolute path elsewhere.
 Go 1.26+ builds the application locally when sources or module files change.
-No arguments, or `setup`, opens the guided home. It presents four choices:
+No arguments, or `setup`, opens the guided home. It presents three choices:
 
 - **Set up this machine** — check readiness, install missing prerequisites with
   confirmation, choose the machine, enroll or recover age, review shared chezmoi
-  configuration, then choose app configurations. Ready steps are reused.
-- **Configure an app** — choose Niri, Neovim or tmux and review its configuration
-  independently of shared setup.
-- **Sync configuration** — pull the latest Git changes, rebuild and reopen the
+  configuration, then choose app configurations. Ready steps and saved app
+  selections are reused. Run setup again to change which apps are configured.
+- **Sync this machine** — pull the latest Git changes, rebuild and reopen the
   flow, then review shared configuration and already-managed apps before applying.
-- **More options** — restore originals, run shared-only setup, enroll an encryption
-  identity, sign in to AWS, recover an interrupted update, or refresh checks.
+- **Troubleshoot or restore** — restore originals, run shared-only setup, enroll an encryption
+  identity, sign in to AWS, recover an interrupted update, refresh checks, or inspect an individual app.
 
 Use arrows or Tab/Shift-Tab to choose an item and Enter to open it. Escape goes
 back one screen; `q` quits navigation. `?` opens contextual help. Narrow terminals
@@ -20,7 +19,7 @@ wrap explanations and keep the selected action visible. `NO_COLOR=1` removes
 color. No special fonts are required.
 
 The home screen summarizes saved configuration, without raw status codes or file
-paths. An interrupted update offers recovery as the primary next step. Component
+paths. An interrupted update recommends Troubleshoot or restore. Component
 labels describe configuration files, not whether the applications are installed
 or running:
 
