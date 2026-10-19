@@ -128,7 +128,7 @@ Earlier acceptance notes and headless comparison details are in
 
 The managed design is Architectural Jade, refined: a transparent 42px bar with
 separate navigation, CPU/RAM, controls, and expanding world-clock groups; solid
-panels; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
+panels; a background-free center clock; Noto Sans at weight 600; 8px tiling gaps and 6px window corners.
 
 Workspace tabs use Noctalia's native grouped taskbar with shallow corners. Each
 tab shows its workspace label first, followed by app icons at scale 1.35.
