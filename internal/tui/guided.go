@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
+	"dotawesome/internal/actions"
 	"dotawesome/internal/app"
 	"dotawesome/internal/components"
 )
@@ -14,6 +15,7 @@ import (
 type menuOption struct{ label, description, action string }
 
 var moreOptions = []menuOption{
+	{"Full Machine Setup", "Complete workstation setup, including shared configuration and applications.", "full-setup"},
 	{"Restore original files", "Return selected components to the files saved before Dotawesome first configured them.", "restore"},
 	{"Shared configuration", "Set up shared Git, shell and terminal files with chezmoi, or recover this machine's encryption key.", "init"},
 	{"Enroll recovery identity", "Create and verify the first encryption identity. Keep its recovery passphrase somewhere safe.", "enroll-age"},
@@ -144,7 +146,10 @@ func (m Model) menu(options []menuOption, index int) string {
 func (m Model) guidedBody() (string, bool) {
 	switch m.screen {
 	case "overview":
-		options := []menuOption{{"Set up this machine", "First time here, or want to change which apps are configured? Start here. Completed steps are reused.", ""}, {"Sync this machine", "Get the latest repository updates, review changes and apply them to this machine.", ""}, {"Troubleshoot or restore", "Inspect local edits, check individual apps or restore previous configuration.", ""}}
+		options := []menuOption{}
+		for _, a := range actions.All {
+			options = append(options, menuOption{a.Label, a.Description, a.Command})
+		}
 		return "What would you like to do?\nYou’ll review changes before anything is applied.\n\n" + m.homeSummary() + "\n\n" + m.menu(options, m.nav), true
 	case "components":
 		options := []menuOption{}
@@ -192,6 +197,11 @@ func (m Model) componentActions() []menuOption {
 	return append(options, menuOption{"Technical details", "Show file paths, package records and diagnostic messages.", "technical"}, menuOption{"Back", "Return to the component list.", "back"})
 }
 func (m Model) externalDescription() (string, string) {
+	for _, a := range actions.All {
+		if a.Command == m.externalAction {
+			return a.Label, a.Description
+		}
+	}
 	for _, o := range moreOptions {
 		if o.action == m.externalAction {
 			return o.label, o.description
@@ -366,7 +376,11 @@ func (m *Model) back() {
 		m.cursor = 0
 	case "help":
 		m.screen = "more"
-		m.cursor = 6
+		for i, o := range moreOptions {
+			if o.action == "help" {
+				m.cursor = i
+			}
+		}
 	default:
 		m.screen = "overview"
 		m.nav = 0

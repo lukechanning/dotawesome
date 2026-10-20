@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"dotawesome/internal/actions"
 	"fmt"
 	"github.com/creack/pty"
 	"golang.org/x/sys/unix"
@@ -26,7 +27,7 @@ func TestTerminalLifecycle(t *testing.T) {
 	if b, e := build.CombinedOutput(); e != nil {
 		t.Fatal(e, string(b))
 	}
-	for _, scenario := range []string{"startup-resize-exit", "persistent-completion", "external-handoff", "safe-cancellation", "machine-readiness", "dirty-sync"} {
+	for _, scenario := range []string{"startup-resize-exit", "persistent-completion", "external-handoff", "safe-cancellation", "machine-readiness", "dirty-sync", "legacy-dirty-sync"} {
 		t.Run(scenario, func(t *testing.T) {
 			home := t.TempDir()
 			tools := filepath.Join(home, "tools")
@@ -36,7 +37,7 @@ func TestTerminalLifecycle(t *testing.T) {
 				fake = "#!/bin/sh\ncase \"$*\" in *start-server*) sleep 1;; esac\nexit 0\n"
 			}
 			os.WriteFile(filepath.Join(tools, "tmux"), []byte(fake), 0755)
-			if scenario == "dirty-sync" {
+			if scenario == "dirty-sync" || scenario == "legacy-dirty-sync" {
 				os.WriteFile(filepath.Join(tools, "git"), []byte("#!/bin/sh\ncase \"$*\" in *status*) echo \" M home/config\";; *) echo main;; esac\n"), 0755)
 			}
 			master, slave, e := pty.Open()
@@ -52,7 +53,11 @@ func TestTerminalLifecycle(t *testing.T) {
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 			defer cancel()
-			c := exec.CommandContext(ctx, binary)
+			args := []string{}
+			if scenario == "legacy-dirty-sync" {
+				args = []string{"sync"}
+			}
+			c := exec.CommandContext(ctx, binary, args...)
 			c.Dir = repo
 			c.Env = append(os.Environ(), "DOTAWESOME_ROOT="+repo, "HOME="+home, "XDG_CONFIG_HOME="+filepath.Join(home, ".config"), "XDG_STATE_HOME="+filepath.Join(home, "state"), "XDG_DATA_HOME="+filepath.Join(home, "data"), "XDG_CACHE_HOME="+filepath.Join(home, "cache"), "TERM=xterm-256color", "NO_COLOR=1", "PATH="+tools+":"+os.Getenv("PATH"))
 			c.Stdin = slave
@@ -106,7 +111,9 @@ func TestTerminalLifecycle(t *testing.T) {
 					}
 				}
 			}
-			wait("DOTAWESOME")
+			if scenario != "legacy-dirty-sync" {
+				wait("DOTAWESOME")
+			}
 			switch scenario {
 			case "startup-resize-exit":
 				pty.Setsize(master, &pty.Winsize{Cols: 40, Rows: 18})
@@ -115,9 +122,9 @@ func TestTerminalLifecycle(t *testing.T) {
 				wait("Arrows navigate")
 				send("q")
 			case "external-handoff":
-				send("\t\t\r")
+				send(strings.Repeat("\t", actions.Index("troubleshoot")) + "\r")
 				wait("Troubleshoot or restore")
-				send("\t\t\r")
+				send("\t\t\t\r")
 				wait("Enter to continue, or Escape to go back.")
 				send("\r")
 				wait("Enroll a dedicated age identity")
@@ -127,6 +134,8 @@ func TestTerminalLifecycle(t *testing.T) {
 				time.Sleep(100 * time.Millisecond)
 				send("q")
 			case "machine-readiness":
+				send(strings.Repeat("\t", actions.Index("troubleshoot")) + "\r")
+				wait("Full Machine Setup")
 				send("\r")
 				wait("Tools")
 				wait("Choose G14 or desktop")
@@ -136,8 +145,10 @@ func TestTerminalLifecycle(t *testing.T) {
 				send("\x1b")
 				time.Sleep(100 * time.Millisecond)
 				send("q")
-			case "dirty-sync":
-				send("\t\r")
+			case "dirty-sync", "legacy-dirty-sync":
+				if scenario == "dirty-sync" {
+					send(strings.Repeat("\t", actions.Index("config sync")) + "\r")
+				}
 				wait("Inspect setup issues")
 				send("\r")
 				wait("local changes")
@@ -147,9 +158,9 @@ func TestTerminalLifecycle(t *testing.T) {
 				time.Sleep(100 * time.Millisecond)
 				send("q")
 			default:
-				send("\t\t\r")
+				send(strings.Repeat("\t", actions.Index("troubleshoot")) + "\r")
 				wait("Troubleshoot or restore")
-				send("\t\t\t\t\t\t\t\r")
+				send(strings.Repeat("\t", 8) + "\r")
 				wait("Component configuration")
 				send("\x1b[B\x1b[B\r")
 				wait("tmux —")

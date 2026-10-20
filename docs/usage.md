@@ -2,16 +2,23 @@
 
 Run `bin/dotawesome` from the checkout, or use its absolute path elsewhere.
 Go 1.26+ builds the application locally when sources or module files change.
-No arguments, or `setup`, opens the guided home. It presents three choices:
+No arguments, or `bin/dotawesome setup`, opens the action menu:
 
-- **Set up this machine** — check readiness, install missing prerequisites with
-  confirmation, choose the machine, enroll or recover age, review shared chezmoi
-  configuration, then choose app configurations. Ready steps and saved app
-  selections are reused. Run setup again to change which apps are configured.
-- **Sync this machine** — pull the latest Git changes, rebuild and reopen the
-  flow, then review shared configuration and already-managed apps before applying.
-- **Troubleshoot or restore** — restore originals, run shared-only setup, enroll an encryption
-  identity, sign in to AWS, recover an interrupted update, refresh checks, or inspect an individual app.
+| Action | Terminal command | Outcome |
+| --- | --- | --- |
+| Syncthing Setup | `bin/dotawesome syncthing setup` | Prepare and pair Documents over Tailscale |
+| Syncthing Status | `bin/dotawesome syncthing status` | Check connectivity and sync progress |
+| Config Setup | `bin/dotawesome config setup` | Set up shared Git, Fish, Alacritty and AWS configuration |
+| Config Sync | `bin/dotawesome config sync` | Pull updates, rebuild, review and apply configuration |
+| App Setup | `bin/dotawesome app setup [niri\|nvim\|tmux]` | Select applications or review one directly |
+| Troubleshoot or Restore | Existing diagnostic commands below | Inspect, recover or restore |
+
+**Full Machine Setup** remains under Troubleshoot or Restore. It checks readiness,
+installs missing prerequisites with confirmation, selects the machine, enrolls or
+recovers age, reviews shared chezmoi configuration, then selects apps. App Setup
+checks only the selected app's prerequisites and does not require shared enrollment.
+[Documents setup](syncthing.md) explains pairing, conflicts, versions and disabling
+transfers. Config Sync never starts or waits for Documents transfers.
 
 Use arrows or Tab/Shift-Tab to choose an item and Enter to open it. Escape goes
 back one screen; `q` quits navigation. `?` opens contextual help. Narrow terminals
@@ -63,18 +70,18 @@ shared enrollment, sync updates managed apps without requiring new enrollment.
 
 | Command | Effect |
 | --- | --- |
-| `sync` | Pull latest changes, relaunch, then review managed configuration |
-| `list` | List Niri, Neovim and tmux |
-| `status [COMPONENT]` | Inspect inactivity, source changes, local drift and backups |
-| `check COMPONENT` | Inspect dependencies and run native validation |
-| `plan COMPONENT` | Preview file changes without deploying |
-| `plan COMPONENT --remove` | Preview original-file restoration and package eligibility |
-| `apply COMPONENT` | Review, confirm, validate, snapshot and deploy |
-| `remove COMPONENT` | Confirm and restore originals; keep application data |
-| `init [--machine g14\|desktop] [--skip-hooks]` | Enroll shared chezmoi configuration and recover identity |
-| `enroll-age` | Confirm, generate identity, encrypt and verify recovery before publication |
-| `check-secrets [--staged]` | Redacted Gitleaks scan of working content or index |
-| `recover` | Confirm and recover an interrupted transaction |
+| `bin/dotawesome sync` | Pull latest changes, relaunch, then review managed configuration |
+| `bin/dotawesome list` | List Niri, Neovim and tmux |
+| `bin/dotawesome status [COMPONENT]` | Inspect inactivity, source changes, local drift and backups |
+| `bin/dotawesome check COMPONENT` | Inspect dependencies and run native validation |
+| `bin/dotawesome plan COMPONENT` | Preview file changes without deploying |
+| `bin/dotawesome plan COMPONENT --remove` | Preview original-file restoration and package eligibility |
+| `bin/dotawesome apply COMPONENT` | Review, confirm, validate, snapshot and deploy |
+| `bin/dotawesome remove COMPONENT` | Confirm and restore originals; keep application data |
+| `bin/dotawesome init [--machine g14\|desktop] [--skip-hooks]` | Enroll shared chezmoi configuration and recover identity |
+| `bin/dotawesome enroll-age` | Confirm, generate identity, encrypt and verify recovery before publication |
+| `bin/dotawesome check-secrets [--staged]` | Redacted Gitleaks scan of working content or index |
+| `bin/dotawesome recover` | Confirm and recover an interrupted transaction |
 
 Niri check/plan/apply require `--profile generic`, `--profile g14`, `--profile desktop`,
 or a TOML path. Applications do not use profiles. Flags can follow the component.

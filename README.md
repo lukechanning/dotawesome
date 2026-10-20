@@ -9,12 +9,16 @@ cd ~/Code/dotawesome
 bin/dotawesome
 ```
 
-The guided home keeps the ASCII logo and offers three clear tasks: **Set up this
-machine**, **Sync this machine**, and **Troubleshoot or restore**.
-Setup checks readiness and guides prerequisites, age enrollment/recovery, shared
-chezmoi configuration and app setup in order. Sync pulls Git with `--ff-only`,
-rebuilds, then reviews managed configuration. Review changes and confirm before
-applying. Results stay visible; package upgrades, age and login use the terminal.
+The guided home keeps the ASCII logo and offers **Syncthing Setup**, **Syncthing
+Status**, **Config Setup**, **Config Sync**, **App Setup**, and **Troubleshoot or
+Restore**. App and Documents setup work independently of shared enrollment.
+Full Machine Setup remains available under Troubleshoot or Restore. Config Sync
+pulls Git with `--ff-only`, rebuilds, then reviews managed configuration. Review
+changes and confirm before applying. Results stay visible; package upgrades,
+age and login use the terminal.
+
+[Documents over Tailscale](docs/syncthing.md) covers pairing the G14 and desktop,
+version recovery, conflicts and hardware acceptance.
 
 Go 1.26+ builds locally into an ignored `.build/` cache; normal runtime has no
 Python dependency. Failed compilation stops the invocation. There is no release

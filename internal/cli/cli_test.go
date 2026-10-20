@@ -5,6 +5,7 @@ import (
 	"context"
 	"dotawesome/internal/app"
 	"dotawesome/internal/deploy"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,5 +53,45 @@ func TestSetupHandoffReturnsTypedDecline(t *testing.T) {
 	st, _ := os.Stat(receipt)
 	if st.Mode().Perm() != 0600 {
 		t.Fatal("public setup receipt")
+	}
+}
+
+func TestActionHelpAndSyncthingRoutes(t *testing.T) {
+	s := app.New(deploy.New(t.TempDir(), t.TempDir()), nil)
+	s.Lookup = func(string) bool { return false }
+	for _, tc := range []struct {
+		args []string
+		code int
+		want string
+	}{
+		{[]string{"help"}, 0, "bin/dotawesome syncthing setup"},
+		{[]string{"syncthing", "status"}, 0, "missing tools"},
+		{[]string{"syncthing", "setup"}, 1, "missing tools"},
+		{[]string{"syncthing", "status", "extra"}, 2, "Usage"},
+		{[]string{"app", "setup", "unknown"}, 2, ""},
+	} {
+		var out bytes.Buffer
+		code := Run(context.Background(), s, tc.args, strings.NewReader("no\n"), &out, &out)
+		if code != tc.code || !strings.Contains(out.String(), tc.want) {
+			t.Fatal(tc, code, out.String())
+		}
+	}
+}
+
+func TestHandoffReceiptRetainsTailscaleFailure(t *testing.T) {
+	receipt := filepath.Join(t.TempDir(), "result.json")
+	t.Setenv("DOTAWESOME_HANDOFF_RECEIPT", receipt)
+	s := app.New(deploy.New(t.TempDir(), t.TempDir()), nil)
+	s.Lookup = func(string) bool { return true }
+	s.Manager.Run = func(context.Context, ...string) (string, error) { return "", fmt.Errorf("not connected") }
+	s.Terminal = func(context.Context, ...string) error { return fmt.Errorf("exit status 1") }
+	var out bytes.Buffer
+	code := Run(context.Background(), s, []string{"syncthing", "setup"}, strings.NewReader("yes\n"), &out, &out)
+	var result app.SetupResult
+	if e := deploy.ReadStateJSON(receipt, &result); e != nil {
+		t.Fatal(e)
+	}
+	if code != 1 || result.Outcome != "failed" || !strings.Contains(result.Detail, "tailscaled service startup failed") || !strings.Contains(result.Detail, "journalctl -u tailscaled") {
+		t.Fatal(code, result, out.String())
 	}
 }

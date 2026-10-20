@@ -3,8 +3,10 @@ package tui
 import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"dotawesome/internal/actions"
 	"dotawesome/internal/app"
 	"dotawesome/internal/deploy"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,7 +75,7 @@ func TestNavigationUsesSavedMachineAndComponents(t *testing.T) {
 	}
 	next, _ := m.Update(statusMsg{results: []app.Result{{Component: "tmux", State: "current"}}})
 	m = next.(Model)
-	if m.nav != 1 {
+	if m.nav != actions.Index("config sync") {
 		t.Fatal("managed machine did not recommend sync")
 	}
 }
@@ -97,7 +99,7 @@ func TestGuidedHomeShowsPurposeAndOnlyMainChoices(t *testing.T) {
 	m.loading = false
 	m.status = []app.Result{{Component: "niri", State: "inactive", Detail: "/private/path"}}
 	text := m.View().Content
-	for _, want := range []string{"What would you like to do?", "Set up this machine", "Sync this machine", "Troubleshoot or restore", "review changes"} {
+	for _, want := range []string{"What would you like to do?", "Syncthing Setup", "Syncthing Status", "Config Setup", "Config Sync", "App Setup", "Troubleshoot or Restore", "review changes"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing %q:\n%s", want, text)
 		}
@@ -108,7 +110,7 @@ func TestGuidedHomeShowsPurposeAndOnlyMainChoices(t *testing.T) {
 		}
 	}
 	next, _ := m.Update(key("enter"))
-	if next.(Model).screen != "setup-check" {
+	if next.(Model).screen != "external-confirm" {
 		t.Fatal(next.(Model).screen)
 	}
 }
@@ -118,13 +120,13 @@ func TestHomeMaintenanceIsInsideMoreOptions(t *testing.T) {
 	if next.(Model).screen != "overview" {
 		t.Fatal("home launched advanced action")
 	}
-	m.nav = 2
+	m.nav = actions.Index("troubleshoot")
 	next, _ = m.Update(key("enter"))
 	m = next.(Model)
 	if m.screen != "more" {
 		t.Fatal(m.screen)
 	}
-	m.cursor = 2
+	m.cursor = 3
 	next, _ = m.Update(key("enter"))
 	m = next.(Model)
 	if m.screen != "external-confirm" || m.externalAction != "enroll-age" {
@@ -157,7 +159,9 @@ func TestRecoveryBecomesTheNextStep(t *testing.T) {
 	m := New(nil)
 	m.loading = false
 	m.status = []app.Result{{State: "recovery pending"}}
-	if !strings.Contains(m.View().Content, "An update was interrupted") {
+	m.screen = "more"
+	m.cursor = 0
+	if !strings.Contains(m.homeSummary(), "An update was interrupted") {
 		t.Fatal(m.View().Content)
 	}
 	next, _ := m.Update(key("enter"))
@@ -250,7 +254,7 @@ func TestMaintenanceActionsStayReachable(t *testing.T) {
 			if got.screen != "select" || !got.restore {
 				t.Fatal(option, got.screen)
 			}
-		case "init":
+		case "init", "full-setup":
 			if got.screen != "setup-check" || got.setup == nil {
 				t.Fatal(got.screen)
 			}
@@ -334,5 +338,85 @@ func TestProjectLogoStaysAboveTheGuidedInterface(t *testing.T) {
 	text := m.View().Content
 	if strings.TrimSpace(strings.Split(text, "\n")[0]) != "DOTAWESOME" || strings.Contains(text, "  ____") {
 		t.Fatal("small terminal did not retain compact title")
+	}
+}
+
+func TestDirectActionsAndNamedApp(t *testing.T) {
+	for i, a := range actions.All {
+		m := New(nil)
+		m.nav = i
+		next, _ := m.Update(key("enter"))
+		got := next.(Model)
+		switch a.Command {
+		case "syncthing setup", "syncthing status", "config setup":
+			if got.screen != "external-confirm" || got.externalAction != a.Command {
+				t.Fatal(a, got.screen)
+			}
+		case "app setup":
+			if got.screen != "select" || got.setup != nil {
+				t.Fatal(got.screen)
+			}
+		case "troubleshoot":
+			if got.screen != "more" {
+				t.Fatal(got.screen)
+			}
+		}
+	}
+	m := newAppModel(nil, "tmux")
+	if m.screen != "preflight" || !m.selected["tmux"] || m.selected["niri"] || m.setup != nil {
+		t.Fatal(m.screen, m.selected)
+	}
+}
+func TestActionMenuKeyboardWrapAndCancel(t *testing.T) {
+	m := New(nil)
+	next, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	m = next.(Model)
+	if m.nav != len(actions.All)-1 {
+		t.Fatal(m.nav)
+	}
+	next, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	m = next.(Model)
+	if m.nav != 0 {
+		t.Fatal(m.nav)
+	}
+	next, _ = m.Update(key("enter"))
+	next, _ = next.Update(key("esc"))
+	if next.(Model).screen != "overview" {
+		t.Fatal(next.(Model).screen)
+	}
+}
+
+func TestEveryActionRemainsVisibleInNarrowTerminal(t *testing.T) {
+	for i, a := range actions.All {
+		m := New(nil)
+		m.loading = false
+		m.nav = i
+		m.width = 35
+		m.height = 18
+		text := m.View().Content
+		if !strings.Contains(text, strings.Fields(a.Label)[0]) || !strings.Contains(text, "> ") {
+			t.Fatal(a.Label, text)
+		}
+		for _, line := range strings.Split(text, "\n") {
+			if lipgloss.Width(line) > 35 {
+				t.Fatal("overflow", line)
+			}
+		}
+	}
+	for _, name := range []string{"niri", "nvim", "tmux"} {
+		m := newAppModel(nil, name)
+		if !m.selected[name] || m.screen != "preflight" || m.startup == nil {
+			t.Fatal(name, m.screen)
+		}
+	}
+}
+
+func TestTerminalFailureRetainsStructuredExplanation(t *testing.T) {
+	m := New(nil)
+	m.externalAction = "syncthing setup"
+	next, _ := m.Update(handoffMsg{err: fmt.Errorf("exit status 1"), result: app.SetupResult{Outcome: "failed", Detail: "tailscaled service startup failed; inspect journalctl -u tailscaled"}})
+	text := next.(Model).View().Content
+	if !strings.Contains(text, "tailscaled service startup failed") || !strings.Contains(text, "journalctl") {
+		t.Fatal(text)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"context"
+	"dotawesome/internal/actions"
 	"dotawesome/internal/app"
 	"dotawesome/internal/components"
 	"dotawesome/internal/deploy"
@@ -30,7 +31,10 @@ type inspectedMsg struct {
 }
 type finishedMsg struct{ results []app.Result }
 type eventMsg app.Event
-type handoffMsg struct{ err error }
+type handoffMsg struct {
+	err    error
+	result app.SetupResult
+}
 type tickMsg time.Time
 type Preferences struct {
 	Machine    string   `json:"machine"`
@@ -298,9 +302,9 @@ func (m Model) waitEvent() tea.Cmd {
 func (m Model) handoff(action string) tea.Cmd {
 	exe, e := os.Executable()
 	if e != nil {
-		return func() tea.Msg { return handoffMsg{e} }
+		return func() tea.Msg { return handoffMsg{err: e} }
 	}
-	args := []string{action}
+	args := strings.Fields(action)
 	switch action {
 	case "init":
 		if m.profile == "g14" || m.profile == "desktop" {
@@ -313,9 +317,21 @@ func (m Model) handoff(action string) tea.Cmd {
 			}
 		}
 	}
+	work, e := os.MkdirTemp("", "dotawesome-handoff-")
+	if e != nil {
+		return func() tea.Msg { return handoffMsg{err: e} }
+	}
+	receipt := filepath.Join(work, "result.json")
 	c := exec.Command(exe, args...)
-	c.Env = append(os.Environ(), "DOTAWESOME_ROOT="+m.s.Manager.Repo)
-	return tea.ExecProcess(c, func(e error) tea.Msg { return handoffMsg{e} })
+	c.Env = append(os.Environ(), "DOTAWESOME_ROOT="+m.s.Manager.Repo, "DOTAWESOME_HANDOFF_RECEIPT="+receipt)
+	return tea.ExecProcess(c, func(err error) tea.Msg {
+		defer os.RemoveAll(work)
+		var result app.SetupResult
+		if e := deploy.ReadStateJSON(receipt, &result); e != nil && err == nil {
+			err = fmt.Errorf("terminal command returned no readable outcome: %w", e)
+		}
+		return handoffMsg{err: err, result: result}
+	})
 }
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if next, cmd, handled := m.updateSetup(msg); handled {
@@ -333,11 +349,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.screen == "overview" && m.nav == 0 {
 			for _, r := range m.status {
 				if r.State == "current" || r.State == "source-changed" || r.State == "locally-modified" {
-					m.nav = 1
+					m.nav = actions.Index("config sync")
 				}
 			}
 			if m.needsRecovery() {
-				m.nav = 2
+				m.nav = actions.Index("troubleshoot")
 			}
 		}
 		if v.err != nil {
@@ -393,6 +409,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if v.err != nil {
 			state = "failed"
 			detail = v.err.Error()
+		}
+		if v.result.Detail != "" {
+			detail = v.result.Detail
+		}
+		if v.result.Outcome == "failed" {
+			state = "failed"
 		}
 		m.results = []app.Result{{Component: m.externalAction, State: state, Detail: detail}}
 		m.showResults()
@@ -454,29 +476,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "overview":
 			switch k {
 			case "up", "shift+tab", "left":
-				m.nav = (m.nav + 2) % 3
+				m.nav = (m.nav + len(actions.All) - 1) % len(actions.All)
 			case "down", "tab", "right":
-				m.nav = (m.nav + 1) % 3
+				m.nav = (m.nav + 1) % len(actions.All)
 			case "enter":
-				switch m.nav {
-				case 0:
-					cmd := m.beginSetup("setup", false)
-					return m, cmd
-				case 1:
+				action := actions.All[m.nav].Command
+				switch action {
+				case "config sync":
 					cmd := m.beginSetup("sync", false)
 					return m, cmd
-				case 2:
+				case "app setup":
+					m.screen = "select"
+					m.selectionOrigin = "overview"
+				case "troubleshoot":
 					m.setup = nil
 					m.screen = "more"
 					m.cursor = 0
+				default:
+					m.openExternal(action)
 				}
 			}
 		case "components":
 			switch k {
 			case "up", "shift+tab":
-				m.cursor = (m.cursor + 2) % 3
+				m.cursor = (m.cursor + len(components.Names) - 1) % len(components.Names)
 			case "down", "tab":
-				m.cursor = (m.cursor + 1) % 3
+				m.cursor = (m.cursor + 1) % len(components.Names)
 			case "enter":
 				m.component = components.Names[m.cursor]
 				m.screen = "component"
@@ -531,6 +556,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.screen = "select"
 					m.cursor = 0
 					m.err = nil
+				case "full-setup":
+					cmd := m.beginSetup("setup", false)
+					return m, cmd
 				case "refresh":
 					m.screen = "overview"
 					m.nav = 0
@@ -570,9 +598,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "select":
 			switch k {
 			case "up":
-				m.cursor = (m.cursor + 2) % 3
+				m.cursor = (m.cursor + len(components.Names) - 1) % len(components.Names)
 			case "down", "tab":
-				m.cursor = (m.cursor + 1) % 3
+				m.cursor = (m.cursor + 1) % len(components.Names)
 			case "space", " ":
 				n := components.Names[m.cursor]
 				m.selected[n] = !m.selected[n]
@@ -783,3 +811,21 @@ func RunFlow(s *app.Service, intent string, pulled bool) error {
 	m.startup = m.beginSetup(intent, pulled)
 	return runModel(m)
 }
+
+// RunApp starts application review without shared configuration enrollment.
+func RunApp(s *app.Service, name string) error { return runModel(newAppModel(s, name)) }
+func newAppModel(s *app.Service, name string) Model {
+	m := New(s)
+	m.screen = "select"
+	m.selectionOrigin = "overview"
+	if name != "" {
+		for n := range m.selected {
+			m.selected[n] = n == name
+		}
+		m.screen = "preflight"
+		m.startup = m.inspectSelection()
+	}
+	return m
+}
+
+func RunTroubleshoot(s *app.Service) error { m := New(s); m.screen = "more"; return runModel(m) }

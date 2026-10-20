@@ -4,6 +4,7 @@ package cli
 import (
 	"bufio"
 	"context"
+	"dotawesome/internal/actions"
 	"dotawesome/internal/app"
 	"dotawesome/internal/components"
 	"dotawesome/internal/deploy"
@@ -18,8 +19,30 @@ import (
 	"strings"
 )
 
-func Run(ctx context.Context, s *app.Service, args []string, in io.Reader, out, stderr io.Writer) int {
+func Run(ctx context.Context, s *app.Service, args []string, in io.Reader, out, stderr io.Writer) (code int) {
+	handoffDetail := ""
+	if receipt := os.Getenv("DOTAWESOME_HANDOFF_RECEIPT"); receipt != "" {
+		defer func() {
+			outcome := "completed"
+			detail := "Command completed. Return home to continue."
+			if code != 0 {
+				outcome = "failed"
+				detail = handoffDetail
+				if detail == "" {
+					detail = fmt.Sprintf("Command exited with code %d. Run bin/dotawesome %s directly for diagnostics.", code, strings.Join(args, " "))
+				}
+			}
+			if e := app.WriteSetupReceipt(receipt, app.SetupResult{Outcome: outcome, Detail: detail}); e != nil {
+				fmt.Fprintln(stderr, "dotawesome: cannot save terminal outcome:", e)
+				if code == 0 {
+					code = 1
+				}
+			}
+		}()
+	}
+
 	fail := func(e error) int {
+		handoffDetail = e.Error()
 		fmt.Fprintln(stderr, "dotawesome:", e)
 		if errors.Is(e, context.Canceled) {
 			return 130
@@ -30,6 +53,64 @@ func Run(ctx context.Context, s *app.Service, args []string, in io.Reader, out, 
 	ask := func(prompt string) bool {
 		fmt.Fprint(out, prompt+" [yes/no]: ")
 		return scan.Scan() && strings.EqualFold(strings.TrimSpace(scan.Text()), "yes")
+	}
+	route := actions.Resolve(strings.Join(args[:min(2, len(args))], " "))
+	if route == "troubleshoot" {
+		if len(args) != 1 {
+			return 2
+		}
+		if e := tui.RunTroubleshoot(s); e != nil {
+			return fail(e)
+		}
+		return 0
+	}
+	if route == "syncthing setup" || route == "syncthing status" {
+		if len(args) != 2 || (args[1] != "setup" && args[1] != "status") {
+			fmt.Fprintln(stderr, "Usage: bin/dotawesome syncthing [setup|status]")
+			return 2
+		}
+		var e error
+		if args[1] == "status" {
+			e = s.SyncthingStatus(ctx, out)
+		} else {
+			e = s.SyncthingSetup(ctx, out, ask, func(prompt string) string {
+				fmt.Fprint(out, prompt)
+				if scan.Scan() {
+					return scan.Text()
+				}
+				return ""
+			})
+		}
+		if e != nil {
+			return fail(e)
+		}
+		return 0
+	}
+	if len(args) >= 2 && args[0] == "config" && (route == "config setup" || route == "config sync") {
+		switch args[1] {
+		case "setup":
+			args = append([]string{"init"}, args[2:]...)
+		case "sync":
+			args = append([]string{"sync"}, args[2:]...)
+		default:
+			return 2
+		}
+	}
+	if route == "app setup" {
+		name := ""
+		if len(args) > 3 {
+			return 2
+		}
+		if len(args) == 3 {
+			name = args[2]
+			if name != "niri" && name != "nvim" && name != "tmux" {
+				return 2
+			}
+		}
+		if e := tui.RunApp(s, name); e != nil {
+			return fail(e)
+		}
+		return 0
 	}
 	if len(args) == 0 || args[0] == "setup" {
 		if len(args) > 1 {
@@ -87,6 +168,9 @@ func Run(ctx context.Context, s *app.Service, args []string, in io.Reader, out, 
 	}
 	fs.Usage = func() {
 		fmt.Fprintln(out, "Usage: bin/dotawesome [setup|sync|list|status|check|plan|apply|remove|init|enroll-age|check-secrets] [component] [flags]")
+		for _, a := range actions.All {
+			fmt.Fprintf(out, "  bin/dotawesome %s — %s\n", a.Command, a.Description)
+		}
 		fs.PrintDefaults()
 	}
 	if command == "help" || command == "--help" || command == "-h" {

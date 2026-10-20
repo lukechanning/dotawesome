@@ -57,7 +57,7 @@ func (s *Service) packageRecords() (map[string]PackageRecord, error) {
 		return nil, errors.New("null packages.json; inspect provenance before mutation")
 	}
 	for owner, v := range r {
-		if owner != "niri" && owner != "tmux" && owner != "nvim" && owner != "shared" {
+		if owner != "niri" && owner != "tmux" && owner != "nvim" && owner != "shared" && owner != "syncthing" {
 			return nil, fmt.Errorf("unknown package owner: %s", owner)
 		}
 		for _, list := range [][]string{v.Added, v.Roots, v.Required} {

@@ -3,6 +3,7 @@ package tui
 import (
 	tea "charm.land/bubbletea/v2"
 	"context"
+	"dotawesome/internal/actions"
 	"dotawesome/internal/app"
 	"dotawesome/internal/deploy"
 	"os"
@@ -13,6 +14,8 @@ import (
 
 func TestMachineSetupStartsWithReadOnlyCheck(t *testing.T) {
 	m := New(nil)
+	m.screen = "more"
+	m.cursor = 0
 	next, cmd := m.Update(key("enter"))
 	m = next.(Model)
 	if m.screen != "setup-check" || m.setup == nil || cmd == nil {
@@ -52,7 +55,7 @@ func TestAppConfigurationDoesNotRequireMachineSetup(t *testing.T) {
 }
 func TestSyncPullsBeforeConfigurationInspection(t *testing.T) {
 	m := New(&app.Service{Manager: deploy.New(t.TempDir(), t.TempDir())})
-	m.nav = 1
+	m.nav = actions.Index("config sync")
 	next, cmd := m.Update(key("enter"))
 	m = next.(Model)
 	if m.setup == nil || m.setup.Intent != "sync" || cmd == nil {
