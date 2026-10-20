@@ -9,6 +9,18 @@ files and selections stay local. App themes and KDE preferences are independent.
 Requires Arch/CachyOS, Niri 26.04+, native Noctalia 5.2+, and the packaged Niri
 session. The component's package list is in `components/niri/definition.json`.
 
+The Super+G jump menu also requires `wlr-which-key` 1.3+. It is a separate
+user-installed dependency, outside the managed pacman package list. With Rust/Cargo
+and the Cairo, Pango and xkbcommon development libraries available:
+
+```sh
+cargo install wlr-which-key --version 1.3.0 --locked --root ~/.local
+```
+
+Ensure `~/.local/bin` is on the Niri session's PATH. `check` reports a missing
+command before deployment. Removal of the Niri component leaves this shared tool
+installed.
+
 ```sh
 bin/dotawesome check niri --profile g14
 bin/dotawesome plan niri --profile g14
@@ -91,6 +103,7 @@ connector-only identities are refused.
 | Super+Ctrl+H/J/K/L | Focus monitor left/down/up/right |
 | Super+Ctrl+Shift+H/J/K/L | Move focused window to monitor left/down/up/right |
 | Super+Space / V / S | Launcher / clipboard / control center |
+| Super+G, then S / B / T / slash | Jump to Slack / browser / terminal / search open windows |
 | Super+B / Super+Shift+B / Super+N | Network / Bluetooth / notifications |
 | Alt+Tab / Alt+Shift+Tab | Recent windows |
 | Super+R / Super+W | Cycle width / toggle column tabs |
@@ -99,6 +112,25 @@ connector-only identities are refused.
 | Super+Shift+S / Print | Screenshot UI |
 | Super+Alt+L / Super+Shift+E | Lock / confirmed logout |
 | Super+Shift+Q | Close window |
+
+Press **Super+G**, release both keys, then press a **lowercase** `s`, `b`, `t`,
+or `/`. The small jade menu closes after selection, and typing resumes in the
+selected app. Escape cancels. No Enter is needed for an app choice; window search
+uses Noctalia's `/win ` provider, where you type a title/app name and press Enter.
+
+App jumps focus the most recently used matching window across workspaces and
+monitors, without launching, moving or resizing windows. If an app has no open
+window, a notification explains that; Super+Space remains the app launcher.
+Slack matches the exact IDs `slack`, `Slack`, and `com.slack.Slack`.
+Browser and terminal use each profile's exact `app_ids`, selected with
+`jump_key = "b"` and `jump_key = "t"` in its `[[apps]]` entries. Custom profiles
+can assign those keys once each; entries without a jump key remain layout-only.
+The menu theme lives in `components/niri/jump.yaml` (JSON syntax, valid YAML).
+
+This adds a shortcut and updates the installed helper, so activate with a normal
+apply **outside Niri**, not appearance-only `--live`. After activation, manually
+check Super+G → `s` from a distant window, `b`/`t`, Escape cancellation, and `/`
+search. Selection must return keyboard input immediately to the chosen app.
 
 The ISO `< >` key immediately right of left Shift acts as an additional left
 Shift (`lv2:lsgt_switch`), matching the existing KDE keyboard option. This applies

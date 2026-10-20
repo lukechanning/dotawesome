@@ -6,7 +6,7 @@ cd "$root"
 case "${1-}" in
     '') ;;
     --integration)
-        for tool in chezmoi age age-keygen fish niri noctalia systemd-analyze nvim tmux; do
+        for tool in chezmoi age age-keygen fish niri noctalia wlr-which-key systemd-analyze nvim tmux; do
             command -v "$tool" >/dev/null 2>&1 || { echo "bin/ci: missing integration prerequisite: $tool; see docs/development.md" >&2; exit 1; }
         done
         export DOTAWESOME_INTEGRATION=1

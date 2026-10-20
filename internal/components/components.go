@@ -20,6 +20,7 @@ var Names = []string{"niri", "nvim", "tmux"}
 
 type App struct {
 	Name      string   `toml:"name" json:"name"`
+	JumpKey   string   `toml:"jump_key" json:"jump_key,omitempty"`
 	Command   []string `toml:"command" json:"command"`
 	IDs       []string `toml:"app_ids" json:"app_ids"`
 	Workspace string   `toml:"workspace" json:"workspace"`
@@ -90,7 +91,14 @@ func (p Profile) Validate() error {
 	if p.SecretPortal != "" && p.SecretPortal != "kwallet" && p.SecretPortal != "gnome-keyring" {
 		return errors.New("secret_portal must be kwallet or gnome-keyring")
 	}
+	jumpKeys := map[string]bool{}
 	for _, a := range p.Apps {
+		if a.JumpKey != "" {
+			if (a.JumpKey != "b" && a.JumpKey != "t") || jumpKeys[a.JumpKey] {
+				return errors.New("jump_key must be b or t, with no duplicates")
+			}
+			jumpKeys[a.JumpKey] = true
+		}
 		if _, e := argv(a.Command); e != nil {
 			return e
 		}
@@ -230,7 +238,18 @@ func Render(m *deploy.Manager, name, profile string, helper []byte) (deploy.File
 	}
 	terminal, _ := argv(p.Terminal)
 	helperPath := filepath.Join(m.Config, "dotawesome/niri/work")
+	menuPath := filepath.Join(m.Config, "dotawesome/niri/jump.yaml")
+	menu, e := read("jump.yaml")
+	if e != nil {
+		return nil, e
+	}
+	menu, e = jumpMenu(menu, helperPath, p.Apps)
+	if e != nil {
+		return nil, e
+	}
+	add(menuPath, menu, 0644)
 	bindings := "    Mod+Return { spawn " + terminal + "; }\n    Mod+Shift+Return { spawn " + quote(helperPath) + "; }\n"
+	bindings += "    Mod+G repeat=false hotkey-overlay-title=\"Jump to app\" { spawn \"wlr-which-key\" " + quote(menuPath) + "; }\n"
 	binds := [][2]string{{"Mod+Space", "panel-toggle launcher"}, {"Mod+V", "panel-toggle clipboard"}, {"Mod+S", "panel-toggle control-center"}, {"Mod+Alt+L", "lock"}, {"Mod+N", "panel-toggle control-center notifications"}, {"Mod+B", "panel-toggle control-center network"}, {"Mod+Shift+B", "panel-toggle control-center bluetooth"}, {"XF86AudioRaiseVolume", "volume-up"}, {"XF86AudioLowerVolume", "volume-down"}, {"XF86AudioMute", "volume-mute"}, {"XF86AudioMicMute", "mic-mute"}, {"XF86AudioPlay", "media toggle"}, {"XF86AudioNext", "media next"}, {"XF86AudioPrev", "media previous"}, {"XF86MonBrightnessUp", "brightness-up"}, {"XF86MonBrightnessDown", "brightness-down"}}
 	for _, b := range binds {
 		locked := ""

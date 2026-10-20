@@ -3,11 +3,62 @@ package components
 import (
 	"context"
 	"dotawesome/internal/deploy"
+	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestJumpMenuUsesProfileIDsAndQuotesHelperPath(t *testing.T) {
+	repo, _ := filepath.Abs("../..")
+	m := deploy.New(repo, filepath.Join(t.TempDir(), "home 'quoted' $literal"))
+	m.Config = filepath.Join(m.Home, ".config")
+	for _, profile := range []string{"generic", "g14", "desktop"} {
+		files, err := Render(m, "niri", profile, []byte("helper"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		menuPath := filepath.Join(m.Config, "dotawesome/niri/jump.yaml")
+		menuFile := files[menuPath]
+		if menuFile == nil {
+			t.Fatal("jump menu not deployed")
+		}
+		var menu struct{ Menu []struct{ Key, Cmd string } }
+		if err := json.Unmarshal(menuFile.Bytes(), &menu); err != nil {
+			t.Fatal(err)
+		}
+		commands := map[string]string{}
+		for _, entry := range menu.Menu {
+			commands[entry.Key] = entry.Cmd
+		}
+		if len(commands) != 4 || commands["/"] != "noctalia msg panel-open launcher '/win '" {
+			t.Fatal(commands)
+		}
+		helper := filepath.Join(m.Config, "dotawesome/niri/work")
+		if err := os.MkdirAll(filepath.Dir(helper), 0700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(helper, []byte("#!/bin/sh\nprintf '%s\\n' \"$@\"\n"), 0755); err != nil {
+			t.Fatal(err)
+		}
+		for key, want := range map[string]string{
+			"s": "focus\nslack\nSlack\ncom.slack.Slack\n",
+			"b": "focus\nvivaldi-stable\nvivaldi\n",
+			"t": "focus\nAlacritty\nalacritty\n",
+		} {
+			out, err := exec.Command("sh", "-c", commands[key]).CombinedOutput()
+			if err != nil || string(out) != want {
+				t.Fatalf("%s: %q, %v", key, out, err)
+			}
+		}
+		config := string(files[filepath.Join(m.Config, "niri/config.kdl")].Bytes())
+		if !strings.Contains(config, `Mod+G repeat=false hotkey-overlay-title="Jump to app" { spawn "wlr-which-key" `+quote(menuPath)) {
+			t.Fatal("missing Super+G menu binding")
+		}
+	}
+}
 
 func TestRenderProfilesAndApplications(t *testing.T) {
 	repo, _ := filepath.Abs("../..")

@@ -280,6 +280,10 @@ func (s *Service) Validate(ctx context.Context, r *Inspection) error {
 			return fmt.Errorf("Neovim validation failed: %s", out)
 		}
 	case "niri":
+		menu, e := put("jump.yaml", r.Plan.Files[filepath.Join(s.Manager.Config, "dotawesome/niri/jump.yaml")])
+		if e != nil {
+			return e
+		}
 		config, e := put("config.kdl", r.Plan.Files[filepath.Join(s.Manager.Config, "niri/config.kdl")])
 		if e != nil {
 			return e
@@ -301,7 +305,7 @@ func (s *Service) Validate(ctx context.Context, r *Inspection) error {
 		if e != nil {
 			return e
 		}
-		for _, args := range [][]string{{"niri", "validate", "--config", config}, {"noctalia", "config", "validate", shell}, {"systemd-analyze", "--user", "verify", unit}} {
+		for _, args := range [][]string{{"wlr-which-key", menu, "--initial-keys", "Escape"}, {"niri", "validate", "--config", config}, {"noctalia", "config", "validate", shell}, {"systemd-analyze", "--user", "verify", unit}} {
 			out, e := s.Manager.Run(ctx, args...)
 			if e != nil {
 				return e

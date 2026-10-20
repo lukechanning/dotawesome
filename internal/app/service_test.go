@@ -4,11 +4,36 @@ import (
 	"context"
 	"dotawesome/internal/deploy"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestNiriValidationRejectsInvalidJumpMenu(t *testing.T) {
+	s := service(t)
+	r, err := s.Inspect(context.Background(), "niri", "generic", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	invalid := errors.New("invalid jump menu")
+	s.Manager.Run = func(_ context.Context, args ...string) (string, error) {
+		if args[0] == "wlr-which-key" {
+			if len(args) != 4 || args[2] != "--initial-keys" || args[3] != "Escape" {
+				t.Fatalf("unsafe menu validation: %v", args)
+			}
+			if _, err := os.ReadFile(args[1]); err != nil {
+				t.Fatal(err)
+			}
+			return "", invalid
+		}
+		return "", nil
+	}
+	if err := s.Validate(context.Background(), r); !errors.Is(err, invalid) {
+		t.Fatalf("menu validation bypassed: %v", err)
+	}
+}
 
 func service(t *testing.T) *Service {
 	r, _ := filepath.Abs("../..")

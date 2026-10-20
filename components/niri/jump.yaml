@@ -1,0 +1,11 @@
+{
+  "font": "Noto Sans 12",
+  "background": "#161821",
+  "color": "#d8e2dd",
+  "border": "#8fbdab",
+  "border_width": 2,
+  "corner_r": 6,
+  "padding": 18,
+  "anchor": "center",
+  "auto_kbd_layout": true
+}

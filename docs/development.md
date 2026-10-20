@@ -30,10 +30,13 @@ terminal restoration. Package tests preserve attribution boundaries; recovery te
 cover unexpected edits and failed rollback. No test deploys into the live home. Readiness and flow tests cover ordered setup,
 reused enrollment, declined steps, independent app setup and managed-only sync.
 
-Integration requires chezmoi, age, age-keygen, Fish, Niri, Noctalia,
+Integration requires chezmoi, age, age-keygen, Fish, Niri, Noctalia, wlr-which-key,
 systemd-analyze, Neovim and tmux. Missing prerequisites fail with a named tool.
-Native checks stage generated files under `/tmp`. Age tests generate disposable
-identities and verify passphrase enrollment, recovery and repeat shared setup in
+Native checks stage generated files under `/tmp`.
+The jump-menu check parses the generated menu and selects Escape through
+`--initial-keys`, without opening an overlay or running a menu command.
+Age tests generate disposable identities and verify passphrase enrollment,
+recovery and repeat shared setup in
 private homes. Sync tests use disposable local Git remotes to verify fast-forward
 updates and refusal of dirty or divergent checkouts, without network access. tmux and systemd validation need local Unix-socket permission.
 Neovim validation uses private XDG directories with no plugin downloads.
