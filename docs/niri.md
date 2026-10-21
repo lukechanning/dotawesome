@@ -57,7 +57,7 @@ commands above. It is deliberately excluded from appearance-only live updates.
 - `generic`: automatic outputs, Alacritty, optional browser command.
 - `g14`: AMD rendering, KDE wallet integration, Vivaldi and Alacritty work layout;
   built-in display **2880×1800 at 60.001 Hz, scale 1.6**.
-- `desktop`: automatic GPU selection, Vivaldi and Alacritty work layout.
+- `desktop`: automatic GPU selection, KDE wallet integration, Vivaldi and Alacritty work layout.
 
 G14 references `~/Pictures/Path.jpg` and `~/Pictures/OneStandsOut.jpg`; images are
 not managed or copied. Missing images produce warnings and a dark fallback.
@@ -197,5 +197,9 @@ settings are independent of this design.
 
 Use `--profile desktop` for Alacritty and the shared browser/workspace setup.
 GPU and displays are automatic pending monitor identity/mode capture; no G14
-DRM path, laptop output, wallet override or local wallpaper is inherited.
+DRM path, laptop output or local wallpaper is inherited.
+Like the G14, the desktop profile reuses KDE's Secret portal and pins Vivaldi and
+Signal to `kwallet6` across both sessions. KDE/KWallet must already be installed;
+wallet contents and credentials remain local. After a normal apply with Niri
+stopped, restart the affected apps and verify wallet access in both sessions.
 Apply from KDE or a TTY outside Niri. See [bootstrap](bootstrap.md).

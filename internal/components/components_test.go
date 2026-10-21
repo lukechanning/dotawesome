@@ -148,3 +148,24 @@ func TestRetiresLegacyHelperThroughBackedUpTransaction(t *testing.T) {
 		t.Fatal(got, e)
 	}
 }
+
+func TestDesktopAndG14ReuseKDEWallet(t *testing.T) {
+	repo, _ := filepath.Abs("../..")
+	m := deploy.New(repo, t.TempDir())
+	for _, profile := range []string{"desktop", "g14"} {
+		files, err := Render(m, "niri", profile, []byte("helper"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		portal := files[filepath.Join(m.Config, "xdg-desktop-portal/niri-portals.conf")]
+		if portal == nil || !strings.Contains(string(portal.Bytes()), "org.freedesktop.impl.portal.Secret=kwallet\n") {
+			t.Fatalf("%s does not route secrets to KDE wallet", profile)
+		}
+		for _, name := range []string{"vivaldi-stable.conf", "signal-desktop-flags.conf"} {
+			f := files[filepath.Join(m.Config, name)]
+			if f == nil || string(f.Bytes()) != "--password-store=kwallet6\n" {
+				t.Fatalf("%s: %s does not use kwallet6", profile, name)
+			}
+		}
+	}
+}

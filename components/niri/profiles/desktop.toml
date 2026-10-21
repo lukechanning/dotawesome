@@ -1,5 +1,9 @@
 name = "desktop"
 terminal = ["alacritty"]
+# Reuse KDE's encrypted wallet across the KDE and Niri sessions, as on the G14.
+secret_portal = "kwallet"
+vivaldi_password_store = "kwallet6"
+signal_password_store = "kwallet6"
 preferred_output = "PNP(AOC) 27B36X XI7S4HA042988"
 # GPU and output modes use automatic selection.
 # Shared AOC scale, keyboard remap and monitor shortcuts come from base.kdl.

@@ -173,7 +173,9 @@ bin/dotawesome plan tmux
 Niri's outside-session safeguards, validation and restoration remain in effect.
 The desktop profile uses Alacritty and the G14 browser/workspace setup with
 automatic GPU/output selection. It has no laptop display, charge policy, pinned
-G14 DRM node, KDE wallet override or laptop-local wallpaper.
+G14 DRM node or laptop-local wallpaper. With KDE installed as the backup desktop,
+it reuses KDE's Secret portal and the `kwallet6` password store for Vivaldi and
+Signal, matching the G14 profile. Wallet contents and credentials remain local.
 
 ## Encrypted editing and recovery
 
