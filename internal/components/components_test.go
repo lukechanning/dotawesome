@@ -9,7 +9,47 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/pelletier/go-toml/v2"
 )
+
+func TestToolbarMatchesMachineProfile(t *testing.T) {
+	repo, _ := filepath.Abs("../..")
+	m := deploy.New(repo, t.TempDir())
+	for _, profile := range []string{"generic", "g14", "desktop"} {
+		files, err := Render(m, "niri", profile, []byte("helper"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var shell struct {
+			Bar map[string]struct {
+				Groups []struct {
+					ID      string   `toml:"id"`
+					Members []string `toml:"members"`
+				} `toml:"capsule_group"`
+			} `toml:"bar"`
+			Widget map[string]struct {
+				Stat string `toml:"stat"`
+			} `toml:"widget"`
+		}
+		if err := toml.Unmarshal(files[filepath.Join(m.Config, "dotawesome/niri/noctalia/noctalia/config.toml")].Bytes(), &shell); err != nil {
+			t.Fatal(err)
+		}
+		members := map[string]bool{}
+		for _, group := range shell.Bar["default"].Groups {
+			for _, member := range group.Members {
+				members[member] = true
+			}
+		}
+		desktop := profile == "desktop"
+		if members["battery"] == desktop || members["cpu-temp"] != desktop || !members["cpu"] || !members["ram"] {
+			t.Fatalf("%s: unexpected toolbar members: %v", profile, members)
+		}
+		if desktop && shell.Widget["cpu-temp"].Stat != "cpu_temp" {
+			t.Fatal("desktop CPU temperature sensor missing")
+		}
+	}
+}
 
 func TestJumpMenuUsesProfileIDsAndQuotesHelperPath(t *testing.T) {
 	repo, _ := filepath.Abs("../..")

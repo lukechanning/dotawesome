@@ -271,6 +271,16 @@ func Render(m *deploy.Manager, name, profile string, helper []byte) (deploy.File
 	if e != nil {
 		return nil, e
 	}
+	if p.Name == "desktop" {
+		// Desktop metrics include temperature and omit laptop battery status.
+		shell = []byte(strings.Replace(string(shell), `members = ["cpu", "ram"]`, `members = ["cpu", "cpu-temp", "ram"]`, 1))
+		shell = []byte(strings.Replace(string(shell), `"volume", "battery", "caffeine"`, `"volume", "caffeine"`, 1))
+		desktop, err := read("noctalia-desktop.toml")
+		if err != nil {
+			return nil, err
+		}
+		shell = append(append(shell, '\n'), desktop...)
+	}
 	expand := func(s string) (string, error) {
 		if !validText(s) {
 			return "", errors.New("invalid wallpaper path")

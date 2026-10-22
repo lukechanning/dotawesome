@@ -1,0 +1,9 @@
+# Desktop-only CPU temperature widget; sampled by the shared CPU monitor.
+[widget.cpu-temp]
+type = "sysmon"
+stat = "cpu_temp"
+visualization = "none"
+show_glyph = false
+custom_label = "TEMP"
+show_value = true
+

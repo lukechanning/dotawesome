@@ -61,6 +61,10 @@ commands above. It is deliberately excluded from appearance-only live updates.
   built-in display **2880×1800 at 60.001 Hz, scale 1.6**.
 - `desktop`: automatic GPU selection, KDE wallet integration, Vivaldi and Alacritty work layout.
 
+The desktop toolbar shows CPU usage, CPU temperature in Celsius, and RAM, with
+no battery widget. CPU readings refresh every three seconds. The G14 keeps its
+battery widget and CPU/RAM toolbar. For a terminal temperature check, run `sensors`.
+
 G14 references `~/Pictures/Path.jpg` and `~/Pictures/OneStandsOut.jpg`; images are
 not managed or copied. Missing images produce warnings and a dark fallback.
 GUI overrides take precedence and are reported by `status`.
