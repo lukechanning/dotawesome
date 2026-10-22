@@ -128,7 +128,7 @@ func Arrange(ctx context.Context, run deploy.Runner, apps []components.App, time
 					return e
 				}
 			}
-			if a.Workspace == "One" && first == 0 {
+			if a.Workspace == "1" && first == 0 {
 				first = matches[0].ID
 			}
 			return nil
@@ -137,7 +137,7 @@ func Arrange(ctx context.Context, run deploy.Runner, apps []components.App, time
 			fail = append(fail, a.Name+": "+err.Error())
 		}
 	}
-	if e = action("focus-workspace", "One"); e != nil {
+	if e = action("focus-workspace", "1"); e != nil {
 		fail = append(fail, e.Error())
 	}
 	if first != 0 {

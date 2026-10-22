@@ -28,7 +28,7 @@ name = "Vivaldi"
 jump_key = "b"
 command = ["vivaldi-stable", "--ozone-platform=wayland"]
 app_ids = ["vivaldi-stable", "vivaldi"]
-workspace = "One"
+workspace = "1"
 width = "100%"
 
 [[apps]]
@@ -36,5 +36,5 @@ name = "Alacritty"
 jump_key = "t"
 command = ["alacritty"]
 app_ids = ["Alacritty", "alacritty"]
-workspace = "One"
+workspace = "1"
 width = "100%"

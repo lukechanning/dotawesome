@@ -92,10 +92,10 @@ binds {
     Mod+Ctrl+Shift+J { move-window-to-monitor-down; }
     Mod+Ctrl+Shift+K { move-window-to-monitor-up; }
     Mod+Ctrl+Shift+L { move-window-to-monitor-right; }
-    Mod+1 { focus-workspace "One"; }
-    Mod+2 { focus-workspace "Two"; }
-    Mod+Shift+1 { move-window-to-workspace "One"; }
-    Mod+Shift+2 { move-window-to-workspace "Two"; }
+    Mod+1 { focus-workspace "1"; }
+    Mod+2 { focus-workspace "2"; }
+    Mod+Shift+1 { move-window-to-workspace "1"; }
+    Mod+Shift+2 { move-window-to-workspace "2"; }
     Mod+Shift+Q { close-window; }
     Mod+F { fullscreen-window; }
     Mod+Shift+Space { toggle-window-floating; }

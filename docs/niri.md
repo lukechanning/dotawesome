@@ -74,7 +74,7 @@ All profiles share the ISO Shift remap, directional monitor shortcuts, and
 `components/niri/base.kdl`. Matching the monitor identity allows it to move between
 the G14 and desktop, or between ports. Resolution, refresh rate and placement
 remain automatic. Both `g14` and `desktop` prefer this monitor for named
-workspaces One and Two (Super+1/2); without it, Niri uses an available output.
+workspaces 1 and 2 (Super+1/2); without it, Niri uses an available output.
 The scale was tested live on the G14 at 1920×1080, 60 Hz.
 
 To try a different scale temporarily, use `niri msg output DP-3 scale 0.85`
@@ -102,7 +102,7 @@ connector-only identities are refused.
 | Keys | Action |
 | --- | --- |
 | Super+Enter / Super+Shift+Enter | Terminal / reuse or open work layout |
-| Super+1 / 2 | Workspace One / Two |
+| Super+1 / 2 | Workspace 1 / 2 |
 | Super+Shift+1 / 2 | Move window to workspace |
 | Super+H/J/K/L | Navigate columns/windows |
 | Super+Shift+H/J/K/L | Move columns/windows |
@@ -174,9 +174,8 @@ directly in the bar, without an outer navigation capsule consuming space. Multip
 windows of the same app share an icon; clicking cycles through those windows.
 The focused window has a jade dot. Empty inactive workspaces are hidden,
 including the trailing numbered workspace; active empty workspaces remain visible.
-Noctalia 5.2.1 displays numeric taskbar labels (`1`, `2`), while Niri's One/Two
-names and keyboard shortcuts remain unchanged. This is native taskbar behavior;
-the taskbar has no label-source setting in that release.
+Niri workspaces are named `1` and `2`, matching Noctalia's numeric taskbar labels
+and the Super+1/2 keyboard shortcuts.
 
 The grouped taskbar was checked in a disposable desktop at 2880×1800, scale 1.6,
 including shared app icons, separate populated workspaces, and an active empty

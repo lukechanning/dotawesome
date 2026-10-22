@@ -102,7 +102,7 @@ func (p Profile) Validate() error {
 		if _, e := argv(a.Command); e != nil {
 			return e
 		}
-		if (a.Workspace != "One" && a.Workspace != "Two") || !strings.Contains("|33%|50%|67%|100%|", "|"+a.Width+"|") || len(a.IDs) == 0 || a.Name == "" {
+		if (a.Workspace != "1" && a.Workspace != "2") || !strings.Contains("|33%|50%|67%|100%|", "|"+a.Width+"|") || len(a.IDs) == 0 || a.Name == "" {
 			return errors.New("invalid work app workspace, width, name or exact app_ids")
 		}
 		for _, s := range a.IDs {
@@ -229,7 +229,7 @@ func Render(m *deploy.Manager, name, profile string, helper []byte) (deploy.File
 	if p.External != nil {
 		prefer = p.External.Identity
 	}
-	for _, w := range []string{"One", "Two"} {
+	for _, w := range []string{"1", "2"} {
 		rule := ""
 		if prefer != "" {
 			rule = " open-on-output " + quote(prefer) + "; "
