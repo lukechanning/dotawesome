@@ -2,7 +2,9 @@
 
 Architectural Jade, refined: graphite surfaces, muted jade accents, broad workspace
 tabs, and coordinated window framing. Existing wallpaper
-files and selections stay local. App themes and KDE preferences are independent.
+selections stay local. The two reference images are preserved in
+`components/niri/wallpapers`; see its README to install them in `~/Pictures`.
+App themes and KDE preferences are independent.
 
 ## Apply
 
@@ -197,7 +199,10 @@ settings are independent of this design.
 
 Use `--profile desktop` for Alacritty and the shared browser/workspace setup.
 GPU and displays are automatic pending monitor identity/mode capture; no G14
-DRM path, laptop output or local wallpaper is inherited.
+DRM path or laptop output is inherited. Like the G14, the wallpaper defaults to
+`~/Pictures/Path.jpg`, with `~/Pictures/OneStandsOut.jpg` as another favorite.
+Install the bundled copies from `components/niri/wallpapers` into `~/Pictures`
+before applying the profile; missing files use the dark fallback.
 Like the G14, the desktop profile reuses KDE's Secret portal and pins Vivaldi and
 Signal to `kwallet6` across both sessions. KDE/KWallet must already be installed;
 wallet contents and credentials remain local. After a normal apply with Niri
