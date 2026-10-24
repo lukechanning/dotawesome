@@ -51,6 +51,27 @@ func TestToolbarMatchesMachineProfile(t *testing.T) {
 	}
 }
 
+func TestNiriBindsKeyboardBacklightKeys(t *testing.T) {
+	repo, _ := filepath.Abs("../..")
+	m := deploy.New(repo, t.TempDir())
+	for _, profile := range []string{"generic", "g14", "desktop"} {
+		files, err := Render(m, "niri", profile, []byte("helper"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		config := string(files[filepath.Join(m.Config, "niri/config.kdl")].Bytes())
+		for key, command := range map[string]string{
+			"XF86KbdBrightnessUp":   "keyboard-backlight-up",
+			"XF86KbdBrightnessDown": "keyboard-backlight-down",
+		} {
+			want := key + ` allow-when-locked=true { spawn "noctalia" "msg" "` + command + `"; }`
+			if !strings.Contains(config, want) {
+				t.Errorf("%s: missing %s binding", profile, key)
+			}
+		}
+	}
+}
+
 func TestJumpMenuUsesProfileIDsAndQuotesHelperPath(t *testing.T) {
 	repo, _ := filepath.Abs("../..")
 	m := deploy.New(repo, filepath.Join(t.TempDir(), "home 'quoted' $literal"))

@@ -118,6 +118,7 @@ connector-only identities are refused.
 | Super+Shift+S / Print | Screenshot UI |
 | Super+Alt+L / Super+Shift+E | Lock / confirmed logout |
 | Super+Shift+Q | Close window |
+| Keyboard backlight up / down keys | Adjust keyboard backlight one level |
 
 Press **Super+G**, release both keys, then press a **lowercase** `s`, `b`, `t`,
 or `/`. The small jade menu closes after selection, and typing resumes in the
