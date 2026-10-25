@@ -4,9 +4,8 @@ terminal = ["alacritty"]
 secret_portal = "kwallet"
 vivaldi_password_store = "kwallet6"
 signal_password_store = "kwallet6"
-preferred_output = "PNP(AOC) 27B36X XI7S4HA042988"
 # GPU and output modes use automatic selection.
-# Shared AOC scale, keyboard remap and monitor shortcuts come from base.kdl.
+# Shared keyboard remap and monitor shortcuts come from base.kdl.
 
 # Use the same local wallpaper as the G14; image data stays outside the repo.
 [wallpaper]

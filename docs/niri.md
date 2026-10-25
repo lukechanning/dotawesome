@@ -69,17 +69,11 @@ G14 references `~/Pictures/Path.jpg` and `~/Pictures/OneStandsOut.jpg`; images a
 not managed or copied. Missing images produce warnings and a dark fallback.
 GUI overrides take precedence and are reported by `status`.
 
-All profiles share the ISO Shift remap, directional monitor shortcuts, and
-**85% scale** for the desk monitor `PNP(AOC) 27B36X XI7S4HA042988` in
-`components/niri/base.kdl`. Matching the monitor identity allows it to move between
-the G14 and desktop, or between ports. Resolution, refresh rate and placement
-remain automatic. Both `g14` and `desktop` prefer this monitor for named
-workspaces 1 and 2 (Super+1/2); without it, Niri uses an available output.
-The scale was tested live on the G14 at 1920×1080, 60 Hz.
-
-To try a different scale temporarily, use `niri msg output DP-3 scale 0.85`
-with the connector reported by `niri msg outputs`. Update the shared base to
-persist an agreed scale on both machines.
+All profiles share the ISO Shift remap and directional monitor shortcuts.
+External monitors use Niri's automatic scale, resolution, refresh rate and
+placement. The desktop workspaces 1 and 2 (Super+1/2) use an available output;
+the G14 prefers its built-in display. Neither profile references the retired
+AOC monitor. Ultrawide outputs need no overrides.
 
 Pinning a mode and workspace/output placement still requires identity/modes captured with
 `niri msg --json outputs` through both dock HDMI and direct HDMI. Copy the G14

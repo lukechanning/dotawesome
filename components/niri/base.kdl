@@ -9,11 +9,6 @@ input {
     touchpad { tap; natural-scroll; }
     mouse { natural-scroll; }
 }
-// Shared desk monitor: match its identity across machines and connectors.
-// Leave mode and placement automatic; only persist the tested scale.
-output "PNP(AOC) 27B36X XI7S4HA042988" {
-    scale 0.85
-}
 layout {
     gaps 8
     background-color "#161821"
