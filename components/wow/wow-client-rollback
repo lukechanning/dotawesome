@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+snapshot=$WOW_ROOT/client/patches/hd-last-good
+[ -d "$snapshot" ] || { echo "wow: no last-good HD snapshot exists" >&2; exit 1; }
+[ ! -e "$WOW_ROOT/client/hd" ] || { echo "wow: move the current HD client aside before rollback" >&2; exit 1; }
+cp -a --reflink=auto "$snapshot" "$WOW_ROOT/client/hd"

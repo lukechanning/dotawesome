@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+load_realm_env
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+target=$WOW_ROOT/server/backups/radium-wow-$stamp.sql.gz
+umask 077
+compose exec -T ac-database mysqldump -uroot "-p$WOW_DB_ROOT_PASSWORD" \
+	--single-transaction --routines --events --all-databases | gzip -9 > "$target"
+gzip -t "$target"
+echo "$target"

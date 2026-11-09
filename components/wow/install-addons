@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+
+target=$WOW_ROOT/client/hd/Interface/AddOns
+sources=$WOW_ROOT/source/addons
+[ -f "$WOW_ROOT/client/hd/Wow-hd.exe" ] || { echo "wow: build the HD client before installing addons" >&2; exit 1; }
+mkdir -p "$target"
+
+copy_tree() {
+	source=$1 destination=$2
+	mkdir -p "$destination"
+	rsync -a --delete --exclude=.git "$source/" "$destination/"
+}
+
+for addon in "$sources/ConsolePortLK"/*; do
+	[ -d "$addon" ] && find "$addon" -maxdepth 1 -name '*.toc' -print -quit | grep -q . || continue
+	copy_tree "$addon" "$target/$(basename "$addon")"
+done
+copy_tree "$sources/DialogUI-WotLK" "$target/DialogUI"
+copy_tree "$sources/MultiBot" "$target/MultiBot"
+copy_tree "$sources/Chatter-Companion" "$target/Chatter"
+for suite in AtlasLootEnhanced DBM-Warmane; do
+	for addon in "$sources/$suite"/*; do
+		[ -d "$addon" ] && find "$addon" -maxdepth 1 -name '*.toc' -print -quit | grep -q . || continue
+		copy_tree "$addon" "$target/$(basename "$addon")"
+	done
+done
+
+echo "wow: pinned 3.3.5a addons installed in $target"

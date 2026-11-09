@@ -1,0 +1,111 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+load_realm_env
+
+source_root=$WOW_ROOT/source/azerothcore-wotlk
+target=$WOW_ROOT/server/config
+modules=$target/modules
+mkdir -p "$modules" "$target/mysql" "$WOW_ROOT/build/client-data" "$WOW_ROOT/build/pip-cache"
+
+install -m 0644 "$source_root/src/server/apps/authserver/authserver.conf.dist" "$target/authserver.conf"
+install -m 0644 "$source_root/src/server/apps/worldserver/worldserver.conf.dist" "$target/worldserver.conf"
+for dist in "$source_root"/modules/mod-*/conf/*.conf.dist; do
+	[ -f "$dist" ] || continue
+	name=$(basename "$dist" .dist)
+	install -m 0644 "$dist" "$modules/$name"
+done
+
+set_value() {
+	file=$1 key=$2 value=$3
+	escaped=$(printf '%s' "$key" | sed 's/[][\\.^$*+?|(){}]/\\&/g')
+	if grep -Eq "^$escaped[[:space:]]*=" "$file"; then
+		sed -i -E "s|^$escaped[[:space:]]*=.*|$key = $value|" "$file"
+	else
+		printf '\n%s = %s\n' "$key" "$value" >> "$file"
+	fi
+}
+
+world=$target/worldserver.conf
+set_value "$world" MapUpdate.Threads 6
+set_value "$world" MinDualSpecLevel 30
+set_value "$world" NoResetTalentsCost 1
+set_value "$world" MailDeliveryDelay 0
+set_value "$world" Death.CorpseReclaimDelay.PvP 0
+set_value "$world" Death.CorpseReclaimDelay.PvE 0
+set_value "$world" Rate.XP.Kill 1
+set_value "$world" Rate.XP.Quest 1
+set_value "$world" Rate.XP.Explore 1
+set_value "$world" Rate.Reputation.Gain 1
+set_value "$world" Rate.Drop.Money 1
+
+players=$modules/playerbots.conf
+set_value "$players" Playerbots.MinRandomBots 3000
+set_value "$players" Playerbots.MaxRandomBots 4000
+set_value "$players" Playerbots.RandomBotAccountCount 460
+set_value "$players" Playerbots.AddClassAccountPoolSize 60
+set_value "$players" Playerbots.RandomBotCountMode 1
+set_value "$players" Playerbots.RandomBotsPerInterval 200
+set_value "$players" Playerbots.DisabledWithoutRealPlayer 1
+set_value "$players" Playerbots.BotActiveAlone 10
+set_value "$players" Playerbots.botActiveAloneSmartScale 1
+set_value "$players" Playerbots.RandomBotTalk 0
+set_value "$players" Playerbots.RandomBotEmote 0
+set_value "$players" Playerbots.RandomBotSuggestDungeons 0
+set_value "$players" Playerbots.EnableGreet 0
+set_value "$players" Playerbots.RandomBotSayWithoutMaster 0
+set_value "$players" Playerbots.LevelBrackets.Enabled 1
+set_value "$players" Playerbots.LevelBrackets.Dynamic.UseDynamicDistribution 1
+set_value "$players" Playerbots.LevelBrackets.Dynamic.RealPlayerWeight 3.0
+set_value "$players" Playerbots.LevelBrackets.Dynamic.SyncFactions 1
+for faction in Alliance Horde; do
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range1.Pct" 7
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range2.Pct" 10
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range3.Pct" 10
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range4.Pct" 10
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range5.Pct" 10
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range6.Pct" 10
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range7.Pct" 13
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range8.Pct" 15
+	set_value "$players" "Playerbots.LevelBrackets.$faction.Range9.Pct" 15
+done
+
+set_value "$modules/mod_aoe_loot.conf" AOELoot.Group 0
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.EnableSeller 1
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.EnableBuyer 1
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.ItemsPerCycle 500
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.Bind_When_Picked_Up 0
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.Bind_Quest_Item 0
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.DisableConjured 1
+set_value "$modules/mod_ahbot.conf" AuctionHouseBot.DisableKeys 1
+
+chatter=$modules/mod_llm_chatter.conf
+set_value "$chatter" LLMChatter.Provider openrouter
+set_value "$chatter" LLMChatter.Model mistralai/mistral-nemo
+set_value "$chatter" LLMChatter.LabelModel openai/gpt-6-luna
+set_value "$chatter" LLMChatter.LabelModel.Labels 'general_player_msg,general_followup,group_player_msg_conv,player_msg_conv,proximity_reply,proximity_player_conversation,guild_player_message'
+set_value "$chatter" LLMChatter.OpenRouter.ApiKey "$OPENROUTER_API_KEY"
+set_value "$chatter" LLMChatter.Database.Host ac-database
+set_value "$chatter" LLMChatter.Database.Port 3306
+set_value "$chatter" LLMChatter.Database.User root
+set_value "$chatter" LLMChatter.Database.Password "$WOW_DB_ROOT_PASSWORD"
+set_value "$chatter" LLMChatter.Database.Name acore_characters
+set_value "$chatter" LLMChatter.TriggerIntervalSeconds 90
+set_value "$chatter" LLMChatter.TriggerChance 6
+set_value "$chatter" LLMChatter.ConversationChance 15
+set_value "$chatter" LLMChatter.ChatHistoryLimit 6
+set_value "$chatter" LLMChatter.GeneralChat.HistoryLimit 8
+set_value "$chatter" LLMChatter.MaxBotsPerZone 2
+set_value "$chatter" LLMChatter.GroupChatter.IdleCheckInterval 90
+set_value "$chatter" LLMChatter.GroupChatter.IdleChance 8
+set_value "$chatter" LLMChatter.GroupChatter.IdleCooldown 180
+set_value "$chatter" LLMChatter.GroupChatter.KillChanceNormal 2
+set_value "$chatter" LLMChatter.GroupChatter.SpellCastChance 3
+set_value "$chatter" LLMChatter.GroupChatter.QuestAcceptChance 15
+set_value "$chatter" LLMChatter.GroupChatter.QuestObjectiveChance 10
+set_value "$chatter" LLMChatter.GroupChatter.QuestCompleteChance 30
+set_value "$chatter" LLMChatter.Screenshot.Enable 0
+
+chmod 0600 "$chatter"
+echo "wow: configuration generated in $target"

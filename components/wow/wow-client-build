@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+retail=${1:-${WOW_RETAIL_PATH:-/mnt/hive/NonSteam/Blizzard/battlenet/drive_c/Program Files (x86)/World of Warcraft}}
+[ -n "$retail" ] && [ -d "$retail" ] || { echo "Usage: wow client-build RETAIL_PATH" >&2; exit 2; }
+builder=$WOW_ROOT/source/wotlk-hd
+[ -d "$builder/.git" ] || { echo "wow: missing $builder" >&2; exit 1; }
+[ -f "$WOW_ROOT/client/base/Wow.exe" ] || { echo "wow: stock client is not ready" >&2; exit 1; }
+[ -f "$retail/_retail_/Wow.exe" ] || { echo "wow: Retail installation is incomplete: $retail" >&2; exit 1; }
+[ -S "${DOCKER_HOST#unix://}" ] || { echo "wow: rootless Docker is not running" >&2; exit 1; }
+if [ ! -f "$WOW_ROOT/client/hd/Wow.exe" ]; then
+	rsync -a --delete "$WOW_ROOT/client/base/" "$WOW_ROOT/client/hd/"
+	chmod -R u+w "$WOW_ROOT/client/hd"
+fi
+docker build --tag radium/wotlk-hd "${builder}"
+docker run --rm \
+	--volume "$builder:/src" \
+	--volume "$WOW_ROOT/client/hd:/wow" \
+	--volume "$retail:/retail" \
+	radium/wotlk-hd
+[ -f "$WOW_ROOT/client/hd/Wow-hd.exe" ]
+[ -f "$WOW_ROOT/client/hd/dinput8.dll" ]
+"$(dirname -- "$0")/install-addons"
+echo "wow: HD client built at $WOW_ROOT/client/hd"

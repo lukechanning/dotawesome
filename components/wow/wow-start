@@ -1,0 +1,23 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+load_realm_env
+if [ "${WOW_SERVICE_CONTEXT:-0}" != 1 ]; then
+	exec systemctl --user start radium-wow.service
+fi
+docker_ready=0
+for attempt in $(seq 1 30); do
+	if docker info >/dev/null 2>&1; then
+		docker_ready=1
+		break
+	fi
+	sleep 1
+done
+[ "$docker_ready" = 1 ] || { echo "wow: rootless Docker is not ready after 30 seconds ($DOCKER_HOST)" >&2; exit 1; }
+if [ "${OPENROUTER_API_KEY:-CHANGE_ME}" = CHANGE_ME ]; then
+	echo "wow: OpenRouter key is not configured; starting with LLM chatter disabled" >&2
+	compose up --detach --remove-orphans
+else
+	compose --profile chatter up --detach --remove-orphans
+fi

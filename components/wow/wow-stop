@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+load_realm_env
+if [ "${WOW_SERVICE_CONTEXT:-0}" != 1 ]; then
+	systemctl --user stop radium-wow.service
+	exec systemctl --user stop radium-wow-docker.service
+fi
+compose --profile chatter stop --timeout 10 ac-llm-chatter-bridge
+compose stop --timeout 120 ac-worldserver
+compose stop --timeout 30 ac-authserver ac-database

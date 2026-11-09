@@ -1,0 +1,162 @@
+name: radium-wow
+
+x-core-build: &core-build
+  context: /mnt/hive/WoW/source/azerothcore-wotlk
+  dockerfile: apps/docker/Dockerfile
+  args:
+    USER_ID: "1000"
+    GROUP_ID: "1000"
+    DOCKER_USER: acore
+    CTYPE: Release
+    CTOOLS_BUILD: all
+
+x-core-environment: &core-environment
+  AC_DATA_DIR: /azerothcore/env/dist/data
+  AC_LOGS_DIR: /azerothcore/env/dist/logs
+  AC_TEMP_DIR: /azerothcore/env/dist/temp
+  AC_LOGIN_DATABASE_INFO: ac-database;3306;root;${WOW_DB_ROOT_PASSWORD};acore_auth
+  AC_WORLD_DATABASE_INFO: ac-database;3306;root;${WOW_DB_ROOT_PASSWORD};acore_world
+  AC_CHARACTER_DATABASE_INFO: ac-database;3306;root;${WOW_DB_ROOT_PASSWORD};acore_characters
+  AC_PLAYERBOTS_DATABASE_INFO: ac-database;3306;root;${WOW_DB_ROOT_PASSWORD};acore_playerbots
+
+services:
+  ac-database:
+    image: mysql:8.4
+    command:
+      - --disable-log-bin
+      - --innodb-buffer-pool-size=16G
+      - --innodb-buffer-pool-instances=8
+      - --max-connections=500
+      - --skip-name-resolve
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WOW_DB_ROOT_PASSWORD}
+    volumes:
+      - /mnt/hive/WoW/server/database:/var/lib/mysql
+      - /mnt/hive/WoW/server/config/mysql:/etc/mysql/conf.d:ro
+    networks: [realm]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${WOW_DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 10s
+      retries: 60
+
+  ac-db-import:
+    image: radium/ac-wotlk-db-import:${WOW_IMAGE_TAG}
+    user: "0:0"
+    build:
+      <<: *core-build
+      target: db-import
+    environment: *core-environment
+    volumes:
+      - /mnt/hive/WoW/server/config:/azerothcore/env/dist/etc
+      - /mnt/hive/WoW/server/logs:/azerothcore/env/dist/logs
+    networks: [realm]
+    depends_on:
+      ac-database:
+        condition: service_healthy
+    restart: "no"
+
+  ac-client-data-init:
+    image: radium/ac-wotlk-client-data:${WOW_IMAGE_TAG}
+    user: "0:0"
+    build:
+      <<: *core-build
+      target: client-data
+    volumes:
+      - /mnt/hive/WoW/build/client-data:/azerothcore/env/dist/data
+    restart: "no"
+
+  ac-realm-config:
+    image: mysql:8.4
+    environment:
+      MYSQL_PWD: ${WOW_DB_ROOT_PASSWORD}
+    command:
+      - mysql
+      - -h
+      - ac-database
+      - -uroot
+      - acore_auth
+      - -e
+      - >-
+        UPDATE realmlist SET name='Radium', address='${WOW_TAILSCALE_IP}',
+        localAddress='${WOW_TAILSCALE_IP}', localSubnetMask='255.255.255.0',
+        port=8085, flag=0 WHERE id=1;
+    networks: [realm]
+    restart: "no"
+    depends_on:
+      ac-database:
+        condition: service_healthy
+      ac-db-import:
+        condition: service_completed_successfully
+
+  ac-authserver:
+    image: radium/ac-wotlk-authserver:${WOW_IMAGE_TAG}
+    user: "0:0"
+    build:
+      <<: *core-build
+      target: authserver
+    environment: *core-environment
+    ports:
+      - ${WOW_TAILSCALE_IP}:3724:3724
+    volumes:
+      - /mnt/hive/WoW/server/config:/azerothcore/env/dist/etc
+      - /mnt/hive/WoW/server/logs:/azerothcore/env/dist/logs
+    networks: [realm]
+    restart: unless-stopped
+    depends_on:
+      ac-database:
+        condition: service_healthy
+      ac-realm-config:
+        condition: service_completed_successfully
+
+  ac-worldserver:
+    image: radium/ac-wotlk-worldserver:${WOW_IMAGE_TAG}
+    user: "0:0"
+    build:
+      <<: *core-build
+      target: worldserver
+    environment: *core-environment
+    ports:
+      - ${WOW_TAILSCALE_IP}:8085:8085
+    volumes:
+      - /mnt/hive/WoW/server/config:/azerothcore/env/dist/etc
+      - /mnt/hive/WoW/server/logs:/azerothcore/env/dist/logs
+      - /mnt/hive/WoW/build/client-data:/azerothcore/env/dist/data:ro
+      # The upstream runtime image omits Playerbots' first-run SQL even though
+      # worldserver populates acore_playerbots from this exact path.
+      - /mnt/hive/WoW/source/azerothcore-wotlk/modules/mod-playerbots:/azerothcore/modules/mod-playerbots:ro
+    networks: [realm]
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    depends_on:
+      ac-database:
+        condition: service_healthy
+      ac-realm-config:
+        condition: service_completed_successfully
+      ac-client-data-init:
+        condition: service_completed_successfully
+
+  ac-llm-chatter-bridge:
+    image: python:3.11-slim
+    working_dir: /app
+    command: >-
+      bash -c "pip install --quiet --cache-dir /pip-cache -r requirements.txt &&
+      exec python llm_chatter_bridge.py --config /config/mod_llm_chatter.conf"
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - /mnt/hive/WoW/source/azerothcore-wotlk/modules/mod-llm-chatter/tools:/app:ro
+      - /mnt/hive/WoW/server/config/modules:/config:ro
+      - /mnt/hive/WoW/build/pip-cache:/pip-cache
+    networks: [realm]
+    restart: unless-stopped
+    depends_on:
+      ac-worldserver:
+        condition: service_started
+    profiles: [chatter]
+
+networks:
+  realm:
+    internal: false

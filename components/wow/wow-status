@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+printf 'storage: '
+df -h "$WOW_ROOT" | tail -n 1
+printf 'client:  '
+if [ -f "$WOW_ROOT/client/downloads/ChromieCraft_3.3.5a.zip" ]; then
+	ls -lh "$WOW_ROOT/client/downloads/ChromieCraft_3.3.5a.zip" | awk '{print $5, $9}'
+else
+	echo not downloaded
+fi
+if [ -S "${DOCKER_HOST#unix://}" ] && [ -r "$WOW_ENV" ]; then
+	load_realm_env
+	compose ps
+else
+	echo "realm: rootless Docker is not running"
+fi
+if env DOCKER_HOST=unix:///var/run/docker.sock docker inspect radium-wow-client-fetch >/dev/null 2>&1; then
+	env DOCKER_HOST=unix:///var/run/docker.sock docker logs --tail 2 radium-wow-client-fetch 2>&1 || true
+fi

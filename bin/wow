@@ -1,0 +1,54 @@
+#!/bin/sh
+set -eu
+
+wow_root=${WOW_ROOT:-/mnt/hive/WoW}
+repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+usage() {
+	cat <<'EOF'
+Usage: wow COMMAND [ARG]
+
+Commands:
+  layout           Create and verify the /mnt/hive/WoW storage layout
+  start            Start the Radium WoW realm
+  stop             Gracefully stop the Radium WoW realm
+  status           Show realm, storage, and client status
+  play             Start the realm, then the Steam Headless desktop
+  backup           Create a timestamped database backup
+  restore FILE     Restore a database backup (realm must be stopped)
+  client-fetch     Resume, verify, and extract the stock 3.3.5a client
+  client-build     Build or resume the separate HD client
+  client-rollback  Restore the last known-good HD client snapshot
+EOF
+}
+
+require_safe_root() {
+	if [ "${WOW_TEST_MODE:-0}" = 1 ]; then
+		return
+	fi
+	case "$wow_root" in
+		/mnt/hive/WoW|/mnt/hive/WoW/*) ;;
+		*) echo "wow: WOW_ROOT must be beneath /mnt/hive/WoW" >&2; exit 1 ;;
+	esac
+}
+
+layout() {
+	require_safe_root
+	mkdir -p \
+		"$wow_root/client/downloads" "$wow_root/client/base" "$wow_root/client/hd" \
+		"$wow_root/client/retail-cache" "$wow_root/client/patches" \
+		"$wow_root/server/database" "$wow_root/server/backups" \
+		"$wow_root/server/logs" "$wow_root/server/config" \
+		"$wow_root/source" "$wow_root/build" "$wow_root/docker" "$wow_root/tmp"
+}
+
+command=${1:-help}
+case "$command" in
+	help|-h|--help) usage ;;
+	layout) layout ;;
+	start|stop|status|play|backup|restore|client-fetch|client-build|client-rollback)
+		require_safe_root
+		exec "$repo/components/wow/wow-$command" "${2:-}"
+		;;
+	*) echo "wow: unknown command: $command" >&2; usage >&2; exit 2 ;;
+esac

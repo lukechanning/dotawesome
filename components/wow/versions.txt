@@ -1,0 +1,17 @@
+# Reproducible source revisions first installed on 2026-11-07. Checkouts under
+# /mnt/hive/WoW/source are disposable realizations of these authoritative pins.
+azerothcore-wotlk e7e2e288e7d9
+mod-playerbots 405f81196161
+mod-multibot-bridge 9f0e8ba767c6
+mod-ah-bot c11d8318cbd8
+mod-transmog d309745c9151
+mod-aoe-loot 957f9a1a6861
+mod-reagent-bank 62c265338ceb
+mod-llm-chatter a6869b0ef3ac
+wotlk-hd 1e0f4d739a89
+ConsolePortLK 994793729ca4
+DialogUI-WotLK 505c5ff941f2
+MultiBot-Chatless 020210ba849c
+Chatter-Companion 24b373c20003
+AtlasLootEnhanced 209008f8678f
+DBM-Warmane 6f2f76e7af66

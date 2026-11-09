@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+load_realm_env
+backup=${1:-}
+case "$backup" in
+	"$WOW_ROOT"/server/backups/*.sql.gz) ;;
+	*) echo "Usage: wow restore $WOW_ROOT/server/backups/FILE.sql.gz" >&2; exit 2;;
+esac
+[ -f "$backup" ] || { echo "wow: backup does not exist: $backup" >&2; exit 1; }
+gzip -t "$backup"
+running=$(compose ps --status running --services)
+if printf '%s\n' "$running" | grep -Eq 'ac-(worldserver|authserver)'; then
+	echo "wow: stop the realm before restoring a backup" >&2
+	exit 1
+fi
+gzip -dc "$backup" | compose exec -T ac-database mysql -uroot "-p$WOW_DB_ROOT_PASSWORD"

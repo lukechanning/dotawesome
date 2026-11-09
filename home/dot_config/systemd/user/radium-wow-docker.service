@@ -1,0 +1,18 @@
+[Unit]
+Description=Rootless Docker daemon for Radium WoW
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=PATH=/mnt/hive/WoW/tools/rootless/usr/bin:/usr/bin
+Environment=LD_LIBRARY_PATH=/mnt/hive/WoW/tools/rootless/usr/lib
+Environment=DOCKERD_ROOTLESS_ROOTLESSKIT_STATE_DIR=/mnt/hive/WoW/tmp/rootlesskit
+Environment=TMPDIR=/mnt/hive/WoW/tmp
+ExecStartPre=/usr/bin/test -w /mnt/hive/WoW/docker
+ExecStart=/mnt/hive/WoW/tools/rootless/usr/bin/dockerd-rootless.sh --data-root=/mnt/hive/WoW/docker --exec-root=/mnt/hive/WoW/tmp/docker-exec --host=unix:///run/user/%U/radium-wow-docker.sock
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target

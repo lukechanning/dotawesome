@@ -1,0 +1,18 @@
+[Unit]
+Description=Radium AzerothCore couch realm
+After=network-online.target radium-wow-docker.service
+Wants=network-online.target
+Requires=radium-wow-docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=WOW_ROOT=/mnt/hive/WoW
+Environment=WOW_SERVICE_CONTEXT=1
+ExecStart=%h/Code/dotawesome/bin/wow start
+ExecStop=%h/Code/dotawesome/bin/wow stop
+TimeoutStartSec=1800
+TimeoutStopSec=180
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+. "$(dirname -- "$0")/common.sh"
+require_radium
+archive=${WOW_CLIENT_ARCHIVE:-}
+[ -n "$archive" ] || {
+	echo "wow: set WOW_CLIENT_ARCHIVE to a lawfully obtained compatible client archive" >&2
+	exit 2
+}
+[ -f "$archive" ] || { echo "wow: client archive does not exist: $archive" >&2; exit 1; }
+torrent=$archive.torrent
+[ -f "$torrent" ] || { echo "wow: missing $torrent" >&2; exit 1; }
+if env DOCKER_HOST=unix:///var/run/docker.sock docker inspect radium-wow-client-fetch >/dev/null 2>&1; then
+	state=$(env DOCKER_HOST=unix:///var/run/docker.sock docker inspect --format '{{.State.Status}}' radium-wow-client-fetch)
+	[ "$state" = exited ] || { env DOCKER_HOST=unix:///var/run/docker.sock docker logs --tail 5 radium-wow-client-fetch; exit 0; }
+	code=$(env DOCKER_HOST=unix:///var/run/docker.sock docker inspect --format '{{.State.ExitCode}}' radium-wow-client-fetch)
+	[ "$code" = 0 ] || { echo "wow: torrent sidecar failed with exit code $code" >&2; exit 1; }
+fi
+unzip -tq "$archive"
+sha256sum "$archive" | tee "$archive.sha256"
+[ ! -e "$WOW_ROOT/client/base/Wow.exe" ] || { echo "wow: immutable base already exists" >&2; exit 0; }
+stage=$WOW_ROOT/tmp/client-base
+mkdir -p "$stage"
+unzip -q "$archive" -d "$stage"
+wow_exe=$(find "$stage" -type f -iname Wow.exe -print -quit)
+[ -n "$wow_exe" ] || { echo "wow: archive contains no Wow.exe" >&2; exit 1; }
+client_root=$(dirname -- "$wow_exe")
+cp -a "$client_root"/. "$WOW_ROOT/client/base"/
+chmod -R a-w "$WOW_ROOT/client/base"
+echo "wow: stock client extracted and made read-only"
