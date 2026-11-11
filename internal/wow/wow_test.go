@@ -158,6 +158,61 @@ func TestComponentDocumentsAssetAndSecretBoundary(t *testing.T) {
 	}
 }
 
+func TestControllerEnhancementIsReproducibleWithoutVendoringGameFiles(t *testing.T) {
+	root := repoRoot(t)
+	versions, err := os.ReadFile(filepath.Join(root, "components", "wow", "versions.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, required := range []string{
+		"awesome-wotlk 6b5019a2f57e6e6defdc6a76b3052b4aa91811f2",
+		"awesome-wotlk-release v39",
+		"Immersion-WotLK e0b208b2ae38b3ccfd2b682689021bba7523395f",
+	} {
+		if !strings.Contains(string(versions), required) {
+			t.Errorf("version manifest is missing %q", required)
+		}
+	}
+
+	doc, err := os.ReadFile(filepath.Join(root, "components", "wow", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, required := range []string{
+		"noname08662/awesome_wotlk",
+		"Smart interaction",
+		"AzerothFFXIVController",
+		"Wow-hd.exe.pre-awesome",
+	} {
+		if !strings.Contains(string(doc), required) {
+			t.Errorf("WoW documentation is missing %q", required)
+		}
+	}
+}
+
+func TestAddonInstallRemovesRetiredCrossbarPreset(t *testing.T) {
+	b, err := os.ReadFile(filepath.Join(repoRoot(t), "components", "wow", "install-addons"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	script := string(b)
+	if !strings.Contains(script, "AzerothFFXIVController") {
+		t.Error("addon installer must remove the retired FFXIV controller preset")
+	}
+	if !strings.Contains(script, "ConsolePortLK") {
+		t.Error("addon installer must retain pinned ConsolePortLK")
+	}
+	if !strings.Contains(script, "INTERACTIONKEYBIND") {
+		t.Error("addon installer must bind the Xbox X button to Awesome smart interaction")
+	}
+	if !strings.Contains(script, "Immersion-WotLK") || !strings.Contains(script, "DialogUI") {
+		t.Error("addon installer must replace DialogUI with the pinned Immersion WotLK backport")
+	}
+	if !strings.Contains(script, `Logic\\Controller.lua`) {
+		t.Error("addon installer must repair Immersion's omitted ConsolePort controller loader")
+	}
+}
+
 func TestUserServicesAreIndependentFromGaming(t *testing.T) {
 	for _, name := range []string{"radium-wow-docker.service", "radium-wow.service"} {
 		b, err := os.ReadFile(filepath.Join(repoRoot(t), "home", "dot_config", "systemd", "user", name))

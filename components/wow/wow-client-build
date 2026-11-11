@@ -21,5 +21,15 @@ docker run --rm \
 	radium/wotlk-hd
 [ -f "$WOW_ROOT/client/hd/Wow-hd.exe" ]
 [ -f "$WOW_ROOT/client/hd/dinput8.dll" ]
+
+# Keep stock WotLK creature models while retaining WotLK-HD's renderer and interface.
+disabled_patches=$WOW_ROOT/client/patches/retail-creatures-disabled
+mkdir -p "$disabled_patches/Data/enUS"
+for patch in Data/patch-4.MPQ Data/enUS/patch-enUS-4.MPQ; do
+	if [ -f "$WOW_ROOT/client/hd/$patch" ]; then
+		mv -f "$WOW_ROOT/client/hd/$patch" "$disabled_patches/$patch"
+	fi
+done
+
 "$(dirname -- "$0")/install-addons"
 echo "wow: HD client built at $WOW_ROOT/client/hd"

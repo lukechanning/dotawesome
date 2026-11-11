@@ -41,9 +41,9 @@ set_value "$world" Rate.Reputation.Gain 1
 set_value "$world" Rate.Drop.Money 1
 
 players=$modules/playerbots.conf
-set_value "$players" Playerbots.MinRandomBots 3000
-set_value "$players" Playerbots.MaxRandomBots 4000
-set_value "$players" Playerbots.RandomBotAccountCount 460
+set_value "$players" Playerbots.MinRandomBots 4500
+set_value "$players" Playerbots.MaxRandomBots 5000
+set_value "$players" Playerbots.RandomBotAccountCount 560
 set_value "$players" Playerbots.AddClassAccountPoolSize 60
 set_value "$players" Playerbots.RandomBotCountMode 1
 set_value "$players" Playerbots.RandomBotsPerInterval 200

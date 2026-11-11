@@ -10,7 +10,10 @@ mod-reagent-bank 62c265338ceb
 mod-llm-chatter a6869b0ef3ac
 wotlk-hd 1e0f4d739a89
 ConsolePortLK 994793729ca4
+awesome-wotlk 6b5019a2f57e6e6defdc6a76b3052b4aa91811f2
+awesome-wotlk-release v39 sha256:9af53cde752d83c01b4fca507aba3b6c492269b279193a85d57fe9bd0941f7ce
 DialogUI-WotLK 505c5ff941f2
+Immersion-WotLK e0b208b2ae38b3ccfd2b682689021bba7523395f sha256:3a7849fc6734a03e9f378a1692123f682f5b783eb4938f358002d120bc90e35f
 MultiBot-Chatless 020210ba849c
 Chatter-Companion 24b373c20003
 AtlasLootEnhanced 209008f8678f
