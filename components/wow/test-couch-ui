@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+addon=$(dirname -- "$0")/addons/RadiumCouchUI
+
+test -f "$addon/RadiumCouchUI.toc"
+test -f "$addon/RadiumCouchUI.lua"
+grep -Fq '## Interface: 30300' "$addon/RadiumCouchUI.toc"
+grep -Fq 'ReserveBottom = 210' "$addon/RadiumCouchUI.lua"
+grep -Fq 'LayoutChat' "$addon/RadiumCouchUI.lua"
+grep -Fq 'LayoutNavigation' "$addon/RadiumCouchUI.lua"
+grep -Fq 'LayoutBags' "$addon/RadiumCouchUI.lua"
+grep -Fq 'FCF_SavePositionAndDimensions' "$addon/RadiumCouchUI.lua"
+grep -Fq 'ConsolePortBarPet' "$addon/RadiumCouchUI.lua"
+grep -Fq 'BindPetRing' "$addon/RadiumCouchUI.lua"
+grep -Fq 'CLICK ConsolePortBarPet:MiddleButton' "$addon/RadiumCouchUI.lua"
+grep -Fq 'CP_T_R3["SHIFT-"]' "$addon/RadiumCouchUI.lua"
+grep -Fq 'SetupImmersionController' "$addon/RadiumCouchUI.lua"
+grep -Fq 'SetOverrideBindingClick' "$addon/RadiumCouchUI.lua"
+grep -Fq 'LayoutImmersion' "$addon/RadiumCouchUI.lua"
+grep -Fq 'boxoffsetY = 205' "$addon/RadiumCouchUI.lua"

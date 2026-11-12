@@ -41,10 +41,13 @@ the latest verified database backup with `bin/wow restore FILE`.
 
 ## Controller and client enhancements
 
-The couch profile uses the pinned upstream ConsolePortLK Xbox layout. The former
-`AzerothFFXIVController` preset is intentionally removed by `install-addons` so
-client rebuilds cannot silently restore its custom crossbar, calibration, or UI
-placement.
+The couch profile uses the complete pinned upstream ConsolePortLK suite and its
+stock Xbox layout. The former `AzerothFFXIVController` preset is intentionally
+removed by `install-addons` so client rebuilds cannot silently restore its
+custom crossbar, calibration, or UI placement. The builder-provided `WotlkHD`
+UI addon is also removed: Radium retains `Wow-hd.exe` and `dinput8.dll` for the
+renderer enhancements, while ConsolePort alone owns action bars, bags, menus,
+loot, maps, and controller navigation.
 
 Smart interaction comes from the pinned
 [`noname08662/awesome_wotlk`](https://github.com/noname08662/awesome_wotlk)
@@ -70,11 +73,30 @@ The quest/gossip owner is the pinned 3.3.5a
 backport. `DialogUI` is removed during addon installation because the two addons
 replace the same Blizzard frames and must not be enabled together. Immersion's
 scale and placement remain user-profile settings; start with its stock layout at
-the existing 0.84 UI scale, then tune from `/immersion` after a controller test.
+the RP6-oriented 0.90 UI scale, then tune from `/immersion` after a controller
+test.
 The pinned 1.4.14 backport ships `Logic/Controller.lua` but omits it from its TOC;
 `install-addons` adds that existing upstream file to the load order after all UI
 frames, enabling its intended ConsolePort focus, hints, D-pad selection, and
 confirm/cancel handling without carrying a fork.
+
+`RadiumCouchUI` is the small first-party handheld layout layer installed after
+ConsolePort and Immersion. It does not add another action bar or input system.
+It reserves the lower screen for ConsolePort, moves chat to the upper-left,
+enlarges the minimap and objective tracker, anchors ordinary tooltips away from
+the controller bar, and stacks open bags above the reserved controller region.
+The layout targets the RP6's 1920x1080 six-inch display and deliberately keeps
+all gameplay behavior in the stock addons. During normal gameplay, LT plus
+right-stick click holds ConsolePort's pet-command ring. Plain right-stick click
+retains its mouse-mode and contextual right-click behavior. An existing custom
+LT plus right-stick binding is never overwritten.
+
+The companion addon also bridges an input-registration gap between the pinned
+Immersion backport and ConsolePortLK. While Immersion is visible, face buttons
+and the D-pad are routed to Immersion's existing accept, cancel, text, reward,
+and selection handlers; hiding Immersion immediately restores gameplay input.
+The conversation box is raised 55 UI points above Immersion's default to clear
+the controller action region without changing its scale.
 
 Rollback consists of restoring `Wow-hd.exe.pre-awesome`, removing
 `AwesomeWotlkLib.dll` and `AwesomeCVar`, and restoring the timestamped WTF backup

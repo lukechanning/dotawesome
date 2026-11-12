@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title: Radium Couch UI
+## Notes: Handheld layout for the Radium RP6 client
+## Author: Radium
+## Version: 1.1.0
+## RequiredDeps: ConsolePort, ConsolePortBar
+## OptionalDeps: Immersion
+
+RadiumCouchUI.lua

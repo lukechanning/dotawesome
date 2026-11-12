@@ -13,6 +13,12 @@ mkdir -p "$target"
 # profile. Keep rebuilds from resurrecting the retired preset.
 rm -rf "$target/AzerothFFXIVController"
 
+# The wotlk-hd builder also installs a Retail-style UI addon. Its action bars,
+# bags, map, and unit frames compete with ConsolePortLK for the same protected
+# frames. Radium uses only the patched executable and renderer DLL, so keep the
+# WotlkHD addon outside the loadable addon tree.
+rm -rf "$target/WotlkHD"
+
 copy_tree() {
 	source=$1 destination=$2
 	mkdir -p "$destination"
@@ -53,6 +59,11 @@ immersion_toc=$target/Immersion/Immersion.toc
 if ! grep -Fq 'Logic\Controller.lua' "$immersion_toc"; then
 	sed -i '$aLogic\\Controller.lua' "$immersion_toc"
 fi
+
+# Radium's small first-party layout layer keeps stock ConsolePort behavior while
+# reserving comfortable screen regions for the RP6. It contains no game assets.
+copy_tree "$(dirname -- "$0")/addons/RadiumCouchUI" "$target/RadiumCouchUI"
+
 copy_tree "$sources/MultiBot" "$target/MultiBot"
 copy_tree "$sources/Chatter-Companion" "$target/Chatter"
 for suite in AtlasLootEnhanced DBM-Warmane; do
