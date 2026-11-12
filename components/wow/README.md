@@ -104,6 +104,10 @@ labels and keeps the saved positions across launches; `/rcui reset` restores the
 RP6 defaults. ConsolePort's internal button/cluster geometry remains configurable
 through `/cp`.
 
+The RP6 profile uses the client's maximum `uiScale` of 1.00 plus a conservative
+1.04 UIParent scale from `RadiumCouchUI`. This makes the stock interface about
+15.6% larger than the former 0.90 baseline while retaining the 1920x1080 render.
+
 Rollback consists of restoring `Wow-hd.exe.pre-awesome`, removing
 `AwesomeWotlkLib.dll` and `AwesomeCVar`, and restoring the timestamped WTF backup
 stored beside the client backups on Hive. No Blizzard software or Awesome WotLK

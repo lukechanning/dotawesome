@@ -26,6 +26,12 @@ local function ApplySavedPosition(id, frame)
 	Place(frame, "CENTER", UIParent, "BOTTOMLEFT", position.x, position.y)
 end
 
+function Addon:ApplyUIScale()
+	SetCVar("useUiScale", "1")
+	SetCVar("uiScale", "1.0")
+	UIParent:SetScale(1.04)
+end
+
 function Addon:LayoutChat()
 	local chat = ChatFrame1
 	if not chat then return end
@@ -350,6 +356,7 @@ end)
 Addon:SetScript("OnEvent", function(self, event, name)
 	if event == "ADDON_LOADED" and name ~= "RadiumCouchUI" then return end
 
+	self:ApplyUIScale()
 	self:LayoutChat()
 	self:LayoutNavigation()
 	self:LayoutPetBar()
@@ -387,6 +394,7 @@ LateLayout:SetScript("OnUpdate", function(self, elapsed)
 	self.elapsed = (self.elapsed or 0) + elapsed
 	if self.elapsed < 1 then return end
 
+	Addon:ApplyUIScale()
 	Addon:LayoutChat()
 	Addon:LayoutNavigation()
 	Addon:LayoutPetBar()
