@@ -20,7 +20,16 @@ local function Place(frame, point, relative, relativePoint, x, y)
 	frame:SetPoint(point, relative, relativePoint, x, y)
 end
 
+local RuntimeDefaults = {}
+
 local function ApplySavedPosition(id, frame)
+	if frame and not RuntimeDefaults[id] then
+		local point, relative, relativePoint, x, y = frame:GetPoint()
+		RuntimeDefaults[id] = {
+			point = point, relative = relative or UIParent,
+			relativePoint = relativePoint, x = x, y = y,
+		}
+	end
 	local position = GetConfig().positions[id]
 	if not frame or not position then return end
 	Place(frame, "CENTER", UIParent, "BOTTOMLEFT", position.x, position.y)
@@ -207,9 +216,32 @@ function Addon:LayoutControllerBar()
 	ApplySavedPosition("controller", ConsolePortBar)
 end
 
+function Addon:LayoutPlayerStatus()
+	ApplySavedPosition("player", PlayerFrame)
+	ApplySavedPosition("auras", BuffFrame)
+end
+
 
 local function Print(message)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff70d5ffRadium Couch UI:|r " .. message)
+end
+
+function Addon:SaveEditorMove(handle, x, y, deltaX, deltaY)
+	local config = GetConfig()
+	if handle.target.id == "immersion" then
+		config.immersionX = (ImmersionSetup.boxoffsetX or 0) + deltaX
+		config.immersionY = (ImmersionSetup.boxoffsetY or self.DefaultImmersionY) + deltaY
+		self:LayoutImmersion()
+	else
+		config.positions[handle.target.id] = { x = x, y = y }
+		ApplySavedPosition(handle.target.id, handle.target.frame)
+		if handle.target.id == "chat" and type(FCF_SavePositionAndDimensions) == "function" then
+			FCF_SavePositionAndDimensions(ChatFrame1)
+		end
+	end
+
+	handle:ClearAllPoints()
+	handle:SetPoint("CENTER", handle.target.frame, "CENTER")
 end
 
 function Addon:SetupLayoutEditor()
@@ -220,6 +252,8 @@ function Addon:SetupLayoutEditor()
 		{ id = "chat", label = "Chat", frame = ChatFrame1 },
 		{ id = "minimap", label = "Minimap", frame = MinimapCluster },
 		{ id = "objectives", label = "Objectives", frame = tracker },
+		{ id = "player", label = "Player Status", frame = PlayerFrame },
+		{ id = "auras", label = "Buffs / Status", frame = BuffFrame },
 		{ id = "controller", label = "Controller Bar", frame = ConsolePortBar },
 		{ id = "pet", label = "Pet Bar", frame = ConsolePortBarPet },
 		{ id = "immersion", label = "Immersion", frame = ImmersionFrame and ImmersionFrame.TalkBox },
@@ -256,33 +290,71 @@ function Addon:SetupLayoutEditor()
 				self:StartMoving()
 			end)
 
-			handle:SetScript("OnDragStop", function(self)
-				self:StopMovingOrSizing()
+			handle:SetScript("OnDragStop", function(handle)
+				handle:StopMovingOrSizing()
 				if InCombatLockdown() then return end
-				local x, y = self:GetCenter()
-				if not x or not y or not self.startX or not self.startY then return end
-
-				local config = GetConfig()
-				if self.target.id == "immersion" then
-					config.immersionX = (ImmersionSetup.boxoffsetX or 0) + x - self.startX
-					config.immersionY = (ImmersionSetup.boxoffsetY or Addon.DefaultImmersionY) + y - self.startY
-					Addon:LayoutImmersion()
-				else
-					config.positions[self.target.id] = { x = x, y = y }
-					ApplySavedPosition(self.target.id, self.target.frame)
-					if self.target.id == "chat" and type(FCF_SavePositionAndDimensions) == "function" then
-						FCF_SavePositionAndDimensions(ChatFrame1)
-					end
-				end
-
-				self.startX, self.startY = nil, nil
-				self:ClearAllPoints()
-				self:SetPoint("CENTER", self.target.frame, "CENTER")
+				local x, y = handle:GetCenter()
+				if not x or not y or not handle.startX or not handle.startY then return end
+				Addon:SaveEditorMove(handle, x, y, x - handle.startX, y - handle.startY)
+				handle.startX, handle.startY = nil, nil
 			end)
 
 			handle:Hide()
 			self.LayoutHandles[#self.LayoutHandles + 1] = handle
 		end
+	end
+end
+
+function Addon:SelectEditorTarget(delta)
+	local count = #self.LayoutHandles
+	self.EditorIndex = ((self.EditorIndex or 1) - 1 + delta) % count + 1
+	for index, handle in ipairs(self.LayoutHandles) do
+		if index == self.EditorIndex then
+			handle:SetBackdropColor(0.55, 0.35, 0.05, 0.96)
+			handle:SetBackdropBorderColor(1, 0.82, 0.25, 1)
+		else
+			handle:SetBackdropColor(0.05, 0.35, 0.55, 0.92)
+			handle:SetBackdropBorderColor(0.4, 0.85, 1, 1)
+		end
+	end
+	Print("selected " .. self.LayoutHandles[self.EditorIndex].target.label .. ".")
+end
+
+function Addon:MoveSelectedTarget(deltaX, deltaY)
+	local handle = self.LayoutHandles and self.LayoutHandles[self.EditorIndex or 1]
+	if not handle then return end
+	local x, y = handle.target.frame:GetCenter()
+	if not x or not y then return end
+	self:SaveEditorMove(handle, x + deltaX, y + deltaY, deltaX, deltaY)
+end
+
+function Addon:EnableEditorBindings()
+	self.EditorInput = self.EditorInput or CreateFrame("Frame", "RadiumCouchUIEditorInput")
+	ClearOverrideBindings(self.EditorInput)
+
+	local commands = {
+		{ "CP_L_UP", function() Addon:MoveSelectedTarget(0, Addon.EditorFine and 2 or 10) end },
+		{ "CP_L_DOWN", function() Addon:MoveSelectedTarget(0, Addon.EditorFine and -2 or -10) end },
+		{ "CP_L_LEFT", function() Addon:MoveSelectedTarget(Addon.EditorFine and -2 or -10, 0) end },
+		{ "CP_L_RIGHT", function() Addon:MoveSelectedTarget(Addon.EditorFine and 2 or 10, 0) end },
+		{ "CP_T1", function() Addon:SelectEditorTarget(-1) end },
+		{ "CP_T2", function() Addon:SelectEditorTarget(1) end },
+		{ "CP_R_DOWN", function()
+			Addon.EditorFine = not Addon.EditorFine
+			Print(Addon.EditorFine and "fine movement: 2 points." or "coarse movement: 10 points.")
+		end },
+		{ "CP_R_RIGHT", function() Addon:LockLayout() end },
+	}
+
+	for index, command in ipairs(commands) do
+		local button = self.EditorInput[index]
+		if not button then
+			button = CreateFrame("Button", "RadiumCouchUIEditorButton" .. index, self.EditorInput)
+			self.EditorInput[index] = button
+		end
+		button:SetScript("OnClick", command[2])
+		local key = GetBindingKey(command[1])
+		if key then SetOverrideBindingClick(self.EditorInput, true, key, button:GetName(), "LeftButton") end
 	end
 end
 
@@ -297,11 +369,16 @@ function Addon:UnlockLayout()
 		handle:SetPoint("CENTER", handle.target.frame, "CENTER")
 		handle:Show()
 	end
-	Print("unlocked; drag the blue labels, then run /rcui lock.")
+	self.EditorIndex = 1
+	self.EditorFine = false
+	self:SelectEditorTarget(0)
+	self:EnableEditorBindings()
+	Print("LB/RB select; D-pad move; A fine/coarse; B save and lock.")
 end
 
 function Addon:LockLayout()
 	if not self.LayoutHandles then return end
+	if self.EditorInput and not InCombatLockdown() then ClearOverrideBindings(self.EditorInput) end
 	for _, handle in ipairs(self.LayoutHandles) do handle:Hide() end
 	Print("locked and saved.")
 end
@@ -315,10 +392,20 @@ function Addon:ResetLayout()
 	config.positions = {}
 	config.immersionX = nil
 	config.immersionY = nil
-	if ConsolePortBar then Place(ConsolePortBar, "BOTTOM", UIParent, "BOTTOM", 0, 0) end
+	for id, position in pairs(RuntimeDefaults) do
+		local frame = id == "chat" and ChatFrame1
+			or id == "minimap" and MinimapCluster
+			or id == "objectives" and (WatchFrame or ObjectiveTrackerFrame)
+			or id == "player" and PlayerFrame
+			or id == "auras" and BuffFrame
+			or id == "controller" and ConsolePortBar
+			or id == "pet" and ConsolePortBarPet
+		if frame then Place(frame, position.point, position.relative, position.relativePoint, position.x, position.y) end
+	end
 	self:LayoutChat()
 	self:LayoutNavigation()
 	self:LayoutPetBar()
+	self:LayoutPlayerStatus()
 	self:LayoutImmersion()
 	self:LockLayout()
 	Print("RP6 defaults restored.")
@@ -361,6 +448,7 @@ Addon:SetScript("OnEvent", function(self, event, name)
 	self:LayoutNavigation()
 	self:LayoutPetBar()
 	self:LayoutControllerBar()
+	self:LayoutPlayerStatus()
 	QueueBagLayout()
 	LateLayout.elapsed = 0
 	LateLayout:Show()
@@ -399,6 +487,7 @@ LateLayout:SetScript("OnUpdate", function(self, elapsed)
 	Addon:LayoutNavigation()
 	Addon:LayoutPetBar()
 	Addon:LayoutControllerBar()
+	Addon:LayoutPlayerStatus()
 	Addon:BindPetRing()
 	Addon:SetupImmersionController()
 	Addon:LayoutImmersion()

@@ -99,10 +99,13 @@ The conversation box is raised 55 UI points above Immersion's default to clear
 the controller action region without changing its scale.
 
 Run `/rcui unlock` to display draggable labels for chat, the minimap, objectives,
-the overall ConsolePort bar, the pet bar, and Immersion. `/rcui lock` hides the
-labels and keeps the saved positions across launches; `/rcui reset` restores the
-RP6 defaults. ConsolePort's internal button/cluster geometry remains configurable
-through `/cp`.
+the player status frame, buffs/statuses, the overall ConsolePort bar, the pet
+bar, and Immersion. `/rcui lock` hides the labels and keeps the saved positions
+across launches; `/rcui reset` restores the RP6 defaults. ConsolePort's internal
+button/cluster geometry remains configurable through `/cp`. In unlock mode,
+LB/RB select a handle, the D-pad moves it, A
+toggles 2-point/10-point movement, and B saves and locks. Mouse or touch dragging
+is optional; neither stick click is used by the editor.
 
 The RP6 profile uses the client's maximum `uiScale` of 1.00 plus a conservative
 1.04 UIParent scale from `RadiumCouchUI`. This makes the stock interface about
