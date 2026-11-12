@@ -6,11 +6,24 @@ local LateLayout
 Addon.ReserveBottom = 210
 Addon.ReserveTopRight = 255
 Addon.Gap = 8
+Addon.DefaultImmersionY = 205
+
+local function GetConfig()
+	RadiumCouchUIConfig = RadiumCouchUIConfig or {}
+	RadiumCouchUIConfig.positions = RadiumCouchUIConfig.positions or {}
+	return RadiumCouchUIConfig
+end
 
 local function Place(frame, point, relative, relativePoint, x, y)
 	if not frame then return end
 	frame:ClearAllPoints()
 	frame:SetPoint(point, relative, relativePoint, x, y)
+end
+
+local function ApplySavedPosition(id, frame)
+	local position = GetConfig().positions[id]
+	if not frame or not position then return end
+	Place(frame, "CENTER", UIParent, "BOTTOMLEFT", position.x, position.y)
 end
 
 function Addon:LayoutChat()
@@ -28,6 +41,7 @@ function Addon:LayoutChat()
 		chat:SetHeight(185)
 	end
 	Place(chat, "TOPLEFT", UIParent, "TOPLEFT", 28, -34)
+	ApplySavedPosition("chat", chat)
 
 	local font, _, flags = chat:GetFont()
 	chat:SetFont(font or STANDARD_TEXT_FONT, 14, flags or "")
@@ -41,6 +55,7 @@ function Addon:LayoutNavigation()
 	if MinimapCluster then
 		MinimapCluster:SetScale(1.18)
 		Place(MinimapCluster, "TOPRIGHT", UIParent, "TOPRIGHT", -18, -18)
+		ApplySavedPosition("minimap", MinimapCluster)
 	end
 
 	-- WotLK uses WatchFrame; ObjectiveTrackerFrame keeps this compatible with
@@ -50,6 +65,7 @@ function Addon:LayoutNavigation()
 		tracker:SetScale(1.12)
 		tracker:SetWidth(300)
 		Place(tracker, "TOPRIGHT", UIParent, "TOPRIGHT", -26, -255)
+		ApplySavedPosition("objectives", tracker)
 	end
 end
 
@@ -62,6 +78,7 @@ function Addon:LayoutPetBar()
 	-- The stock pet-command row sits directly on the right face-button cluster
 	-- at 1080p. Keep it attached to ConsolePort, just give it a clear lane.
 	Place(pet, "TOPRIGHT", bar, "TOPRIGHT", 0, 112)
+	ApplySavedPosition("pet", pet)
 end
 
 
@@ -127,14 +144,15 @@ end
 
 function Addon:LayoutImmersion()
 	if not ImmersionSetup or not ImmersionFrame then return end
+	local config = GetConfig()
 
 	ImmersionSetup.boxpoint = "Bottom"
-	ImmersionSetup.boxoffsetX = 0
-	ImmersionSetup.boxoffsetY = 205
+	ImmersionSetup.boxoffsetX = config.immersionX or 0
+	ImmersionSetup.boxoffsetY = config.immersionY or self.DefaultImmersionY
 
 	local talkbox = ImmersionFrame.TalkBox
 	if talkbox and type(talkbox.SetOffset) == "function" then
-		talkbox:SetOffset(0, ImmersionSetup.boxoffsetY)
+		talkbox:SetOffset(ImmersionSetup.boxoffsetX, ImmersionSetup.boxoffsetY)
 	end
 end
 
@@ -179,6 +197,142 @@ function Addon:LayoutTooltip(tooltip)
 end
 
 
+function Addon:LayoutControllerBar()
+	ApplySavedPosition("controller", ConsolePortBar)
+end
+
+
+local function Print(message)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff70d5ffRadium Couch UI:|r " .. message)
+end
+
+function Addon:SetupLayoutEditor()
+	if self.LayoutHandles then return end
+
+	local tracker = WatchFrame or ObjectiveTrackerFrame
+	local targets = {
+		{ id = "chat", label = "Chat", frame = ChatFrame1 },
+		{ id = "minimap", label = "Minimap", frame = MinimapCluster },
+		{ id = "objectives", label = "Objectives", frame = tracker },
+		{ id = "controller", label = "Controller Bar", frame = ConsolePortBar },
+		{ id = "pet", label = "Pet Bar", frame = ConsolePortBarPet },
+		{ id = "immersion", label = "Immersion", frame = ImmersionFrame and ImmersionFrame.TalkBox },
+	}
+
+	self.LayoutHandles = {}
+	for _, target in ipairs(targets) do
+		if target.frame then
+			local handle = CreateFrame("Button", nil, UIParent)
+			handle:SetSize(132, 26)
+			handle:SetFrameStrata("TOOLTIP")
+			handle:SetMovable(true)
+			handle:RegisterForDrag("LeftButton")
+			handle:SetBackdrop({
+				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+				edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+				tile = true, tileSize = 16, edgeSize = 12,
+				insets = { left = 3, right = 3, top = 3, bottom = 3 },
+			})
+			handle:SetBackdropColor(0.05, 0.35, 0.55, 0.92)
+			handle:SetBackdropBorderColor(0.4, 0.85, 1, 1)
+			handle.text = handle:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			handle.text:SetPoint("CENTER")
+			handle.text:SetText(target.label)
+			handle.target = target
+
+			handle:SetScript("OnDragStart", function(self)
+				if InCombatLockdown() then return end
+				local x, y = self:GetCenter()
+				if not x or not y then return end
+				self.startX, self.startY = x, y
+				self:ClearAllPoints()
+				self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
+				self:StartMoving()
+			end)
+
+			handle:SetScript("OnDragStop", function(self)
+				self:StopMovingOrSizing()
+				if InCombatLockdown() then return end
+				local x, y = self:GetCenter()
+				if not x or not y or not self.startX or not self.startY then return end
+
+				local config = GetConfig()
+				if self.target.id == "immersion" then
+					config.immersionX = (ImmersionSetup.boxoffsetX or 0) + x - self.startX
+					config.immersionY = (ImmersionSetup.boxoffsetY or Addon.DefaultImmersionY) + y - self.startY
+					Addon:LayoutImmersion()
+				else
+					config.positions[self.target.id] = { x = x, y = y }
+					ApplySavedPosition(self.target.id, self.target.frame)
+					if self.target.id == "chat" and type(FCF_SavePositionAndDimensions) == "function" then
+						FCF_SavePositionAndDimensions(ChatFrame1)
+					end
+				end
+
+				self.startX, self.startY = nil, nil
+				self:ClearAllPoints()
+				self:SetPoint("CENTER", self.target.frame, "CENTER")
+			end)
+
+			handle:Hide()
+			self.LayoutHandles[#self.LayoutHandles + 1] = handle
+		end
+	end
+end
+
+function Addon:UnlockLayout()
+	if InCombatLockdown() then
+		Print("layout cannot be unlocked during combat.")
+		return
+	end
+	self:SetupLayoutEditor()
+	for _, handle in ipairs(self.LayoutHandles) do
+		handle:ClearAllPoints()
+		handle:SetPoint("CENTER", handle.target.frame, "CENTER")
+		handle:Show()
+	end
+	Print("unlocked; drag the blue labels, then run /rcui lock.")
+end
+
+function Addon:LockLayout()
+	if not self.LayoutHandles then return end
+	for _, handle in ipairs(self.LayoutHandles) do handle:Hide() end
+	Print("locked and saved.")
+end
+
+function Addon:ResetLayout()
+	if InCombatLockdown() then
+		Print("layout cannot be reset during combat.")
+		return
+	end
+	local config = GetConfig()
+	config.positions = {}
+	config.immersionX = nil
+	config.immersionY = nil
+	if ConsolePortBar then Place(ConsolePortBar, "BOTTOM", UIParent, "BOTTOM", 0, 0) end
+	self:LayoutChat()
+	self:LayoutNavigation()
+	self:LayoutPetBar()
+	self:LayoutImmersion()
+	self:LockLayout()
+	Print("RP6 defaults restored.")
+end
+
+SLASH_RADIUMCOUCHUI1 = "/rcui"
+SlashCmdList.RADIUMCOUCHUI = function(message)
+	local command = string.lower((message or ""):match("^%s*(%S*)") or "")
+	if command == "unlock" then
+		Addon:UnlockLayout()
+	elseif command == "lock" then
+		Addon:LockLayout()
+	elseif command == "reset" then
+		Addon:ResetLayout()
+	else
+		Print("commands: /rcui unlock, /rcui lock, /rcui reset")
+	end
+end
+
+
 local pendingBags = false
 local function QueueBagLayout()
 	pendingBags = true
@@ -199,6 +353,7 @@ Addon:SetScript("OnEvent", function(self, event, name)
 	self:LayoutChat()
 	self:LayoutNavigation()
 	self:LayoutPetBar()
+	self:LayoutControllerBar()
 	QueueBagLayout()
 	LateLayout.elapsed = 0
 	LateLayout:Show()
@@ -235,6 +390,7 @@ LateLayout:SetScript("OnUpdate", function(self, elapsed)
 	Addon:LayoutChat()
 	Addon:LayoutNavigation()
 	Addon:LayoutPetBar()
+	Addon:LayoutControllerBar()
 	Addon:BindPetRing()
 	Addon:SetupImmersionController()
 	Addon:LayoutImmersion()

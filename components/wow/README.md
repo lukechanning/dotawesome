@@ -98,6 +98,12 @@ and selection handlers; hiding Immersion immediately restores gameplay input.
 The conversation box is raised 55 UI points above Immersion's default to clear
 the controller action region without changing its scale.
 
+Run `/rcui unlock` to display draggable labels for chat, the minimap, objectives,
+the overall ConsolePort bar, the pet bar, and Immersion. `/rcui lock` hides the
+labels and keeps the saved positions across launches; `/rcui reset` restores the
+RP6 defaults. ConsolePort's internal button/cluster geometry remains configurable
+through `/cp`.
+
 Rollback consists of restoring `Wow-hd.exe.pre-awesome`, removing
 `AwesomeWotlkLib.dll` and `AwesomeCVar`, and restoring the timestamped WTF backup
 stored beside the client backups on Hive. No Blizzard software or Awesome WotLK
