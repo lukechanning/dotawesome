@@ -11,6 +11,12 @@ Addon.DefaultImmersionY = 205
 local function GetConfig()
 	RadiumCouchUIConfig = RadiumCouchUIConfig or {}
 	RadiumCouchUIConfig.positions = RadiumCouchUIConfig.positions or {}
+	if RadiumCouchUIConfig.auraAnchor ~= "BuffButton1" then
+		-- Older versions stored the center of the invisible BuffFrame manager;
+		-- that coordinate is not compatible with the visible button anchor.
+		RadiumCouchUIConfig.positions.auras = nil
+		RadiumCouchUIConfig.auraAnchor = "BuffButton1"
+	end
 	return RadiumCouchUIConfig
 end
 
@@ -21,6 +27,16 @@ local function Place(frame, point, relative, relativePoint, x, y)
 end
 
 local RuntimeDefaults = {}
+
+local function Print(message)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff70d5ffRadium Couch UI:|r " .. message)
+end
+
+local function GetAuraAnchor()
+	-- In 3.3.5a BuffFrame manages updates but the visible buttons are parented
+	-- directly to UIParent. BuffButton1 is the anchor for the visible group.
+	return BuffButton1 or BuffFrame
+end
 
 local function ApplySavedPosition(id, frame)
 	if frame and not RuntimeDefaults[id] then
@@ -90,25 +106,236 @@ function Addon:LayoutPetBar()
 	local pet = ConsolePortBarPet
 	if not bar or not pet or InCombatLockdown() then return end
 
-	-- The stock pet-command row sits directly on the right face-button cluster
-	-- at 1080p. Keep it attached to ConsolePort, just give it a clear lane.
+	-- ConsolePort's real pet ring only exists while a combat pet is out (e.g. a
+	-- Death Knight ghoul). The stock row sits on the right face-button cluster
+	-- at 1080p, so keep it attached to ConsolePort with a clear lane.
 	Place(pet, "TOPRIGHT", bar, "TOPRIGHT", 0, 112)
 	ApplySavedPosition("pet", pet)
 end
 
 
-function Addon:BindPetRing()
+-- MultiBot's playerbot command row is permanently visible by default and lands
+-- across the right controller cluster. Keep it hidden and summon it on demand.
+Addon.BotMenuToggleName = "RadiumCouchUIBotMenuToggle"
+Addon.BotMenuBinding = "CLICK RadiumCouchUIBotMenuToggle:LeftButton"
+Addon.PetRingBinding = "CLICK ConsolePortBarPet:MiddleButton"
+
+local function GetBotBar()
+	return MultiBot and MultiBot.frames and MultiBot.frames.MultiBar
+end
+
+function Addon:PlaceBotMenu()
+	local bar = GetBotBar()
+	if not bar then return end
+	-- The MultiBar anchor is its right edge; its ~530-point row and every
+	-- submenu extend left and up from there. Center the row above the
+	-- controller clusters without touching MultiBot's saved MultiBarPoint.
+	bar:ClearAllPoints()
+	bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 265, 330)
+end
+
+function Addon:SetupBotMenu(dismiss)
+	local bar = GetBotBar()
+	if not bar or type(MultiBot.ToggleMainUIVisibility) ~= "function" then return end
+
+	if not bar.RadiumCouchUIBotMenu then
+		bar:HookScript("OnShow", function() Addon:PlaceBotMenu() end)
+		-- Let ConsolePort's interface cursor own the D-pad and face buttons while
+		-- the row (or any of its child submenus) is visible.
+		if ConsolePort and type(ConsolePort.AddFrame) == "function" then
+			ConsolePort:AddFrame(bar)
+		end
+		bar.RadiumCouchUIBotMenu = true
+	end
+
+	-- MultiBot restores its saved visibility at load; the couch layout always
+	-- starts with the row dismissed.
+	if dismiss and bar:IsShown() then MultiBot.ToggleMainUIVisibility(false) end
+end
+
+function Addon:ToggleBotMenu()
+	local bar = GetBotBar()
+	if not bar or type(MultiBot.ToggleMainUIVisibility) ~= "function" then
+		Print("MultiBot is not loaded.")
+		return
+	end
+	self:SetupBotMenu()
+	MultiBot.ToggleMainUIVisibility(not bar:IsShown())
+end
+
+local BotMenuToggle = CreateFrame("Button", Addon.BotMenuToggleName, UIParent)
+BotMenuToggle:SetScript("OnClick", function() Addon:ToggleBotMenu() end)
+
+
+function Addon:BindControllerChords()
 	if not ConsolePort or InCombatLockdown() then return end
 
 	local bindingSet = ConsolePort:GetBindingSet()
 	bindingSet.CP_T_R3 = bindingSet.CP_T_R3 or {}
-	local current = bindingSet.CP_T_R3["SHIFT-"]
-	if current and current ~= "" then return end
+	local chords = bindingSet.CP_T_R3
+	local changed = false
 
-	bindingSet.CP_T_R3["SHIFT-"] = "CLICK ConsolePortBarPet:MiddleButton"
+	-- LT + R3 toggles the bot command menu. Earlier versions put the pet ring
+	-- here; migrate that binding but never overwrite a user's own choice.
+	local shift = chords["SHIFT-"]
+	if not shift or shift == "" or shift == self.PetRingBinding then
+		chords["SHIFT-"] = self.BotMenuBinding
+		changed = changed or shift ~= self.BotMenuBinding
+	end
+
+	-- RT + R3 holds ConsolePort's pet-command ring when a combat pet is out.
+	local ctrl = chords["CTRL-"]
+	if not ctrl or ctrl == "" then
+		chords["CTRL-"] = self.PetRingBinding
+		changed = true
+	end
+
+	if not changed then return end
 	local data = ConsolePort:GetData()
 	data.Bindings = bindingSet
 	ConsolePort:LoadBindingSet(bindingSet, true)
+end
+
+
+-- MultiBot (220 degrees), AtlasLoot and DBM (LibDBIcon's 225 default) all pile
+-- onto the bottom-left of the minimap where the LFG eye also appears, and the
+-- top arc is covered by the wide zone-name banner. Measure where the stock
+-- buttons actually sit and give each addon button the nearest free slot to its
+-- preferred angle. This runs once per layout version; later drags are kept.
+Addon.MinimapLayoutVersion = 2
+Addon.MinimapButtonAngles = { DBM = 0, AtlasLoot = 142, MultiBot = 194 }
+local MINIMAP_BUTTON_RADIUS = 80
+local MINIMAP_OBSTACLES = {
+	"MinimapZoneTextButton", "MinimapBorderTop", "MiniMapTracking",
+	"MiniMapMailFrame", "MiniMapLFGFrame", "MiniMapBattlefieldFrame",
+	"MiniMapWorldMapButton", "MiniMapVoiceChatFrame", "MiniMapInstanceDifficulty",
+	"GameTimeFrame", "MinimapZoomIn", "MinimapZoomOut", "TimeManagerClockButton",
+}
+
+local function ScreenRect(frame)
+	local left, right, top, bottom = frame:GetLeft(), frame:GetRight(), frame:GetTop(), frame:GetBottom()
+	if not left or not right or not top or not bottom then return end
+	-- Textures (MinimapBorderTop) have no GetEffectiveScale in 3.3.5.
+	local owner = frame.GetEffectiveScale and frame or frame:GetParent()
+	local scale = owner and owner:GetEffectiveScale() or 1
+	return left * scale, right * scale, top * scale, bottom * scale
+end
+
+local function Overlaps(a, b)
+	return a[1] < b[2] and b[1] < a[2] and a[4] < b[3] and b[4] < a[3]
+end
+
+local function FindMinimapAngle(button, preferred, obstacles)
+	local mx, my = Minimap:GetCenter()
+	if not mx or not my then return preferred end
+	local mapScale = Minimap:GetEffectiveScale()
+	mx, my = mx * mapScale, my * mapScale
+	local half = (button:GetWidth() or 31) * button:GetEffectiveScale() / 2
+	local radius = MINIMAP_BUTTON_RADIUS * mapScale
+
+	for step = 0, 60 do
+		for _, sign in ipairs(step == 0 and { 1 } or { 1, -1 }) do
+			local angle = (preferred + sign * step * 3) % 360
+			local x = mx + math.cos(math.rad(angle)) * radius
+			local y = my + math.sin(math.rad(angle)) * radius
+			local rect = { x - half, x + half, y + half, y - half }
+			local free = true
+			for _, obstacle in ipairs(obstacles) do
+				if Overlaps(rect, obstacle) then free = false break end
+			end
+			if free then
+				obstacles[#obstacles + 1] = rect
+				return angle
+			end
+		end
+	end
+	return preferred
+end
+
+local function PlaceMultiBotMinimapButton()
+	local button = _G.MultiBot_MinimapButton
+	local config = MultiBot and type(MultiBot.GetMinimapConfig) == "function" and MultiBot.GetMinimapConfig()
+	if not button or not config or config.hide then return end
+	-- MultiBot scales its radius by the minimap's effective scale even though
+	-- the button is already parented to Minimap, pushing it off the rim when
+	-- the cluster is enlarged. Use Minimap-local units like LibDBIcon does.
+	local angle = math.rad(config.angle or 220)
+	button:ClearAllPoints()
+	button:SetPoint("CENTER", Minimap, "CENTER",
+		math.cos(angle) * MINIMAP_BUTTON_RADIUS, math.sin(angle) * MINIMAP_BUTTON_RADIUS)
+end
+
+function Addon:LayoutMinimapButtons()
+	local config = GetConfig()
+	if config.minimapLayoutVersion ~= self.MinimapLayoutVersion then
+		config.minimapButtons = {}
+		config.minimapLayoutVersion = self.MinimapLayoutVersion
+	end
+	local placed = config.minimapButtons
+
+	if MultiBot and type(MultiBot.Minimap_Refresh) == "function" and not self.MultiBotMinimapHooked then
+		hooksecurefunc(MultiBot, "Minimap_Refresh", PlaceMultiBotMinimapButton)
+		local button = _G.MultiBot_MinimapButton
+		if button then button:HookScript("OnDragStop", PlaceMultiBotMinimapButton) end
+		self.MultiBotMinimapHooked = true
+	end
+	PlaceMultiBotMinimapButton()
+
+	-- Every addon button this pass will not move is an obstacle, including
+	-- buttons already placed earlier or dragged by the player.
+	local icon = LibStub and LibStub("LibDBIcon-1.0", true)
+	local pending, obstacles = {}, {}
+	for _, name in ipairs(MINIMAP_OBSTACLES) do
+		local frame = _G[name]
+		local left, right, top, bottom
+		if frame then left, right, top, bottom = ScreenRect(frame) end
+		if left then obstacles[#obstacles + 1] = { left, right, top, bottom } end
+	end
+	local function Consider(name, button)
+		if not button then return end
+		if placed[name] then
+			local left, right, top, bottom = ScreenRect(button)
+			if left and button:IsShown() then obstacles[#obstacles + 1] = { left, right, top, bottom } end
+		else
+			pending[#pending + 1] = { name = name, button = button }
+		end
+	end
+	for name, button in pairs(icon and icon.objects or {}) do Consider(name, button) end
+	if MultiBot and type(MultiBot.SetMinimapConfig) == "function" then
+		Consider("MultiBot", _G.MultiBot_MinimapButton)
+	end
+
+	-- Known buttons first, in a stable order, then anything else LibDBIcon owns.
+	table.sort(pending, function(a, b)
+		local pa, pb = self.MinimapButtonAngles[a.name], self.MinimapButtonAngles[b.name]
+		if (pa ~= nil) ~= (pb ~= nil) then return pa ~= nil end
+		return a.name < b.name
+	end)
+	for _, entry in ipairs(pending) do
+		local angle = FindMinimapAngle(entry.button, self.MinimapButtonAngles[entry.name] or 220, obstacles)
+		if entry.name == "MultiBot" then
+			MultiBot.SetMinimapConfig("angle", angle)
+			PlaceMultiBotMinimapButton()
+		elseif entry.button.db then
+			entry.button.db.minimapPos = angle
+			icon:Refresh(entry.name, entry.button.db)
+		end
+		placed[entry.name] = true
+	end
+end
+
+
+-- ConsolePort's game menu is anchored to the top of the screen and its System
+-- column runs about 25 pixels past the bottom at the RP6 UI scale. Shrink only
+-- that menu (ConsolePort's own scale setting) unless the player changed it.
+Addon.MenuScale = 0.95
+
+function Addon:LayoutGameMenu()
+	local menu = ConsolePortUI_Menu
+	local config = ConsolePortUIConfig and ConsolePortUIConfig.Menu
+	if not menu or not config or InCombatLockdown() then return end
+	if config.scale == nil or config.scale == 1 then config.scale = self.MenuScale end
+	menu:SetScale(config.scale)
 end
 
 
@@ -224,18 +451,15 @@ function Addon:LayoutPlayerStatus()
 		PlayerFrame:SetMovable(true)
 		PlayerFrame:SetUserPlaced(true)
 	end
-	if BuffFrame then
-		BuffFrame:SetMovable(true)
-		BuffFrame:SetUserPlaced(true)
+	local auraAnchor = GetAuraAnchor()
+	if auraAnchor then
+		auraAnchor:SetMovable(true)
+		auraAnchor:SetUserPlaced(true)
 	end
 	ApplySavedPosition("player", PlayerFrame)
-	ApplySavedPosition("auras", BuffFrame)
+	ApplySavedPosition("auras", auraAnchor)
 end
 
-
-local function Print(message)
-	DEFAULT_CHAT_FRAME:AddMessage("|cff70d5ffRadium Couch UI:|r " .. message)
-end
 
 function Addon:SaveEditorMove(handle, x, y, deltaX, deltaY)
 	local config = GetConfig()
@@ -264,9 +488,9 @@ function Addon:SetupLayoutEditor()
 		{ id = "minimap", label = "Minimap", frame = MinimapCluster },
 		{ id = "objectives", label = "Objectives", frame = tracker },
 		{ id = "player", label = "Player Status", frame = PlayerFrame },
-		{ id = "auras", label = "Buffs / Status", frame = BuffFrame },
+		{ id = "auras", label = "Buffs / Status", frame = GetAuraAnchor() },
 		{ id = "controller", label = "Controller Bar", frame = ConsolePortBar },
-		{ id = "pet", label = "Pet Bar", frame = ConsolePortBarPet },
+		{ id = "pet", label = "Pet Ring", frame = ConsolePortBarPet },
 		{ id = "immersion", label = "Immersion", frame = ImmersionFrame and ImmersionFrame.TalkBox },
 	}
 
@@ -350,11 +574,11 @@ function Addon:EnableEditorBindings()
 		{ "CP_L_RIGHT", function() Addon:MoveSelectedTarget(Addon.EditorFine and 2 or 10, 0) end },
 		{ "CP_T1", function() Addon:SelectEditorTarget(-1) end },
 		{ "CP_T2", function() Addon:SelectEditorTarget(1) end },
-		{ "CP_R_RIGHT", function()
+		{ "CP_R_DOWN", function()
 			Addon.EditorFine = not Addon.EditorFine
 			Print(Addon.EditorFine and "fine movement: 2 points." or "coarse movement: 10 points.")
 		end },
-		{ "CP_R_DOWN", function() Addon:LockLayout() end },
+		{ "CP_R_RIGHT", function() Addon:LockLayout() end },
 	}
 
 	for index, command in ipairs(commands) do
@@ -408,7 +632,7 @@ function Addon:ResetLayout()
 			or id == "minimap" and MinimapCluster
 			or id == "objectives" and (WatchFrame or ObjectiveTrackerFrame)
 			or id == "player" and PlayerFrame
-			or id == "auras" and BuffFrame
+			or id == "auras" and GetAuraAnchor()
 			or id == "controller" and ConsolePortBar
 			or id == "pet" and ConsolePortBarPet
 		if frame then Place(frame, position.point, position.relative, position.relativePoint, position.x, position.y) end
@@ -431,8 +655,10 @@ SlashCmdList.RADIUMCOUCHUI = function(message)
 		Addon:LockLayout()
 	elseif command == "reset" then
 		Addon:ResetLayout()
+	elseif command == "bots" then
+		Addon:ToggleBotMenu()
 	else
-		Print("commands: /rcui unlock, /rcui lock, /rcui reset")
+		Print("commands: /rcui unlock, /rcui lock, /rcui reset, /rcui bots")
 	end
 end
 
@@ -489,25 +715,35 @@ if type(GameTooltip_SetDefaultAnchor) == "function" then
 	end)
 end
 
+if type(BuffFrame_UpdateAllBuffAnchors) == "function" then
+	hooksecurefunc("BuffFrame_UpdateAllBuffAnchors", function()
+		ApplySavedPosition("auras", GetAuraAnchor())
+	end)
+end
+
 Addon:Hide()
 
 -- Chat dimensions are restored late by FrameXML. Reassert the couch layout
 -- once after the world has finished loading, then persist the corrected size.
 LateLayout = CreateFrame("Frame", "RadiumCouchUILateLayout")
 LateLayout:Hide()
+local LateSteps = {
+	"ApplyUIScale", "LayoutChat", "LayoutNavigation", "LayoutPetBar",
+	"LayoutControllerBar", "LayoutPlayerStatus", "BindControllerChords",
+	"SetupBotMenu", "LayoutMinimapButtons", "LayoutGameMenu",
+	"SetupImmersionController", "LayoutImmersion",
+}
+
 LateLayout:SetScript("OnUpdate", function(self, elapsed)
 	self.elapsed = (self.elapsed or 0) + elapsed
 	if self.elapsed < 1 then return end
-
-	Addon:ApplyUIScale()
-	Addon:LayoutChat()
-	Addon:LayoutNavigation()
-	Addon:LayoutPetBar()
-	Addon:LayoutControllerBar()
-	Addon:LayoutPlayerStatus()
-	Addon:BindPetRing()
-	Addon:SetupImmersionController()
-	Addon:LayoutImmersion()
-	QueueBagLayout()
+	-- Run once, and isolate each step: Lua errors are usually hidden on the
+	-- couch client, so one failure must neither block the rest nor repeat.
 	self:Hide()
+
+	for _, step in ipairs(LateSteps) do
+		local ok, err = pcall(Addon[step], Addon, step == "SetupBotMenu" or nil)
+		if not ok then Print(step .. " failed: " .. tostring(err)) end
+	end
+	QueueBagLayout()
 end)

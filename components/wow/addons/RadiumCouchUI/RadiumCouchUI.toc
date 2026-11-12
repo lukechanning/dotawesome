@@ -2,9 +2,9 @@
 ## Title: Radium Couch UI
 ## Notes: Handheld layout for the Radium RP6 client
 ## Author: Radium
-## Version: 1.2.3
+## Version: 1.3.1
 ## RequiredDeps: ConsolePort, ConsolePortBar
-## OptionalDeps: Immersion
+## OptionalDeps: Immersion, MultiBot, AtlasLoot_Loader, DBM-Core, ConsolePortUI_Menu
 ## SavedVariables: RadiumCouchUIConfig
 
 RadiumCouchUI.lua

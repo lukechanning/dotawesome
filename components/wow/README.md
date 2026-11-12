@@ -86,10 +86,24 @@ It reserves the lower screen for ConsolePort, moves chat to the upper-left,
 enlarges the minimap and objective tracker, anchors ordinary tooltips away from
 the controller bar, and stacks open bags above the reserved controller region.
 The layout targets the RP6's 1920x1080 six-inch display and deliberately keeps
-all gameplay behavior in the stock addons. During normal gameplay, LT plus
-right-stick click holds ConsolePort's pet-command ring. Plain right-stick click
-retains its mouse-mode and contextual right-click behavior. An existing custom
-LT plus right-stick binding is never overwritten.
+all gameplay behavior in the stock addons.
+
+MultiBot's playerbot command row otherwise sits permanently across the right
+controller cluster, so `RadiumCouchUI` dismisses it at login through MultiBot's
+own visibility toggle. LT plus right-stick click (or `/rcui bots`, or MultiBot's
+minimap button) summons the real row centered above the controller clusters,
+with ConsolePort's interface cursor driving its buttons and submenus; the same
+chord dismisses it. MultiBot's saved bar position is left untouched.
+ConsolePort's own pet-command ring, which appears only while a combat pet is
+out, is held with RT plus right-stick click. Plain right-stick click retains its
+mouse-mode and contextual right-click behavior, and existing custom chord
+bindings are never overwritten.
+
+The MultiBot, AtlasLoot, and DBM minimap buttons default to the same lower-left
+spot (also used by the LFG eye). They are fanned out once to the nearest rim
+slots that clear the stock minimap buttons and the zone-name banner; later drags
+are kept. ConsolePort's game menu is drawn at 0.95 scale so its System column
+fits the 1080p screen; a non-default scale chosen in ConsolePort is kept.
 
 The companion addon also bridges an input-registration gap between the pinned
 Immersion backport and ConsolePortLK. While Immersion is visible, face buttons
@@ -100,7 +114,7 @@ the controller action region without changing its scale.
 
 Run `/rcui unlock` to display draggable labels for chat, the minimap, objectives,
 the player status frame, buffs/statuses, the overall ConsolePort bar, the pet
-bar, and Immersion. `/rcui lock` hides the labels and keeps the saved positions
+ring, and Immersion. `/rcui lock` hides the labels and keeps the saved positions
 across launches; `/rcui reset` restores the RP6 defaults. ConsolePort's internal
 button/cluster geometry remains configurable through `/cp`. In unlock mode,
 LB/RB select a handle, the D-pad moves it, A
