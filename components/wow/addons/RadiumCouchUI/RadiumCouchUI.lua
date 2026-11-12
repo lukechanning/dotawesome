@@ -217,6 +217,17 @@ function Addon:LayoutControllerBar()
 end
 
 function Addon:LayoutPlayerStatus()
+	-- Both frames are owned by Blizzard's position manager. Mark them as
+	-- user-placed before applying our saved anchors or the next UI update will
+	-- quietly snap them back underneath their editor handles.
+	if PlayerFrame then
+		PlayerFrame:SetMovable(true)
+		PlayerFrame:SetUserPlaced(true)
+	end
+	if BuffFrame then
+		BuffFrame:SetMovable(true)
+		BuffFrame:SetUserPlaced(true)
+	end
 	ApplySavedPosition("player", PlayerFrame)
 	ApplySavedPosition("auras", BuffFrame)
 end
@@ -339,11 +350,11 @@ function Addon:EnableEditorBindings()
 		{ "CP_L_RIGHT", function() Addon:MoveSelectedTarget(Addon.EditorFine and 2 or 10, 0) end },
 		{ "CP_T1", function() Addon:SelectEditorTarget(-1) end },
 		{ "CP_T2", function() Addon:SelectEditorTarget(1) end },
-		{ "CP_R_DOWN", function()
+		{ "CP_R_RIGHT", function()
 			Addon.EditorFine = not Addon.EditorFine
 			Print(Addon.EditorFine and "fine movement: 2 points." or "coarse movement: 10 points.")
 		end },
-		{ "CP_R_RIGHT", function() Addon:LockLayout() end },
+		{ "CP_R_DOWN", function() Addon:LockLayout() end },
 	}
 
 	for index, command in ipairs(commands) do
@@ -373,7 +384,7 @@ function Addon:UnlockLayout()
 	self.EditorFine = false
 	self:SelectEditorTarget(0)
 	self:EnableEditorBindings()
-	Print("LB/RB select; D-pad move; A fine/coarse; B save and lock.")
+	Print("LB/RB select; D-pad move; X/Y-side face button fine/coarse; physical B save and lock.")
 end
 
 function Addon:LockLayout()
@@ -464,6 +475,12 @@ end
 
 if type(ContainerFrame_UpdateAll) == "function" then
 	hooksecurefunc("ContainerFrame_UpdateAll", QueueBagLayout)
+end
+
+if type(UIParent_ManageFramePositions) == "function" then
+	hooksecurefunc("UIParent_ManageFramePositions", function()
+		if not InCombatLockdown() then Addon:LayoutPlayerStatus() end
+	end)
 end
 
 if type(GameTooltip_SetDefaultAnchor) == "function" then
